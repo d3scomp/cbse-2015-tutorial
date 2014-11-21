@@ -6,15 +6,16 @@ public class Settings {
 	public static final String ANALYSES_DIRECTORY = "measurements";
 	
 	// Train parameters
-	public static final double TRAIN_FORM_DISTANCE = 300; // m
+	public static final double TRAIN_FORM_DISTANCE = 500; // m
+	public static final int TRAIN_LENGTH_LIMIT = 3;
 	
 	// Car parameters
-	public static final int GROUP_A_VEHICLE_COUNT = 5;
+	public static final int GROUP_A_VEHICLE_COUNT = 20;
 	public static final String GROUP_A_POS = "Liberec";
 	public static final double GROUP_A_RADIUS = 0.10; // %
 	public static final String GROUP_A_DST = "Praha";
 	
-	public static final int GROUP_B_VEHICLE_COUNT = 5;
+	public static final int GROUP_B_VEHICLE_COUNT = 0;
 	public static final String GROUP_B_POS = "Ostrava";
 	public static final double GROUP_B_RADIUS = 0.10; // %
 	public static final String GROUP_B_DST = "Brno";

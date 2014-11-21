@@ -27,7 +27,9 @@ import cz.cuni.mff.d3s.demo.environment.ActuatorType;
 import cz.cuni.mff.d3s.demo.environment.Sensor;
 import cz.cuni.mff.d3s.demo.environment.SensorProvider;
 import cz.cuni.mff.d3s.demo.environment.SensorType;
+import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
+import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
 @Component
 public class Vehicle {
@@ -43,7 +45,7 @@ public class Vehicle {
 	@Local
 	public List<Id> route;
 	
-	public Map<String, Coord> groupPos = new HashMap<String, Coord>();
+	public Map<String, VehicleInfo> group = new HashMap<String, VehicleInfo>();
 
 	/**
 	 * Link where the vehicle is currently at.
@@ -98,24 +100,37 @@ public class Vehicle {
 	public static void reportStatus(
 			@In("id") String id,
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
+			@In("position") Coord position,
 			@In("dstCity") String dstCity,
 			@In("carNum") int carNum,
 			@In("leaderCar") String leaderCar,
-			@In("groupPos") Map<String, Coord> groupPos,
-			@In("route") List<Id> route, @In("clock") CurrentTimeProvider clock) {
+			@In("group") Map<String, VehicleInfo> group,
+			@In("route") List<Id> route,
+			@In("clock") CurrentTimeProvider clock) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s, group: %s, dist: %s, prevCar: %s, trainNum: %s, dst: %s(%s), route: %s\n",
+	/*	System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, trainNum: %s, dst: %s(%s), route: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
-				id, currentLinkSensor.read(),
-				groupToString(groupPos),
+				id,
+				currentLinkSensor.read(),
+				position.getX(),
+				position.getY(),
+				groupToString(group),
 				Navigator.getDesDist(dstCity, currentLinkSensor.read()),
 				leaderCar,
 				carNum,
 				getDstLinkId(dstCity),
 				dstCity,
-				route);
+				route);*/
+		
+		System.out.format("%s %s %s %s %s %s\n",
+				formatTime(clock.getCurrentMilliseconds()),
+				id,
+				position.getX(),
+				position.getY(),
+				leaderCar,
+				carNum);
 	}
 
 	/**
@@ -140,7 +155,7 @@ public class Vehicle {
 	@PeriodicScheduling(period = 5000)
 	public static void organizeRoadTrains(
 			@In("id") String id,
-			@In("groupPos") Map<String, Coord> groupPos,
+			@In("group") Map<String, VehicleInfo> group,
 			@In("dstCity") String dstCity,
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("router") MATSimRouter router,
@@ -155,34 +170,39 @@ public class Vehicle {
 		if(myTargetDist == 0)
 			return;
 		
-		// Try to find a car to follow		
-		String nearestCar = null;
+		// Try to find a car to follow
+		String nearestCarId = null;
+		VehicleInfo nearestCarInfo = null;
 		Double nearestDist = null;
-		for(Entry<String, Coord> entry: groupPos.entrySet()) {
-			Id carLink = router.findNearestLink(entry.getValue()).getId();
+		for(Entry<String, VehicleInfo> entry: group.entrySet()) {
+			Id carLink = router.findNearestLink(entry.getValue().position).getId();
 			double distUsingCar = Navigator.getDestDistUsingCar(dstCity, currentLink, carLink);
 			double distToCar = Navigator.getCarToCarDist(currentLink, carLink);
-			double catToDestDist = Navigator.getDesDist(dstCity, carLink);
+			double carToDestDist = Navigator.getDesDist(dstCity, carLink);
 			
 			// Skip ourself
 			if(entry.getKey().equals(id))
 				continue;
 						
 			// Skip cars already at destination
-			if(catToDestDist == 0)
+			if(carToDestDist == 0)
 				continue;
 			
 			// Route using car position is beneficial (length using the car is the same as without)
 			if(myTargetDist == distUsingCar && (nearestDist == null || nearestDist > distToCar)) {
-				nearestCar = entry.getKey();
+				nearestCarId = entry.getKey();
+				nearestCarInfo = entry.getValue();
 				nearestDist = distToCar;
 			}
 		}
 		
-		// There is car that is in front of us on the path to destination -> follow it
-		if(nearestCar != null) {
-			leaderCar.value = nearestCar;
+		// Follow the car or lead new road train
+		if(nearestCarId != null && nearestCarInfo.trainNum < Settings.TRAIN_LENGTH_LIMIT - 1) {
+			// There is car that is in front of us on the path to destination and the road train is short enough -> follow it
+			leaderCar.value = nearestCarId;
+			carNum.value = nearestCarInfo.trainNum + 1;
 		} else {
+			// There is no car in front of us on the path to destination, or road train is too long -> lead the new train
 			leaderCar.value = null;
 			carNum.value = 0;
 		}
@@ -197,16 +217,11 @@ public class Vehicle {
 			@In("id") String id,
 			@In("currentLink") Id currentLink,
 			@In("leaderCar") String leaderCar,
-			@In("groupPos") Map<String, Coord> groupPos,
+			@In("group") Map<String, VehicleInfo> group,
 			@In("dstCity") String dstCity,
-			@InOut("route") ParamHolder<List<Id>> route,
-			@In("routeActuator") Actuator<List<Id>> routeActuator,
+			@InOut("route") ParamHolder<List<Id> > route,
+			@In("routeActuator") Actuator<List<Id> > routeActuator,
 			@In("router") MATSimRouter router) throws Exception {
-		
-		// Already at the destination -> stop
-		if(currentLink.equals(Navigator.getPosition(dstCity).getId())) {
-			route.value = new LinkedList<Id>();
-		}
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
@@ -215,9 +230,14 @@ public class Vehicle {
 		
 		// Car in front of us -> follow it
 		if(leaderCar != null) {
-			Coord carPos = groupPos.get(leaderCar);
+			Coord carPos = group.get(leaderCar).position;
 			Link carLink = router.findNearestLink(carPos);
 			route.value = router.route(currentLink, carLink.getId(), route.value);
+		}
+		
+		// Already at the destination -> stop
+		if(currentLink.equals(Navigator.getPosition(dstCity).getId())) {
+			route.value = new LinkedList<Id>();
 		}
 		
 		routeActuator.set(route.value);
@@ -227,12 +247,12 @@ public class Vehicle {
 		return Navigator.getPosition(dstCity).getId();
 	}
 	
-	private static String groupToString(Map<String, Coord> groupPos) {
+	private static String groupToString(Map<String, VehicleInfo> group) {
 		StringBuilder builder = new StringBuilder();
 		
 		boolean first = true;
 		builder.append("[");
-		for(Entry<String, Coord> entry: groupPos.entrySet()) {
+		for(Entry<String, VehicleInfo> entry: group.entrySet()) {
 			if(!first)
 				builder.append(", ");
 			first = false;

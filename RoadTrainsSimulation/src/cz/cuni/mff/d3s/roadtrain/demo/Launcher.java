@@ -36,6 +36,7 @@ import cz.cuni.mff.d3s.deeco.simulation.omnet.OMNetSimulationHost;
 import cz.cuni.mff.d3s.demo.AlwaysRebroadcastingKnowledgeDataManager;
 import cz.cuni.mff.d3s.demo.environment.MATSimOMNetDataProviderReceiver;
 import cz.cuni.mff.d3s.roadtrain.components.Vehicle;
+import cz.cuni.mff.d3s.roadtrain.ensembles.CarPair;
 import cz.cuni.mff.d3s.roadtrain.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.ensembles.TrainNumbering;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
@@ -126,7 +127,7 @@ public class Launcher {
 				.createRuntimeMetadata();
 		AnnotationProcessor processor = new AnnotationProcessor(
 				RuntimeMetadataFactoryExt.eINSTANCE, model, new CloningKnowledgeManagerFactory());
-		processor.process(component, SharedDestination.class, TrainNumbering.class);
+		processor.process(component, SharedDestination.class, TrainNumbering.class, CarPair.class);
 		
 		Coord currentPosition = router.getLink(sourceLinkId).getCoord();
 		omnetConfig.append(String.format("**.node[%d].mobility.initialX = %dm %n", idx, new Double(currentPosition.getX()).longValue()));			

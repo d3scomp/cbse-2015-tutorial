@@ -12,6 +12,7 @@ import cz.cuni.mff.d3s.deeco.annotations.Membership;
 import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
+import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
@@ -33,10 +34,12 @@ public class SharedDestination {
 			@In("member.id") String memberId,
 			@In("coord.position") Coord coordPosition,
 			@In("member.position") Coord memberPosition,
-			@InOut("coord.groupPos") ParamHolder<Map<String, Coord>> coordGroup,
-			@InOut("member.groupPos") ParamHolder<Map<String, Coord>> memberGroup) {
+			@In("coord.carNum") int coordCarNum,
+			@In("member.carNum") int memberCarNum,
+			@InOut("coord.group") ParamHolder<Map<String, VehicleInfo> > coordGroup,
+			@InOut("member.group") ParamHolder<Map<String, VehicleInfo> > memberGroup) {
 		// Exchange information about the group sharing the same destination
-		memberGroup.value.put(coordId, coordPosition);
-		memberGroup.value.put(memberId, memberPosition);
+		memberGroup.value.put(coordId, new VehicleInfo(coordId, coordPosition, coordCarNum));
+		memberGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberCarNum));
 	}
 }

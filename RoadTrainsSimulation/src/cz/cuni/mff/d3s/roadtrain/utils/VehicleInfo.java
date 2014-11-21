@@ -6,12 +6,14 @@ import org.matsim.api.core.v01.Coord;
 
 public class VehicleInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	public VehicleInfo(Coord position/*, String trainId*/) {
-		this.position = position;
-	//	this.trainId = trainId;
-	}
 	
+	public String id;
 	public Coord position;
-//	public String trainId;
+	public int trainNum;
+
+	public VehicleInfo(String id, Coord position, int trainNum) {
+		this.id = id;
+		this.position = position;
+		this.trainNum = trainNum;
+	}
 }
