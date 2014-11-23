@@ -1,3 +1,6 @@
 /bin/
 /target/
 /logs/
+/omnetpp20.ini
+/omnetpp40.ini
+/matsim/
