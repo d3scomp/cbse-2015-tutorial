@@ -52,7 +52,7 @@ public class Launcher {
 	
 	private static int vehicleCounter = 0;
 	
-	private static Random random = new Random(0);
+	private static Random random = new Random(42);
 	
 	public static void run() throws AnnotationProcessorException, IOException {
 		// Setup simulation

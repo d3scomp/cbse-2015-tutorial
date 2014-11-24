@@ -158,19 +158,22 @@ public class Vehicle {
 	}
 	
 	@Process
-	@PeriodicScheduling(period = 5000)
+	@PeriodicScheduling(period = 2465)
 	public static void organizeRoadTrains(
 			@In("id") String id,
 			@In("group") Map<String, VehicleInfo> group,
 			@In("dstCity") String dstCity,
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("router") MATSimRouter router,
+//			@In("route") List<Id> route,
 			@InOut("leaderCar") ParamHolder<String> leaderCar,
 			@InOut("carNum") ParamHolder<Integer> carNum) {
 		
 		Id currentLink = currentLinkSensor.read();
 		
-		double myTargetDist = router.route(currentLink, getDstLinkId(dstCity)).size();
+		List<Id> route = router.route(currentLink, Navigator.getPosition(dstCity).getId());
+		
+		double myTargetDist = Navigator.getDesDist(dstCity, currentLink);
 		
 		// Do nothing when already at destination
 		if(myTargetDist == 0)
@@ -195,7 +198,7 @@ public class Vehicle {
 				continue;
 			
 			// Route using car position is beneficial (length using the car is the same as without)
-			if(myTargetDist == distUsingCar && (nearestDist == null || nearestDist > distToCar)) {
+			if((route.contains(carLink) || leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar)) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = entry.getKey();
 				nearestCarInfo = entry.getValue();
 				nearestDist = distToCar;
@@ -230,11 +233,9 @@ public class Vehicle {
 			@In("router") MATSimRouter router,
 			@In("followers") Map<String, VehicleInfo> followers) throws Exception {
 		
-		boolean wait = true;
+		boolean wait = false;
 		
-		if(followers.isEmpty()) {
-			wait = false;
-		} else {
+	/*	if(!followers.isEmpty()) {
 			Double nearestFollower = null;
 			
 			for(Entry<String, VehicleInfo> entry: followers.entrySet()) {
@@ -245,8 +246,8 @@ public class Vehicle {
 			}
 			
 			if(nearestFollower > Settings.TRAIN_CAR_DIST)
-				wait = false;
-		}
+				wait = true;
+		}*/
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
