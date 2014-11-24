@@ -129,7 +129,7 @@ public class Launcher {
 				.createRuntimeMetadata();
 		AnnotationProcessor processor = new AnnotationProcessor(
 				RuntimeMetadataFactoryExt.eINSTANCE, model, new CloningKnowledgeManagerFactory());
-		processor.process(component, SharedDestination.class, TrainNumbering.class, CarPair.class);
+		processor.process(component, SharedDestination.class, CarPair.class, TrainNumbering.class);
 		
 		Coord currentPosition = router.getLink(sourceLinkId).getCoord();
 		omnetConfig.append(String.format("**.node[%d].mobility.initialX = %dm %n", idx, new Double(currentPosition.getX()).longValue()));			

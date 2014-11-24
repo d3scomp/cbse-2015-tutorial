@@ -9,6 +9,7 @@ public class Settings {
 	// Train parameters
 	public static final double TRAIN_FORM_DISTANCE = 500; // m
 	public static final int TRAIN_LENGTH_LIMIT = 3;
+	public static final double TRAIN_CAR_DIST = 3;
 	
 	// Car parameters
 	public static final int GROUP_A_VEHICLE_COUNT = 15;

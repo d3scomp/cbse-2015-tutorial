@@ -55,6 +55,8 @@ public class Vehicle {
 	
 	public String leaderCar;
 	
+	public Map<String, VehicleInfo> followers = new HashMap<String, VehicleInfo>();
+	
 	public int carNum;
 	
 	/**
@@ -106,12 +108,13 @@ public class Vehicle {
 			@In("carNum") int carNum,
 			@In("leaderCar") String leaderCar,
 			@In("group") Map<String, VehicleInfo> group,
+			@In("followers") Map<String, VehicleInfo> followers,
 			@In("route") List<Id> route,
 			@In("clock") CurrentTimeProvider clock) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, trainNum: %s, dst: %s(%s), route: %s\n",
+		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, trainNum: %s, dst: %s(%s), route: %s, folowers: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				currentLinkSensor.read(),
@@ -123,7 +126,7 @@ public class Vehicle {
 				carNum,
 				getDstLinkId(dstCity),
 				dstCity,
-				route);
+				route, groupToString(followers));
 		
 		// Report information about vehicle
 		VehicleMonitor.report(
@@ -224,11 +227,34 @@ public class Vehicle {
 			@In("dstCity") String dstCity,
 			@InOut("route") ParamHolder<List<Id> > route,
 			@In("routeActuator") Actuator<List<Id> > routeActuator,
-			@In("router") MATSimRouter router) throws Exception {
+			@In("router") MATSimRouter router,
+			@In("followers") Map<String, VehicleInfo> followers) throws Exception {
+		
+		boolean wait = true;
+		
+		if(followers.isEmpty()) {
+			wait = false;
+		} else {
+			Double nearestFollower = null;
+			
+			for(Entry<String, VehicleInfo> entry: followers.entrySet()) {
+				double dist = Navigator.getCarToCarDist(currentLink, router.findNearestLink(entry.getValue().position).getId());
+				if(nearestFollower == null || nearestFollower > dist) {
+					nearestFollower = dist;
+				}	
+			}
+			
+			if(nearestFollower > Settings.TRAIN_CAR_DIST)
+				wait = false;
+		}
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
-			route.value = router.route(currentLink, getDstLinkId(dstCity), route.value);
+			if(!wait) {
+				route.value = router.route(currentLink, getDstLinkId(dstCity), route.value);
+			} else {
+				route.value = new LinkedList<Id>();
+			}
 		}
 		
 		// Car in front of us -> follow it
