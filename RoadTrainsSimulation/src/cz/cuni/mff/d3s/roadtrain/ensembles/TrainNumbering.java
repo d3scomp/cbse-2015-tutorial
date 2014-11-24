@@ -13,6 +13,7 @@ import cz.cuni.mff.d3s.deeco.annotations.Out;
 import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
+import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
 @Ensemble
@@ -35,12 +36,21 @@ public class TrainNumbering {
 			@In("coord.carNum") int coordCarNum,
 			@Out("member.carNum") ParamHolder<Integer> memberCarNum,
 			
-			@InOut("coord.followers") ParamHolder<Map<String, VehicleInfo> > followers,
+			//@InOut("coord.followers") ParamHolder<Map<String, VehicleInfo> > followers,
+			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
+			@InOut("member.leaderDist") ParamHolder<Double> leaderDist,
+			@In("coord.position") Coord coordPosition,
 			@In("member.position") Coord position,
 			@In("member.carNum") int carNum) {
 		// TODO: map coord location, speed, ... for precious following
 		
-		followers.value.put(memberId, new VehicleInfo(memberId, position, carNum));
+		//followers.value.put(memberId, new VehicleInfo(memberId, position, carNum));
+		
+		double dist = Navigator.getEuclidDistance(coordPosition, position);
+		if(nearestFollower.value == null || nearestFollower.value > dist)
+			nearestFollower.value = dist;
+		
+		leaderDist.value = Navigator.getEuclidDistance(position, coordPosition);
 		
 		memberCarNum.value = coordCarNum + 1;
 	}

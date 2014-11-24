@@ -8,11 +8,12 @@ public class Settings {
 	
 	// Train parameters
 	public static final double TRAIN_FORM_DISTANCE = 500; // m
-	public static final int TRAIN_LENGTH_LIMIT = 50;
-	public static final double TRAIN_CAR_DIST = 15;
+	public static final int TRAIN_LENGTH_LIMIT = 3;
+	public static final double TRAIN_MAX_CAR_DIST = 100;
+	public static final double TRAIN_MIN_CAR_DIST = 50;
 	
 	// Car parameters
-	public static final int GROUP_A_VEHICLE_COUNT = 6;
+	public static final int GROUP_A_VEHICLE_COUNT = 3;
 	public static final String GROUP_A_POS = "Liberec";
 	public static final double GROUP_A_RADIUS = 0.15; // %
 	public static final String GROUP_A_DST = "Praha";

@@ -55,7 +55,9 @@ public class Vehicle {
 	
 	public String leaderCar;
 	
-	public Map<String, VehicleInfo> followers = new HashMap<String, VehicleInfo>();
+	public Double leaderDist = null;
+		
+	public Double nearestFollower = null;
 	
 	public int carNum;
 	
@@ -108,9 +110,9 @@ public class Vehicle {
 			@In("carNum") int carNum,
 			@In("leaderCar") String leaderCar,
 			@In("group") Map<String, VehicleInfo> group,
-			@In("followers") Map<String, VehicleInfo> followers,
 			@In("route") List<Id> route,
-			@In("clock") CurrentTimeProvider clock) {
+			@In("clock") CurrentTimeProvider clock,
+			@In("nearestFollower") Double nearestFollower) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
@@ -126,7 +128,9 @@ public class Vehicle {
 				carNum,
 				getDstLinkId(dstCity),
 				dstCity,
-				route, groupToString(followers));
+				route,
+				nearestFollower
+				/*groupToString(followers), */);
 		
 		// Report information about vehicle
 		VehicleMonitor.report(
@@ -158,7 +162,7 @@ public class Vehicle {
 	}
 	
 	@Process
-	@PeriodicScheduling(period = 2465)
+	@PeriodicScheduling(period = 2356)
 	public static void organizeRoadTrains(
 			@In("id") String id,
 			@In("group") Map<String, VehicleInfo> group,
@@ -167,6 +171,7 @@ public class Vehicle {
 			@In("router") MATSimRouter router,
 //			@In("route") List<Id> route,
 			@InOut("leaderCar") ParamHolder<String> leaderCar,
+			@InOut("leaderDist") ParamHolder<Double> leaderDist,
 			@InOut("carNum") ParamHolder<Integer> carNum) {
 		
 		Id currentLink = currentLinkSensor.read();
@@ -213,8 +218,16 @@ public class Vehicle {
 		} else {
 			// There is no car in front of us on the path to destination, or road train is too long -> lead the new train
 			leaderCar.value = null;
+			leaderDist.value = null;
 			carNum.value = 0;
 		}
+	}
+	
+	@Process
+	@PeriodicScheduling(period = 10000)
+	public static void resetNearestFolllower(
+			@Out("nearestFollower") ParamHolder<Double> nearestFollower) {
+		nearestFollower.value = null;
 	}
 	
 	/**
@@ -231,26 +244,20 @@ public class Vehicle {
 			@InOut("route") ParamHolder<List<Id> > route,
 			@In("routeActuator") Actuator<List<Id> > routeActuator,
 			@In("router") MATSimRouter router,
-			@In("followers") Map<String, VehicleInfo> followers) throws Exception {
+			@In("nearestFollower") Double nearestFollower,
+			@In("leaderDist") Double leaderDist) throws Exception {
 		
-		boolean wait = false;
 		
-	/*	if(!followers.isEmpty()) {
-			Double nearestFollower = null;
-			
-			for(Entry<String, VehicleInfo> entry: followers.entrySet()) {
-				double dist = Navigator.getCarToCarDist(currentLink, router.findNearestLink(entry.getValue().position).getId());
-				if(nearestFollower == null || nearestFollower > dist) {
-					nearestFollower = dist;
-				}	
-			}
-			
-			if(nearestFollower > Settings.TRAIN_CAR_DIST)
-				wait = true;
-		}*/
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
+			boolean wait = false;
+			
+			if(nearestFollower != null && nearestFollower > Settings.TRAIN_MAX_CAR_DIST) {
+				System.out.println(id + " waiting");
+				wait = true;
+			}
+			
 			if(!wait) {
 				route.value = router.route(currentLink, getDstLinkId(dstCity), route.value);
 			} else {
@@ -260,9 +267,20 @@ public class Vehicle {
 		
 		// Car in front of us -> follow it
 		if(leaderCar != null) {
-			Coord carPos = group.get(leaderCar).position;
-			Link carLink = router.findNearestLink(carPos);
-			route.value = router.route(currentLink, carLink.getId(), route.value);
+			boolean wait = false;
+			
+			if(leaderDist != null && leaderDist < Settings.TRAIN_MIN_CAR_DIST) {
+				System.out.println(id + " waiting");
+				wait = true;
+			}
+			
+			if(!wait) {
+				Coord carPos = group.get(leaderCar).position;
+				Link carLink = router.findNearestLink(carPos);
+				route.value = router.route(currentLink, carLink.getId(), route.value);
+			} else {
+				route.value = new LinkedList<Id>();
+			}
 		}
 		
 		// Already at the destination -> stop

@@ -45,7 +45,7 @@ public class Navigator {
 		return getEuclidDistance(coord1, coord2);*/
 	}
 	
-	private static double getEuclidDistance(Coord p1, Coord p2) {
+	public static double getEuclidDistance(Coord p1, Coord p2) {
 		if (p1 == null || p2 == null) {
 			return Double.POSITIVE_INFINITY;
 		}
