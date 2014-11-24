@@ -1,6 +1,7 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 public class Settings {
+	public static double mapDimension = Settings.CELL_COUNT*Settings.LINKS_PER_EDGE*Settings.LINK_LENGTH;
 	
 	public static final String MATSIM_CONFIG_TEMPLATE = "input/config.xml";
 	public static final String ANALYSES_DIRECTORY = "measurements";
@@ -10,7 +11,7 @@ public class Settings {
 	public static final int TRAIN_LENGTH_LIMIT = 3;
 	
 	// Car parameters
-	public static final int GROUP_A_VEHICLE_COUNT = 20;
+	public static final int GROUP_A_VEHICLE_COUNT = 15;
 	public static final String GROUP_A_POS = "Liberec";
 	public static final double GROUP_A_RADIUS = 0.10; // %
 	public static final String GROUP_A_DST = "Praha";
@@ -44,9 +45,7 @@ public class Settings {
 	public static String OMNET_CONFIG_TEMPLATE = "omnetpp.ini.templ";
 	
 	// MATSim
-	public static final long FULL_SIMULATION_DURATION = 480000; // IN MILLIS
-	public static final long PARTIAL_SIMULATION_DURATION = 600000; // IN MILLIS
-	public static final long NONE_SIMULATION_DURATION = 1200000; // IN MILLIS
+	public static final long FULL_SIMULATION_DURATION = 400000; // IN MILLIS
 	public static final String MATSIM_INPUT = "input";
 	public static final String MATSIM_OUTPUT = "matsim";
 	public static String MATSIM_CONFIG = Settings.MATSIM_INPUT + "/" + "config" + ".xml";

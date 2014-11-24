@@ -3,4 +3,5 @@
 /logs/
 /omnetpp20.ini
 /omnetpp40.ini
-/matsim/
+/matsim/*
+/visual/*

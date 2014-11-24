@@ -19,7 +19,7 @@
  	
  	<module name="qsim" >
 		<param name="startTime" value="00:00:00" />
-		<param name="endTime" value="00:08:00" />
+		<param name="endTime" value="00:05:00" />
 		<param name="flowCapacityFactor" value="1.00" />
 		<param name="storageCapacityFactor" value="1.00" />
 		<param name="numberOfThreads" value="1" />

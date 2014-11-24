@@ -15,9 +15,9 @@ public class Navigator {
 			
 	public static void init(MATSimRouter router, double dim) {
 		Navigator.router = router;
-		places.put("Praha", router.findNearestLink(new CoordImpl(dim * 0.25, dim * 0.25)));
-		places.put("Brno", router.findNearestLink(new CoordImpl(dim * 0.25, dim * 0.75)));		
-		places.put("Liberec", router.findNearestLink(new CoordImpl(dim * 0.25, dim * 0.75)));
+		places.put("Praha", router.findNearestLink(new CoordImpl(dim * 0.10, dim * 0.10)));
+		places.put("Brno", router.findNearestLink(new CoordImpl(dim * 0.10, dim * 0.90)));		
+		places.put("Liberec", router.findNearestLink(new CoordImpl(dim * 0.75, dim * 0.25)));
 		places.put("Ostrava", router.findNearestLink(new CoordImpl(dim * 0.75, dim * 0.75)));
 	};
 	

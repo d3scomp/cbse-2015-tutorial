@@ -36,6 +36,7 @@ import cz.cuni.mff.d3s.deeco.simulation.omnet.OMNetSimulationHost;
 import cz.cuni.mff.d3s.demo.AlwaysRebroadcastingKnowledgeDataManager;
 import cz.cuni.mff.d3s.demo.environment.MATSimOMNetDataProviderReceiver;
 import cz.cuni.mff.d3s.roadtrain.components.Vehicle;
+import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.ensembles.CarPair;
 import cz.cuni.mff.d3s.roadtrain.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.ensembles.TrainNumbering;
@@ -49,8 +50,6 @@ public class Launcher {
 	private static SimulationRuntimeBuilder builder;
 	private static StringBuilder omnetConfig = new StringBuilder();
 	
-	private static double mapDimension = Settings.CELL_COUNT*Settings.LINKS_PER_EDGE*Settings.LINK_LENGTH;
-		
 	private static int vehicleCounter = 0;
 	
 	private static Random random = new Random(0);
@@ -71,7 +70,7 @@ public class Launcher {
 		builder = new SimulationRuntimeBuilder();
 		
 		// Setup navigator
-		Navigator.init(router, mapDimension);
+		Navigator.init(router, Settings.mapDimension);
 		
 		// Deploy components
 		System.out.println("Deploying components");
@@ -89,8 +88,8 @@ public class Launcher {
 				StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
 		out.println(template);
 		out.println();
-		out.println(String.format("**.playgroundSizeX = %dm", new Double(mapDimension).longValue() + 100));
-		out.println(String.format("**.playgroundSizeY = %dm", new Double(mapDimension).longValue() + 100));
+		out.println(String.format("**.playgroundSizeX = %dm", new Double(Settings.mapDimension).longValue() + 100));
+		out.println(String.format("**.playgroundSizeY = %dm", new Double(Settings.mapDimension).longValue() + 100));
 		out.println();
 		out.println(String.format("**.numNodes = %d", vehicleCounter));
 		out.println();
@@ -106,7 +105,10 @@ public class Launcher {
 		System.out.println("Run the simulation");
 		// Run the simulation
 		simulation.run("Cmdenv", confFile);
-		System.out.println("Simulation Finished");		
+		System.out.println("Simulation Finished");
+		
+		// Record simulation visualization
+		VehicleMonitor.dump("visual" + File.separator + "time-");
 	}
 	
 	private static void createAndDeployVehicleComponent(int idx,
@@ -161,7 +163,7 @@ public class Launcher {
 			Coord pos = Navigator.getPosition(Settings.GROUP_A_POS).getCoord();
 			createAndDeployVehicleComponent(
 					getCarId(),
-					getRandomLink(pos.getX(), pos.getY(), Settings.GROUP_A_RADIUS * mapDimension).getId().toString(),
+					getRandomLink(pos.getX(), pos.getY(), Settings.GROUP_A_RADIUS * Settings.mapDimension).getId().toString(),
 					Settings.GROUP_A_DST,
 					omnetConfig);
 		}
@@ -171,7 +173,7 @@ public class Launcher {
 			Coord pos = Navigator.getPosition(Settings.GROUP_B_POS).getCoord();
 			createAndDeployVehicleComponent(
 					getCarId(),
-					getRandomLink(pos.getX(), pos.getY(), Settings.GROUP_B_RADIUS * mapDimension).getId().toString(),
+					getRandomLink(pos.getX(), pos.getY(), Settings.GROUP_B_RADIUS * Settings.mapDimension).getId().toString(),
 					Settings.GROUP_B_DST,
 					omnetConfig);
 		}

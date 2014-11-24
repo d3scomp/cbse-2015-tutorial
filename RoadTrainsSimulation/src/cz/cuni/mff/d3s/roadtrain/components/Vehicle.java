@@ -28,6 +28,7 @@ import cz.cuni.mff.d3s.demo.environment.Sensor;
 import cz.cuni.mff.d3s.demo.environment.SensorProvider;
 import cz.cuni.mff.d3s.demo.environment.SensorType;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
+import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
@@ -110,7 +111,7 @@ public class Vehicle {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-	/*	System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, trainNum: %s, dst: %s(%s), route: %s\n",
+		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, trainNum: %s, dst: %s(%s), route: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				currentLinkSensor.read(),
@@ -122,15 +123,17 @@ public class Vehicle {
 				carNum,
 				getDstLinkId(dstCity),
 				dstCity,
-				route);*/
+				route);
 		
-		System.out.format("%s %s %s %s %s %s\n",
-				formatTime(clock.getCurrentMilliseconds()),
+		// Report information about vehicle
+		VehicleMonitor.report(
+				clock.getCurrentMilliseconds(),
 				id,
-				position.getX(),
-				position.getY(),
+				position,
 				leaderCar,
-				carNum);
+				carNum,
+				dstCity,
+				Navigator.getPosition(dstCity).getCoord());
 	}
 
 	/**
