@@ -44,10 +44,10 @@ public class VehicleMonitor {
 			
 			writer.write("node [shape=box, label=\"\\N\", pin=true, width=\"0.1\", height=\"0.1\"\n];\n");
 			  
-			writer.write(String.format("tl [ pos = \"0,0!\" ]\n"));
-			writer.write(String.format("tr [ pos = \"%s,0!\" ]\n", Settings.mapDimension));
-			writer.write(String.format("bl [ pos = \"0,%s!\" ]\n", Settings.mapDimension));
-			writer.write(String.format("br [ pos = \"%s,%s!\" ]\n", Settings.mapDimension, Settings.mapDimension));
+			writer.write(String.format("tl [ pos = \"0,0!\", style=invis ]\n"));
+			writer.write(String.format("tr [ pos = \"%s,0!\", style=invis ]\n", Settings.mapDimension));
+			writer.write(String.format("bl [ pos = \"0,%s!\", style=invis ]\n", Settings.mapDimension));
+			writer.write(String.format("br [ pos = \"%s,%s!\", style=invis ]\n", Settings.mapDimension, Settings.mapDimension));
 			writer.write(entry.getValue().toString());
 			writer.write("\n}");
 			writer.close();
