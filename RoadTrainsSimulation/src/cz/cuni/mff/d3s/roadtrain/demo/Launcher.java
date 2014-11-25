@@ -106,9 +106,6 @@ public class Launcher {
 		// Run the simulation
 		simulation.run("Cmdenv", confFile);
 		System.out.println("Simulation Finished");
-		
-		// Record simulation visualization
-		VehicleMonitor.dump("visual" + File.separator + "time-");
 	}
 	
 	private static void createAndDeployVehicleComponent(int idx,
