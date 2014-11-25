@@ -5,3 +5,6 @@
 /omnetpp40.ini
 /matsim/*
 /visual/*
+/visual*/*
+results
+omnetpp*

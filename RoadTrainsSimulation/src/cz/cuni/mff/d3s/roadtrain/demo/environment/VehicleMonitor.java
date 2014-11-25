@@ -21,18 +21,21 @@ public class VehicleMonitor {
 
 		StringBuilder builder = records.get(timeMs);
 
+		// Node
+		builder.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", dstCity, dst.getX(), dst.getY()));
+		
+		// Edge
+		String color = "blue";
 		if(leader == null) {
 			leader = dstCity;
+			color = "red";
 		}
-		
-		builder.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", dstCity, dst.getX(), dst.getY()));
-			
-		builder.append(String.format("\n%s [\n\tlabel = \"%s\"\n\tpos = \"%s,%s!\"\n]\n%s -> %s [color=blue]",
+		builder.append(String.format("\n%s [\n\tlabel = \"%s\"\n\tpos = \"%s,%s!\"\n]\n%s -> %s [color=%s]",
 				id,
 				id + "(" + carNum + ")",
 				pos.getX(),
 				pos.getY(),
-				id, leader
+				id, leader, color
 		));
 	}
 

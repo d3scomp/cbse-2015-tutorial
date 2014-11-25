@@ -143,7 +143,9 @@ public class Launcher {
 		}
 		
 		OMNetSimulationHost host = simulation.getHost(compIdString, "node["+idx+"]");
-		RuntimeFramework runtime = builder.build(host, simulation, listeners, model, new AlwaysRebroadcastingKnowledgeDataManager(model.getEnsembleDefinitions(), null), new CloningKnowledgeManagerFactory());
+		RuntimeFramework runtime = builder.build(host, simulation, listeners, model,
+				new AlwaysRebroadcastingKnowledgeDataManager(model.getEnsembleDefinitions(), null),
+				new CloningKnowledgeManagerFactory());
 		runtime.start();
 	}
 	

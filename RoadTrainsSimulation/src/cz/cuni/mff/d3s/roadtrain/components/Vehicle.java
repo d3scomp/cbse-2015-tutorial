@@ -247,17 +247,21 @@ public class Vehicle {
 			@In("nearestFollower") Double nearestFollower,
 			@In("leaderDist") Double leaderDist) throws Exception {
 		
+		boolean wait = false;
 		
+		// Wait for followers
+		if(nearestFollower != null && nearestFollower > Settings.TRAIN_MAX_CAR_DIST) {
+			System.out.println(id + " waiting for followers");
+			wait = true;
+		}
+		
+		if(leaderDist != null && leaderDist < Settings.TRAIN_MIN_CAR_DIST) {
+			System.out.println(id + " waiting to let leader lead");
+			wait = true;
+		}
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
-			boolean wait = false;
-			
-			if(nearestFollower != null && nearestFollower > Settings.TRAIN_MAX_CAR_DIST) {
-				System.out.println(id + " waiting");
-				wait = true;
-			}
-			
 			if(!wait) {
 				route.value = router.route(currentLink, getDstLinkId(dstCity), route.value);
 			} else {
@@ -267,13 +271,6 @@ public class Vehicle {
 		
 		// Car in front of us -> follow it
 		if(leaderCar != null) {
-			boolean wait = false;
-			
-			if(leaderDist != null && leaderDist < Settings.TRAIN_MIN_CAR_DIST) {
-				System.out.println(id + " waiting");
-				wait = true;
-			}
-			
 			if(!wait) {
 				Coord carPos = group.get(leaderCar).position;
 				Link carLink = router.findNearestLink(carPos);
