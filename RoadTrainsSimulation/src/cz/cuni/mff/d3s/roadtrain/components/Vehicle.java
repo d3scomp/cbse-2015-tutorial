@@ -203,7 +203,9 @@ public class Vehicle {
 				continue;
 			
 			// Route using car position is beneficial (length using the car is the same as without)
-			if((route.contains(carLink) || leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar)) && (nearestDist == null || nearestDist > distToCar)) {
+//			if((route.contains(carLink) || leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar)) && (nearestDist == null || nearestDist > distToCar)) {
+//			if(leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar) && (nearestDist == null || nearestDist > distToCar)) {
+			if((myTargetDist >= distUsingCar) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = entry.getKey();
 				nearestCarInfo = entry.getValue();
 				nearestDist = distToCar;
@@ -211,7 +213,9 @@ public class Vehicle {
 		}
 		
 		// Follow the car or lead new road train
-		if(nearestCarId != null && nearestCarInfo.trainNum < Settings.TRAIN_LENGTH_LIMIT - 1) {
+		System.out.println(nearestDist);
+		//if(nearestCarId != null && nearestCarInfo.trainNum < Settings.TRAIN_LENGTH_LIMIT - 1) {
+		if(nearestCarId != null && nearestDist < Settings.TRAIN_MAX_FORMATION_DISTANCE) {
 			// There is car that is in front of us on the path to destination and the road train is short enough -> follow it
 			leaderCar.value = nearestCarId;
 			carNum.value = nearestCarInfo.trainNum + 1;
