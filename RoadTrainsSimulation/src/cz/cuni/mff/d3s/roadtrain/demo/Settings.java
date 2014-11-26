@@ -1,10 +1,17 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 public class Settings {
-	public static double mapDimension = 100000;//Settings.CELL_COUNT*Settings.LINKS_PER_EDGE*Settings.LINK_LENGTH;
+	//public static double mapDimension = Settings.CELL_COUNT*Settings.LINKS_PER_EDGE*Settings.LINK_LENGTH;
 	
 	public static final String MATSIM_CONFIG_TEMPLATE = "input/config.xml";
 	public static final String ANALYSES_DIRECTORY = "measurements";
+	
+	// Map parameters
+	public static final double MIN_X = 1090633.9990942501;
+	public static final double MAX_X = 1108409.9502133469;
+	public static final double MIN_Y = 564064.6541308606;
+	public static final double MAX_Y = 577009.0102368896;
+	
 	
 	// Train parameters
 	public static final double TRAIN_FORM_DISTANCE = 500; // m
@@ -14,14 +21,14 @@ public class Settings {
 	public static final double TRAIN_MIN_CAR_DIST = 25; // links
 	
 	// Car parameters
-	public static final int GROUP_A_VEHICLE_COUNT = 20;
+	public static final int GROUP_A_VEHICLE_COUNT = 3;
 	public static final String GROUP_A_POS = "Liberec";
-	public static final double GROUP_A_RADIUS = 0.25; // %
+	public static final double GROUP_A_RADIUS = 0.15 * (MAX_X - MIN_X);
 	public static final String GROUP_A_DST = "Praha";
 	
 	public static final int GROUP_B_VEHICLE_COUNT = 0;
 	public static final String GROUP_B_POS = "Ostrava";
-	public static final double GROUP_B_RADIUS = 0.25; // %
+	public static final double GROUP_B_RADIUS = 0.15 * (MAX_X - MIN_X);
 	public static final String GROUP_B_DST = "Brno";
 	
 	// Router settings

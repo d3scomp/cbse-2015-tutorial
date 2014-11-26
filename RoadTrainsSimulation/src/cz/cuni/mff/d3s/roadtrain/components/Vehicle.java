@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
+import org.matsim.core.utils.geometry.CoordImpl;
 
 import cz.cuni.mff.d3s.deeco.annotations.Component;
 import cz.cuni.mff.d3s.deeco.annotations.In;
@@ -154,6 +155,12 @@ public class Vehicle {
 			@Out("position") ParamHolder<Coord> position,
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("router") MATSimRouter router) {
+		
+		
+		Coord min = router.findNearestLink(new CoordImpl(0, 0)).getCoord();
+		
+		Coord max = router.findNearestLink(new CoordImpl(999999999, 999999999)).getCoord();
+		
 
 		Log.d("Entry [" + id + "]:updateCurrentLink");
 

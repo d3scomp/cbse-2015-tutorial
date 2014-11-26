@@ -15,6 +15,9 @@ public class VehicleMonitor {
 	static StringBuilder record = new StringBuilder();
 	static long time = 0;
 	
+	static final double SCALE = 1;
+	
+	
 	public static synchronized void report(long timeMs, String id, Coord pos, String leader, int carNum, String dstCity, Coord dst) {
 		// Start new frame if needed
 		if(time != timeMs) {
@@ -27,7 +30,7 @@ public class VehicleMonitor {
 		}
 
 		// Node
-		record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", dstCity, dst.getX(), dst.getY()));
+		record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", dstCity, convX(dst.getX()), convY(dst.getY())));
 		
 		// Edge
 		String color = "blue";
@@ -38,8 +41,8 @@ public class VehicleMonitor {
 		record.append(String.format("\n%s [\n\tlabel = \"%s\"\n\tpos = \"%s,%s!\"\n]\n%s -> %s [color=%s]",
 				id,
 				id + "(" + carNum + ")",
-				pos.getX(),
-				pos.getY(),
+				convX(pos.getX()),
+				convY(pos.getY()),
 				id, leader, color
 		));
 	}
@@ -51,14 +54,22 @@ public class VehicleMonitor {
 		
 		writer.write("node [shape=box, label=\"\\N\", pin=true, width=\"0.1\", height=\"0.1\"\n];\n");
 		  
-		writer.write(String.format("tl [ pos = \"0,0!\", style=invis ]\n"));
-		writer.write(String.format("tr [ pos = \"%s,0!\", style=invis ]\n", Settings.mapDimension));
-		writer.write(String.format("bl [ pos = \"0,%s!\", style=invis ]\n", Settings.mapDimension));
-		writer.write(String.format("br [ pos = \"%s,%s!\", style=invis ]\n", Settings.mapDimension, Settings.mapDimension));
+		writer.write(String.format("tl [ pos = \"%s,%s!\", style=invis ]\n", 0, 0));
+		writer.write(String.format("tr [ pos = \"%s,%s!\", style=invis ]\n", 0, (Settings.MAX_Y - Settings.MIN_Y)  * SCALE));
+		writer.write(String.format("bl [ pos = \"%s,%s!\", style=invis ]\n", (Settings.MAX_X - Settings.MIN_X) * SCALE, 0));
+		writer.write(String.format("br [ pos = \"%s,%s!\", style=invis ]\n", (Settings.MAX_X - Settings.MIN_X) * SCALE, (Settings.MAX_Y - Settings.MIN_Y) * SCALE));
 		writer.write(record.toString());
 		writer.write("\n}");
 		writer.close();
 		
 		record = new StringBuilder();
+	}
+	
+	private static double convX(double value) {
+		return value - Settings.MIN_X;
+	}
+	
+	private static double convY(double value) {
+		return value - Settings.MIN_Y;
 	}
 }
