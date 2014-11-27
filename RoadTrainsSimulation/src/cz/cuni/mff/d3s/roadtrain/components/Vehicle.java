@@ -114,6 +114,7 @@ public class Vehicle {
 			@In("route") List<Id> route,
 			@In("clock") CurrentTimeProvider clock,
 			@In("nearestFollower") Double nearestFollower,
+			@In("leaderDist") Double leaderDist,
 			@In("router") MATSimRouter router) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
@@ -143,7 +144,9 @@ public class Vehicle {
 				carNum,
 				dstCity,
 				route,
-				router);
+				router,
+				leaderDist,
+				nearestFollower);
 	}
 
 	/**
@@ -210,7 +213,7 @@ public class Vehicle {
 			if(carToDestDist == 0) continue;
 			
 			// Skip cars which are too far
-//			if(nearestDist < Settings.TRAIN_MAX_FORMATION_DISTANCE) continue;
+			if(carToDestDist > Settings.TRAIN_MAX_FORMATION_DISTANCE) continue;
 			
 			// Route using car position is beneficial (length using the car is the same as without)
 //			if((route.contains(carLink) || leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar)) && (nearestDist == null || nearestDist > distToCar)) {
@@ -273,7 +276,7 @@ public class Vehicle {
 			@In("leaderDist") Double leaderDist) throws Exception {
 		
 		boolean wait = false;
-/*		
+		
 		// Wait for followers
 		if(nearestFollower != null && nearestFollower > Settings.TRAIN_MAX_CAR_DIST) {
 			System.out.println(id + " waiting for followers");
@@ -283,7 +286,7 @@ public class Vehicle {
 		if(leaderDist != null && leaderDist < Settings.TRAIN_MIN_CAR_DIST) {
 			System.out.println(id + " waiting to let leader lead");
 			wait = true;
-		}*/
+		}
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {

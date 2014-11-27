@@ -18,9 +18,9 @@ public class Settings {
 	// Train parameters
 	public static final double TRAIN_FORM_DISTANCE = 500; // m
 	public static final int TRAIN_LENGTH_LIMIT = 5; // cars
-	public static final double TRAIN_MAX_FORMATION_DISTANCE = 500; // links
-	public static final double TRAIN_MAX_CAR_DIST = 200; // links
-	public static final double TRAIN_MIN_CAR_DIST = 25; // links
+	public static final double TRAIN_MAX_FORMATION_DISTANCE = 200; // links
+	public static final double TRAIN_MAX_CAR_DIST = 50; // links
+	public static final double TRAIN_MIN_CAR_DIST = 5; // links
 	
 	// Car parameters
 	public static final int GROUP_A_VEHICLE_COUNT = 3;

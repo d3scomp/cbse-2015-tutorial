@@ -30,7 +30,7 @@ public class VehicleMonitor {
 	}
 	
 	
-	public static synchronized void report(long timeMs, String id, Coord pos, String leader, int carNum, String dstCity, List<Id> route, MATSimRouter router) {
+	public static synchronized void report(long timeMs, String id, Coord pos, String leader, int carNum, String dstCity, List<Id> route, MATSimRouter router, Double leaderDist, Double nearestFollower) {
 		// Start new frame if needed
 		if(time != timeMs) {
 			try {
@@ -57,7 +57,7 @@ public class VehicleMonitor {
 		String last = id;
 		for(Id i: route) {
 			Coord linkPos = router.findLinkById(i).getCoord();
-			String linkName = id + i.toString();
+			String linkName = String.format("%s_%s", id, i);
 			record.append(String.format("\n%s [pos = \"%s,%s!\", style=invis]",
 					linkName,
 					convX(linkPos.getX()),
@@ -71,20 +71,19 @@ public class VehicleMonitor {
 			last = linkName;
 		}
 		
+		// Vehicle
 		if(leader == null) {
 			leader = dstCity;
 		}
-
-		// Vehicle
 		record.append(String.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s]",
 				id,
-				id,
+				id + "(" + nearestFollower + ")",
 				convX(pos.getX()),
 				convY(pos.getY()),
 				nodeColor
 		));
-		record.append(String.format("\n%s -> %s [color=%s]",
-				id, leader, nodeColor
+		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]",
+				id, leader, nodeColor, leaderDist
 		));
 	}
 

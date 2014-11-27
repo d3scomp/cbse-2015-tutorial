@@ -1,8 +1,6 @@
 package cz.cuni.mff.d3s.roadtrain.ensembles;
 
-import java.util.Map;
-
-import org.matsim.api.core.v01.Coord;
+import org.matsim.api.core.v01.Id;
 
 import cz.cuni.mff.d3s.deeco.annotations.Ensemble;
 import cz.cuni.mff.d3s.deeco.annotations.In;
@@ -14,7 +12,6 @@ import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
-import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
@@ -39,18 +36,18 @@ public class TrainNumbering {
 			//@InOut("coord.followers") ParamHolder<Map<String, VehicleInfo> > followers,
 			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
 			@InOut("member.leaderDist") ParamHolder<Double> leaderDist,
-			@In("coord.position") Coord coordPosition,
-			@In("member.position") Coord position,
+			@In("coord.currentLink") Id coordLink,
+			@In("member.currentLink") Id memberLink,
 			@In("member.carNum") int carNum) {
 		// TODO: map coord location, speed, ... for precious following
 		
 		//followers.value.put(memberId, new VehicleInfo(memberId, position, carNum));
 		
-		double dist = Navigator.getEuclidDistance(coordPosition, position);
+		// Leader - follower distance
+		double dist = Navigator.getCarToCarDist(coordLink, memberLink);
 		if(nearestFollower.value == null || nearestFollower.value > dist)
 			nearestFollower.value = dist;
-		
-		leaderDist.value = Navigator.getEuclidDistance(position, coordPosition);
+		leaderDist.value = dist;
 		
 		memberCarNum.value = coordCarNum + 1;
 	}
