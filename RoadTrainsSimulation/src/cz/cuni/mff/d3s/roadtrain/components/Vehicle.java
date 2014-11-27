@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.network.Link;
-import org.matsim.core.utils.geometry.CoordImpl;
 
 import cz.cuni.mff.d3s.deeco.annotations.Component;
 import cz.cuni.mff.d3s.deeco.annotations.In;
@@ -56,8 +54,7 @@ public class Vehicle {
 	
 	public String leaderCar;
 	
-	public Double leaderDist = null;
-		
+	public Double leaderDist = null;		
 	public Double nearestFollower = null;
 	
 	/**
@@ -73,7 +70,7 @@ public class Vehicle {
 	public Coord destination;
 
 	@Local
-	public Actuator<List<Id>> routeActuator;
+	public Actuator<List<Id> > routeActuator;
 	
 	@Local
 	public Sensor<Id> currentLinkSensor;
@@ -116,7 +113,7 @@ public class Vehicle {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, dst: %s(%s), route: %s, folowers: %s\n",
+		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, dst: %s(%s)\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				currentLinkSensor.read(),
@@ -125,11 +122,8 @@ public class Vehicle {
 				groupToString(group),
 				Navigator.getDesDist(dstCity, currentLinkSensor.read()),
 				leaderCar,
-				getDstLinkId(dstCity),
-				dstCity,
-				route,
-				nearestFollower
-				/*groupToString(followers), */);
+				Navigator.getPosition(dstCity).getId(),
+				dstCity);
 		
 		// Report information about vehicle
 		VehicleMonitor.report(
@@ -205,13 +199,13 @@ public class Vehicle {
 		}
 		
 		// Follow the car or lead new road train
-//		System.out.println(nearestDist);
-		//if(nearestCarId != null && nearestCarInfo.trainNum < Settings.TRAIN_LENGTH_LIMIT - 1) {
 		if(nearestCarId != null) {
-			// There is car that is in front of us on the path to destination and the road train is short enough -> follow it
+			// There is car that is in front of us on the path to destination
+			// and the road train is short enough -> follow it
 			leaderCar.value = nearestCarId;
 		} else {
-			// There is no car in front of us on the path to destination, or road train is too long -> lead the new train
+			// There is no car in front of us on the path to destination,
+			// or road train is too long -> lead the new train
 			leaderCar.value = null;
 			leaderDist.value = null;
 		}
@@ -249,6 +243,7 @@ public class Vehicle {
 			wait = true;
 		}
 		
+		// Wait for leaders
 		if(leaderDist != null && leaderDist < Settings.TRAIN_MIN_CAR_DIST) {
 			System.out.println(id + " waiting to let leader lead");
 			wait = true;
@@ -257,7 +252,7 @@ public class Vehicle {
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
 			if(!wait) {
-				route.value = router.route(currentLink, getDstLinkId(dstCity), route.value);
+				route.value = router.route(currentLink, Navigator.getPosition(dstCity).getId(), route.value);
 			} else {
 				route.value = new LinkedList<Id>();
 			}
@@ -279,10 +274,6 @@ public class Vehicle {
 		}
 		
 		routeActuator.set(route.value);
-	}
-	
-	private static Id getDstLinkId(String dstCity) {
-		return Navigator.getPosition(dstCity).getId();
 	}
 	
 	private static String groupToString(Map<String, VehicleInfo> group) {

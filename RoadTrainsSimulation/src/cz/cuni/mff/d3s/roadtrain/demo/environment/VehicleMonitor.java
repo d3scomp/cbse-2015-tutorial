@@ -41,6 +41,7 @@ public class VehicleMonitor {
 			time = timeMs;
 		}
 		
+		// Decide color
 		String nodeColor = colorMap.get(id);
 		if(nodeColor == null) {
 			nodeColor = "gray";
@@ -58,12 +59,12 @@ public class VehicleMonitor {
 		for(Id i: route) {
 			Coord linkPos = router.findLinkById(i).getCoord();
 			String linkName = String.format("%s_%s", id, i);
-			record.append(String.format("\n%s [pos = \"%s,%s!\", style=invis]",
+			record.append(String.format("\n%s [pos = \"%s,%s!\", style=\"\", label=\"\", width=\"0.001\", height=\"0.01\"]",
 					linkName,
 					convX(linkPos.getX()),
 					convY(linkPos.getY())
 			));
-			record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", penwidth=3]",
+			record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", label=\"\"]",
 					last,
 					linkName,
 					nodeColor
@@ -75,11 +76,12 @@ public class VehicleMonitor {
 		if(leader == null) {
 			leader = dstCity;
 		}
-		record.append(String.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s]",
+		record.append(String.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
 				id,
-				id + "(" + nearestFollower + ")",
+				id,
 				convX(pos.getX()),
 				convY(pos.getY()),
+				nodeColor,
 				nodeColor
 		));
 		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]",
@@ -92,7 +94,7 @@ public class VehicleMonitor {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
 		writer.write("digraph " + time + " {\n");
 		
-		writer.write("node [shape=box, label=\"\\N\", pin=true, width=\"0.1\", height=\"0.1\"\n];\n");
+		writer.write("node [shape=box, label=\"\\N\", pin=true\n];\n");
 		  
 		writer.write(String.format("tl [ pos = \"%s,%s!\", style=invis ]\n", 0, 0));
 		writer.write(String.format("tr [ pos = \"%s,%s!\", style=invis ]\n", 0, (Settings.MAX_Y - Settings.MIN_Y)  * SCALE));
