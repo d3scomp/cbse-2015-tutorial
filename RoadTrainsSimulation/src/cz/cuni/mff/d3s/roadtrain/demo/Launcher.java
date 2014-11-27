@@ -82,8 +82,10 @@ public class Launcher {
 		
 		System.out.println("Run the simulation");
 		// Run the simulation
+		long startTime = System.currentTimeMillis();
 		simulation.run();
-		System.out.println("Simulation Finished");
+		long diffTime = System.currentTimeMillis() - startTime;
+		System.out.println(String.format("Simulation Finished in: %s.%ss", diffTime / 1000, diffTime % 1000));
 	}
 	
 	private static void createAndDeployVehicleComponent(int idx,
