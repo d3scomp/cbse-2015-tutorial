@@ -60,8 +60,6 @@ public class Vehicle {
 		
 	public Double nearestFollower = null;
 	
-	public int carNum;
-	
 	/**
 	 * Destination city
 	 */
@@ -108,7 +106,6 @@ public class Vehicle {
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("position") Coord position,
 			@In("dstCity") String dstCity,
-			@In("carNum") int carNum,
 			@In("leaderCar") String leaderCar,
 			@In("group") Map<String, VehicleInfo> group,
 			@In("route") List<Id> route,
@@ -119,7 +116,7 @@ public class Vehicle {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, trainNum: %s, dst: %s(%s), route: %s, folowers: %s\n",
+		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, dst: %s(%s), route: %s, folowers: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				currentLinkSensor.read(),
@@ -128,7 +125,6 @@ public class Vehicle {
 				groupToString(group),
 				Navigator.getDesDist(dstCity, currentLinkSensor.read()),
 				leaderCar,
-				carNum,
 				getDstLinkId(dstCity),
 				dstCity,
 				route,
@@ -141,7 +137,6 @@ public class Vehicle {
 				id,
 				position,
 				leaderCar,
-				carNum,
 				dstCity,
 				route,
 				router,
@@ -181,13 +176,8 @@ public class Vehicle {
 			@In("dstCity") String dstCity,
 			@In("currentLink") Id currentLink,
 			@In("router") MATSimRouter router,
-//			@In("route") List<Id> route,
 			@InOut("leaderCar") ParamHolder<String> leaderCar,
-			@InOut("leaderDist") ParamHolder<Double> leaderDist,
-			@InOut("carNum") ParamHolder<Integer> carNum) {
-		
-		List<Id> route = router.route(currentLink, Navigator.getPosition(dstCity).getId());
-		
+			@InOut("leaderDist") ParamHolder<Double> leaderDist) {		
 		double myTargetDist = Navigator.getDesDist(dstCity, currentLink);
 		
 		// Do nothing when already at destination
@@ -199,8 +189,6 @@ public class Vehicle {
 		VehicleInfo nearestCarInfo = null;
 		Double nearestDist = null;
 		for(Entry<String, VehicleInfo> entry: group.entrySet()) {
-			//Id carLink = router.findNearestLink(entry.getValue().position).getId();
-			
 			Id carLink = entry.getValue().link;
 			double distUsingCar = Navigator.getDestDistUsingCar(dstCity, currentLink, carLink);
 			double distToCar = Navigator.getCarToCarDist(currentLink, carLink);
@@ -215,19 +203,11 @@ public class Vehicle {
 			// Skip cars which are too far
 			if(carToDestDist > Settings.TRAIN_MAX_FORMATION_DISTANCE) continue;
 			
-			// Route using car position is beneficial (length using the car is the same as without)
-//			if((route.contains(carLink) || leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar)) && (nearestDist == null || nearestDist > distToCar)) {
-//			if(leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar) && (nearestDist == null || nearestDist > distToCar)) {
-//			if((myTargetDist >= distUsingCar || route.contains(entry.getValue().position)) && (nearestDist == null || nearestDist > distToCar)) {
-			
+			// Follow only car on the route to destination
 			boolean distCond = myTargetDist >= distUsingCar;
 			
 			// Do not follow car on the same link if it was not followed before
 			boolean sameLinkCheck = !carLink.equals(currentLink) || (entry.getKey().equals(leaderCar));
-			boolean routeCond = route.contains(entry.getValue().position);
-			
-//			System.out.println("Dist: " + distCond + ":" + myTargetDist + ":" + distUsingCar);
-//			System.out.println("Route: " + routeCond + " : " + carLink + ":" + route.toString());
 			
 			if((distCond && sameLinkCheck) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = entry.getKey();
@@ -242,12 +222,10 @@ public class Vehicle {
 		if(nearestCarId != null) {
 			// There is car that is in front of us on the path to destination and the road train is short enough -> follow it
 			leaderCar.value = nearestCarId;
-			carNum.value = nearestCarInfo.trainNum + 1;
 		} else {
 			// There is no car in front of us on the path to destination, or road train is too long -> lead the new train
 			leaderCar.value = null;
 			leaderDist.value = null;
-			carNum.value = 0;
 		}
 	}
 	

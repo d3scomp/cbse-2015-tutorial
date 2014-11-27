@@ -7,7 +7,6 @@ import cz.cuni.mff.d3s.deeco.annotations.In;
 import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
-import cz.cuni.mff.d3s.deeco.annotations.Out;
 import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
@@ -24,33 +23,22 @@ public class TrainNumbering {
 		// Member is following coordinator
 		return memeberLeaderCar.equals(coordId);
 	}
-		
+
 	@KnowledgeExchange
-	public static void exchange(
-			@In("coord.id") String coordId,
+	public static void exchange(@In("coord.id") String coordId,
 			@In("member.id") String memberId,
-			
-			@In("coord.carNum") int coordCarNum,
-			@Out("member.carNum") ParamHolder<Integer> memberCarNum,
-			
-			//@InOut("coord.followers") ParamHolder<Map<String, VehicleInfo> > followers,
+
 			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
 			@InOut("member.leaderDist") ParamHolder<Double> leaderDist,
 			@In("coord.currentLink") Id coordLink,
 			@In("member.currentLink") Id memberLink,
 			@In("member.carNum") int carNum) {
 		// TODO: map coord location, speed, ... for precious following
-		
-		//followers.value.put(memberId, new VehicleInfo(memberId, position, carNum));
-		
+
 		// Leader - follower distance
 		double dist = Navigator.getCarToCarDist(coordLink, memberLink);
-		if(nearestFollower.value == null || nearestFollower.value > dist)
+		if (nearestFollower.value == null || nearestFollower.value > dist)
 			nearestFollower.value = dist;
 		leaderDist.value = dist;
-		
-		memberCarNum.value = coordCarNum + 1;
 	}
 }
-
-

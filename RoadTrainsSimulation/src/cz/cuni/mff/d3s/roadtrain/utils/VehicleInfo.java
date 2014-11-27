@@ -10,13 +10,11 @@ public class VehicleInfo implements Serializable {
 	
 	public String id;
 	public Coord position;
-	public int trainNum;
 	public Id link;
 
-	public VehicleInfo(String id, Coord position, int trainNum, Id link) {
+	public VehicleInfo(String id, Coord position, Id link) {
 		this.id = id;
 		this.position = position;
-		this.trainNum = trainNum;
 		this.link = link;
 	}
 }

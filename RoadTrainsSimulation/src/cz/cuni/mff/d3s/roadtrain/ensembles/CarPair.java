@@ -31,10 +31,9 @@ public class CarPair {
 			@In("member.id") String memberId,
 			@InOut("coord.followers") ParamHolder<Map<String, VehicleInfo> > followers,
 			@In("member.position") Coord position,
-			@In("member.carNum") int carNum,
 			@In("member.currentLink") Id link) {
 		// TODO: map coord location, speed, ... for precious following
 		
-		followers.value.put(memberId, new VehicleInfo(memberId, position, carNum, link));
+		followers.value.put(memberId, new VehicleInfo(memberId, position, link));
 	}
 }

@@ -30,7 +30,7 @@ public class VehicleMonitor {
 	}
 	
 	
-	public static synchronized void report(long timeMs, String id, Coord pos, String leader, int carNum, String dstCity, List<Id> route, MATSimRouter router, Double leaderDist, Double nearestFollower) {
+	public static synchronized void report(long timeMs, String id, Coord pos, String leader, String dstCity, List<Id> route, MATSimRouter router, Double leaderDist, Double nearestFollower) {
 		// Start new frame if needed
 		if(time != timeMs) {
 			try {
