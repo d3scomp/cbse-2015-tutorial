@@ -31,16 +31,11 @@ public class SharedDestination {
 	
 	@KnowledgeExchange
 	public static void exchange(
-			@In("coord.id") String coordId,
 			@In("member.id") String memberId,
-			@In("coord.position") Coord coordPosition,
 			@In("member.position") Coord memberPosition,
-			@In("coord.currentLink") Id coordLink,
 			@In("member.currentLink") Id memberLink,
-			@InOut("coord.group") ParamHolder<Map<String, VehicleInfo> > coordGroup,
-			@InOut("member.group") ParamHolder<Map<String, VehicleInfo> > memberGroup) {
+			@InOut("coord.group") ParamHolder<Map<String, VehicleInfo> > coordGroup) {
 		// Exchange information about the group sharing the same destination
-		memberGroup.value.put(coordId, new VehicleInfo(coordId, coordPosition, coordLink));
-		memberGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink));
+		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink));
 	}
 }

@@ -150,20 +150,13 @@ public class Vehicle {
 	 */
 	@Process
 	@PeriodicScheduling(period = 200, order = 1)
-	public static void updateSensors(@In("id") String id,
+	public static void updateSensors(
+			@In("id") String id,
 			@Out("currentLink") ParamHolder<Id> currentLinkHolder,
 			@Out("position") ParamHolder<Coord> position,
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("router") MATSimRouter router) {
-		
-		
-/*		Coord min = router.findNearestLink(new CoordImpl(0, 0)).getCoord();
-		Coord max = router.findNearestLink(new CoordImpl(999999999, 999999999)).getCoord();
-		*/
-		
-
 		Log.d("Entry [" + id + "]:updateCurrentLink");
-
 		currentLinkHolder.value = currentLinkSensor.read();
 		position.value = router.getLink(currentLinkHolder.value).getCoord();
 	}
@@ -186,7 +179,6 @@ public class Vehicle {
 		
 		// Try to find a car to follow
 		String nearestCarId = null;
-		VehicleInfo nearestCarInfo = null;
 		Double nearestDist = null;
 		for(Entry<String, VehicleInfo> entry: group.entrySet()) {
 			Id carLink = entry.getValue().link;
@@ -194,9 +186,6 @@ public class Vehicle {
 			double distToCar = Navigator.getCarToCarDist(currentLink, carLink);
 			double carToDestDist = Navigator.getDesDist(dstCity, carLink);
 			
-			// Skip ourself
-			if(entry.getKey().equals(id)) continue;
-						
 			// Skip cars already at destination
 			if(carToDestDist == 0) continue;
 			
@@ -211,7 +200,6 @@ public class Vehicle {
 			
 			if((distCond && sameLinkCheck) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = entry.getKey();
-				nearestCarInfo = entry.getValue();
 				nearestDist = distToCar;
 			}
 		}
