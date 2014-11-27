@@ -1,5 +1,6 @@
 package cz.cuni.mff.d3s.roadtrain.utils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,18 +10,23 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.core.utils.geometry.CoordImpl;
 
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
+import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 
 public class Navigator {
 	private static Map<String, Link> places = new HashMap<String, Link>();
 	private static MATSimRouter router;
 			
-	public static void init(MATSimRouter router, double dim) {
+	public static void init(MATSimRouter router) {
 		Navigator.router = router;
-		places.put("Praha", router.findNearestLink(new CoordImpl(dim * 0.10, dim * 0.10)));
-		places.put("Brno", router.findNearestLink(new CoordImpl(dim * 0.10, dim * 0.90)));		
-		places.put("Liberec", router.findNearestLink(new CoordImpl(dim * 0.75, dim * 0.25)));
-		places.put("Ostrava", router.findNearestLink(new CoordImpl(dim * 0.75, dim * 0.75)));
+		places.put("Praha", router.findNearestLink(new CoordImpl(Settings.MIN_X + Settings.WIDTH * 0.10, Settings.MIN_Y + Settings.HEIGHT * 0.10)));
+		places.put("Brno", router.findNearestLink(new CoordImpl(Settings.MIN_X + Settings.WIDTH * 0.10, Settings.MIN_Y + Settings.HEIGHT * 0.90)));		
+		places.put("Liberec", router.findNearestLink(new CoordImpl(Settings.MIN_X + Settings.WIDTH * 0.75, Settings.MIN_Y + Settings.HEIGHT * 0.25)));
+		places.put("Ostrava", router.findNearestLink(new CoordImpl(Settings.MIN_X + Settings.WIDTH * 0.75, Settings.MIN_Y + Settings.HEIGHT * 0.75)));
 	};
+	
+	public static Collection<String> getCities() {
+		return places.keySet();
+	}
 	
 	public static Link getPosition(String name) {
 		return places.get(name);

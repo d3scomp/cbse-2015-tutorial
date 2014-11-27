@@ -65,7 +65,7 @@ public class Launcher {
 		builder = new SimulationRuntimeBuilder();
 		
 		// Setup navigator
-		Navigator.init(router, Settings.MAX_X - Settings.MIN_X);
+		Navigator.init(router);
 	
 		RuntimeMetadata model = RuntimeMetadataFactoryExt.eINSTANCE
 				.createRuntimeMetadata();

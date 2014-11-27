@@ -3,6 +3,7 @@ package cz.cuni.mff.d3s.roadtrain.ensembles;
 import java.util.Map;
 
 import org.matsim.api.core.v01.Coord;
+import org.matsim.api.core.v01.Id;
 
 import cz.cuni.mff.d3s.deeco.annotations.Ensemble;
 import cz.cuni.mff.d3s.deeco.annotations.In;
@@ -36,10 +37,12 @@ public class SharedDestination {
 			@In("member.position") Coord memberPosition,
 			@In("coord.carNum") int coordCarNum,
 			@In("member.carNum") int memberCarNum,
+			@In("coord.currentLink") Id coordLink,
+			@In("member.currentLink") Id memberLink,
 			@InOut("coord.group") ParamHolder<Map<String, VehicleInfo> > coordGroup,
 			@InOut("member.group") ParamHolder<Map<String, VehicleInfo> > memberGroup) {
 		// Exchange information about the group sharing the same destination
-		memberGroup.value.put(coordId, new VehicleInfo(coordId, coordPosition, coordCarNum));
-		memberGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberCarNum));
+		memberGroup.value.put(coordId, new VehicleInfo(coordId, coordPosition, coordCarNum, coordLink));
+		memberGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberCarNum, memberLink));
 	}
 }

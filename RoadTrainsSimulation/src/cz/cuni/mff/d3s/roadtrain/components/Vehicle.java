@@ -113,7 +113,8 @@ public class Vehicle {
 			@In("group") Map<String, VehicleInfo> group,
 			@In("route") List<Id> route,
 			@In("clock") CurrentTimeProvider clock,
-			@In("nearestFollower") Double nearestFollower) {
+			@In("nearestFollower") Double nearestFollower,
+			@In("router") MATSimRouter router) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
@@ -141,7 +142,8 @@ public class Vehicle {
 				leaderCar,
 				carNum,
 				dstCity,
-				Navigator.getPosition(dstCity).getCoord());
+				route,
+				router);
 	}
 
 	/**
@@ -157,9 +159,9 @@ public class Vehicle {
 			@In("router") MATSimRouter router) {
 		
 		
-		Coord min = router.findNearestLink(new CoordImpl(0, 0)).getCoord();
-		
+/*		Coord min = router.findNearestLink(new CoordImpl(0, 0)).getCoord();
 		Coord max = router.findNearestLink(new CoordImpl(999999999, 999999999)).getCoord();
+		*/
 		
 
 		Log.d("Entry [" + id + "]:updateCurrentLink");
@@ -174,14 +176,12 @@ public class Vehicle {
 			@In("id") String id,
 			@In("group") Map<String, VehicleInfo> group,
 			@In("dstCity") String dstCity,
-			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
+			@In("currentLink") Id currentLink,
 			@In("router") MATSimRouter router,
 //			@In("route") List<Id> route,
 			@InOut("leaderCar") ParamHolder<String> leaderCar,
 			@InOut("leaderDist") ParamHolder<Double> leaderDist,
 			@InOut("carNum") ParamHolder<Integer> carNum) {
-		
-		Id currentLink = currentLinkSensor.read();
 		
 		List<Id> route = router.route(currentLink, Navigator.getPosition(dstCity).getId());
 		
@@ -196,23 +196,37 @@ public class Vehicle {
 		VehicleInfo nearestCarInfo = null;
 		Double nearestDist = null;
 		for(Entry<String, VehicleInfo> entry: group.entrySet()) {
-			Id carLink = router.findNearestLink(entry.getValue().position).getId();
+			//Id carLink = router.findNearestLink(entry.getValue().position).getId();
+			
+			Id carLink = entry.getValue().link;
 			double distUsingCar = Navigator.getDestDistUsingCar(dstCity, currentLink, carLink);
 			double distToCar = Navigator.getCarToCarDist(currentLink, carLink);
 			double carToDestDist = Navigator.getDesDist(dstCity, carLink);
 			
 			// Skip ourself
-			if(entry.getKey().equals(id))
-				continue;
+			if(entry.getKey().equals(id)) continue;
 						
 			// Skip cars already at destination
-			if(carToDestDist == 0)
-				continue;
+			if(carToDestDist == 0) continue;
+			
+			// Skip cars which are too far
+//			if(nearestDist < Settings.TRAIN_MAX_FORMATION_DISTANCE) continue;
 			
 			// Route using car position is beneficial (length using the car is the same as without)
 //			if((route.contains(carLink) || leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar)) && (nearestDist == null || nearestDist > distToCar)) {
 //			if(leaderCar.equals(entry.getKey()) || (myTargetDist >= distUsingCar) && (nearestDist == null || nearestDist > distToCar)) {
-			if((myTargetDist >= distUsingCar) && (nearestDist == null || nearestDist > distToCar)) {
+//			if((myTargetDist >= distUsingCar || route.contains(entry.getValue().position)) && (nearestDist == null || nearestDist > distToCar)) {
+			
+			boolean distCond = myTargetDist >= distUsingCar;
+			
+			// Do not follow car on the same link if it was not followed before
+			boolean sameLinkCheck = !carLink.equals(currentLink) || (entry.getKey().equals(leaderCar));
+			boolean routeCond = route.contains(entry.getValue().position);
+			
+//			System.out.println("Dist: " + distCond + ":" + myTargetDist + ":" + distUsingCar);
+//			System.out.println("Route: " + routeCond + " : " + carLink + ":" + route.toString());
+			
+			if((distCond && sameLinkCheck) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = entry.getKey();
 				nearestCarInfo = entry.getValue();
 				nearestDist = distToCar;
@@ -220,9 +234,9 @@ public class Vehicle {
 		}
 		
 		// Follow the car or lead new road train
-		System.out.println(nearestDist);
+//		System.out.println(nearestDist);
 		//if(nearestCarId != null && nearestCarInfo.trainNum < Settings.TRAIN_LENGTH_LIMIT - 1) {
-		if(nearestCarId != null && nearestDist < Settings.TRAIN_MAX_FORMATION_DISTANCE) {
+		if(nearestCarId != null) {
 			// There is car that is in front of us on the path to destination and the road train is short enough -> follow it
 			leaderCar.value = nearestCarId;
 			carNum.value = nearestCarInfo.trainNum + 1;
@@ -259,7 +273,7 @@ public class Vehicle {
 			@In("leaderDist") Double leaderDist) throws Exception {
 		
 		boolean wait = false;
-		
+/*		
 		// Wait for followers
 		if(nearestFollower != null && nearestFollower > Settings.TRAIN_MAX_CAR_DIST) {
 			System.out.println(id + " waiting for followers");
@@ -269,7 +283,7 @@ public class Vehicle {
 		if(leaderDist != null && leaderDist < Settings.TRAIN_MIN_CAR_DIST) {
 			System.out.println(id + " waiting to let leader lead");
 			wait = true;
-		}
+		}*/
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
@@ -283,9 +297,8 @@ public class Vehicle {
 		// Car in front of us -> follow it
 		if(leaderCar != null) {
 			if(!wait) {
-				Coord carPos = group.get(leaderCar).position;
-				Link carLink = router.findNearestLink(carPos);
-				route.value = router.route(currentLink, carLink.getId(), route.value);
+				Id carLink = group.get(leaderCar).link;
+				route.value = router.route(currentLink, carLink, route.value);
 			} else {
 				route.value = new LinkedList<Id>();
 			}

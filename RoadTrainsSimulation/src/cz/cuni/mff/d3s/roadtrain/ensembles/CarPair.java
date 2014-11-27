@@ -3,6 +3,7 @@ package cz.cuni.mff.d3s.roadtrain.ensembles;
 import java.util.Map;
 
 import org.matsim.api.core.v01.Coord;
+import org.matsim.api.core.v01.Id;
 
 import cz.cuni.mff.d3s.deeco.annotations.Ensemble;
 import cz.cuni.mff.d3s.deeco.annotations.In;
@@ -30,9 +31,10 @@ public class CarPair {
 			@In("member.id") String memberId,
 			@InOut("coord.followers") ParamHolder<Map<String, VehicleInfo> > followers,
 			@In("member.position") Coord position,
-			@In("member.carNum") int carNum) {
+			@In("member.carNum") int carNum,
+			@In("member.currentLink") Id link) {
 		// TODO: map coord location, speed, ... for precious following
 		
-		followers.value.put(memberId, new VehicleInfo(memberId, position, carNum));
+		followers.value.put(memberId, new VehicleInfo(memberId, position, carNum, link));
 	}
 }

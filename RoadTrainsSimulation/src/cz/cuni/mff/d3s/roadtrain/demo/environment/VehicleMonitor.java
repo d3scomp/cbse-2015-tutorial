@@ -4,10 +4,15 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.*;
 
 import org.matsim.api.core.v01.Coord;
+import org.matsim.api.core.v01.Id;
 
+import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
+import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 
 public class VehicleMonitor {
 	// TODO: remove static methods, move prefix settings to constructor
@@ -15,10 +20,17 @@ public class VehicleMonitor {
 	static StringBuilder record = new StringBuilder();
 	static long time = 0;
 	
-	static final double SCALE = 1;
+	static final double SCALE = 0.1;
+	
+	static final Map<String, String> colorMap = new HashMap<String, String>();
+	static {
+		colorMap.put("V0", "green");
+		colorMap.put("V1", "orange");
+		colorMap.put("V2", "blue");
+	}
 	
 	
-	public static synchronized void report(long timeMs, String id, Coord pos, String leader, int carNum, String dstCity, Coord dst) {
+	public static synchronized void report(long timeMs, String id, Coord pos, String leader, int carNum, String dstCity, List<Id> route, MATSimRouter router) {
 		// Start new frame if needed
 		if(time != timeMs) {
 			try {
@@ -28,22 +40,51 @@ public class VehicleMonitor {
 			}
 			time = timeMs;
 		}
-
-		// Node
-		record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", dstCity, convX(dst.getX()), convY(dst.getY())));
 		
-		// Edge
-		String color = "blue";
+		String nodeColor = colorMap.get(id);
+		if(nodeColor == null) {
+			nodeColor = "gray";
+		}
+			
+		
+		// Add cities
+		for(String place: Navigator.getCities()) {
+			Coord coord = Navigator.getPosition(place).getCoord();
+			record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", place, convX(coord.getX()), convY(coord.getY())));
+		}
+		
+		// Add route
+		String last = id;
+		for(Id i: route) {
+			Coord linkPos = router.findLinkById(i).getCoord();
+			String linkName = id + i.toString();
+			record.append(String.format("\n%s [pos = \"%s,%s!\", style=invis]",
+					linkName,
+					convX(linkPos.getX()),
+					convY(linkPos.getY())
+			));
+			record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", penwidth=3]",
+					last,
+					linkName,
+					nodeColor
+			));
+			last = linkName;
+		}
+		
 		if(leader == null) {
 			leader = dstCity;
-			color = "red";
 		}
-		record.append(String.format("\n%s [\n\tlabel = \"%s\"\n\tpos = \"%s,%s!\"\n]\n%s -> %s [color=%s]",
+
+		// Vehicle
+		record.append(String.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s]",
 				id,
-				id + "(" + carNum + ")",
+				id,
 				convX(pos.getX()),
 				convY(pos.getY()),
-				id, leader, color
+				nodeColor
+		));
+		record.append(String.format("\n%s -> %s [color=%s]",
+				id, leader, nodeColor
 		));
 	}
 
@@ -66,10 +107,10 @@ public class VehicleMonitor {
 	}
 	
 	private static double convX(double value) {
-		return value - Settings.MIN_X;
+		return (value - Settings.MIN_X) * SCALE;
 	}
 	
 	private static double convY(double value) {
-		return value - Settings.MIN_Y;
+		return (value - Settings.MIN_Y) * SCALE;
 	}
 }
