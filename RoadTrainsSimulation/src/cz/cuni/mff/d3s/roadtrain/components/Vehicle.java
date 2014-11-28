@@ -113,7 +113,7 @@ public class Vehicle {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, prevCar: %s, dst: %s(%s)\n",
+		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, leader: %s, dst: %s(%s)\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				currentLinkSensor.read(),

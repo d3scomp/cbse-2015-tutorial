@@ -22,11 +22,48 @@ public class VehicleMonitor {
 	
 	static final double SCALE = 0.1;
 	
+	/* static final String[] colors = {"aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque",
+	"black", "blanchedalmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse",
+	"chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan",
+	"darkgoldenrod", "darkgreen", "darkgrey", "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange",
+	"darkorchid", "darkred", "darksalmon", "darkseagreen", "darkslateblue", "darkslategray", "darkslategrey",
+	"darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray", "dimgrey", "dodgerblue", "firebrick",
+	"floralwhite", "forestgreen", "fuchsia", "gainsboro", "ghostwhite", "gold", "goldenrod", "green",
+	"greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory", "khaki", "lavender",
+	"lavenderblush", "lawngreen", "lemonchiffon", "lightblue", "lightcoral", "lightcyan",
+	"lightgoldenrodyellow", "lightgray", "lightgreen", "lightgrey", "lightpink", "lightsalmon",
+	"lightseagreen", "lightskyblue", "lightslategray", "lightslategrey", "lightsteelblue", "lightyellow",
+	"lime", "limegreen", "linen", "magenta", "maroon", "mediumaquamarine", "mediumblue", "mediumorchid",
+	"mediumpurple", "mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturquoise",
+	"mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin", "navajowhite", "navy",
+	"oldlace", "olive", "olivedrab", "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
+	"paleturquoise", "palevioletred", "papayawhip", "peachpuff", " peru", "pink", "plum", "powderblue",
+	"purple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen", "seashell",
+	"sienna", "silver", "skyblue", "slateblue", "slategray", "slategrey", "springgreen", "steelblue", "tan",
+	"teal", "thistle", "tomato", "turquoise", "violet", "yellow", "yellowgreen" };*/
+	
 	static final Map<String, String> colorMap = new HashMap<String, String>();
 	static {
 		colorMap.put("V0", "green");
 		colorMap.put("V1", "orange");
 		colorMap.put("V2", "blue");
+		colorMap.put("V3", "red");
+		colorMap.put("V4", "blueviolet");
+		colorMap.put("V5", "deeppink");
+		colorMap.put("V6", "gold");
+		colorMap.put("V7", "purple");
+		colorMap.put("V8", "cyan");
+		colorMap.put("V9", "chartreuse");
+		colorMap.put("V10", "green");
+		colorMap.put("V11", "orange");
+		colorMap.put("V12", "blue");
+		colorMap.put("V13", "red");
+		colorMap.put("V14", "blueviolet");
+		colorMap.put("V15", "deeppink");
+		colorMap.put("V16", "gold");
+		colorMap.put("V17", "purple");
+		colorMap.put("V18", "cyan");
+		colorMap.put("V19", "chartreuse");
 	}
 	
 	
@@ -74,6 +111,7 @@ public class VehicleMonitor {
 		// Vehicle
 		if(leader == null) {
 			leader = dstCity;
+			leaderDist = 0.0;
 		}
 		record.append(String.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
 				id,
@@ -84,7 +122,7 @@ public class VehicleMonitor {
 				nodeColor
 		));
 		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]",
-				id, leader, nodeColor, leaderDist
+				id, leader, nodeColor, leaderDist.intValue()
 		));
 	}
 

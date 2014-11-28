@@ -21,20 +21,27 @@ public class Settings {
 	public static final double PHYS_WIDTH = PHYS_MAX_X - PHYS_MIN_X;
 	public static final double PHYS_HEIGHT = PHYS_MAX_Y - PHYS_MIN_Y;
 	
+	public static double physToX(double physX) {
+		return MIN_X + ((physX - PHYS_MIN_X) / (PHYS_WIDTH)) * WIDTH;
+	}
+	public static double physToY(double physY) {
+		return MIN_Y + ((physY - PHYS_MIN_Y) / (PHYS_HEIGHT)) * HEIGHT;
+	}
+	
 	// Train parameters
-	public static final double TRAIN_FORM_DISTANCE = 5000; // m
-	public static final double TRAIN_MAX_CAR_DIST = 2000; // m
-	public static final double TRAIN_MIN_CAR_DIST = 100; // m
+	public static final double TRAIN_FORM_DISTANCE = 8000; // m
+	public static final double TRAIN_MAX_CAR_DIST = 3000; // m
+	public static final double TRAIN_MIN_CAR_DIST = 1000; // m
 	
 	// Car deployment parameters
 	public static final int GROUP_A_VEHICLE_COUNT = 10;
 	public static final String GROUP_A_POS = "Liberec";
-	public static final double GROUP_A_RADIUS = 0.15 * (WIDTH);
+	public static final double GROUP_A_RADIUS = 0.20 * (WIDTH);
 	public static final String GROUP_A_DST = "Praha";
 	
 	public static final int GROUP_B_VEHICLE_COUNT = 10;
 	public static final String GROUP_B_POS = "Ostrava";
-	public static final double GROUP_B_RADIUS = 0.15 * (WIDTH);
+	public static final double GROUP_B_RADIUS = 0.20 * (WIDTH);
 	public static final String GROUP_B_DST = "Brno";
 	
 	// Router settings

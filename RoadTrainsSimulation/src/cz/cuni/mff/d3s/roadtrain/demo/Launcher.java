@@ -109,8 +109,8 @@ public class Launcher {
 	}
 	
 	private static Link getRandomLink(double x, double y, double radius) {
-		double dx = random.nextDouble() * radius;
-		double dy = random.nextDouble() * radius;
+		double dx = (0.5 - random.nextDouble()) * 2 * radius;
+		double dy = (0.5 - random.nextDouble()) * 2 * radius;
 		return router.findNearestLink(new CoordImpl(x + dx, y + dy));
 	}
 	
