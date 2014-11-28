@@ -14,25 +14,27 @@ public class Settings {
 	public static final double WIDTH = MAX_X - MIN_X;
 	public static final double HEIGHT = MAX_Y - MIN_Y;
 	
-//	50.0248755, 14.2819905
-//	50.1307352, 14.5509804
+	public static final double PHYS_MIN_X = 14.2819905; 
+	public static final double PHYS_MAX_X = 14.5509804; 
+	public static final double PHYS_MIN_Y = 50.0248755; 
+	public static final double PHYS_MAX_Y = 50.1307352;
+	public static final double PHYS_WIDTH = PHYS_MAX_X - PHYS_MIN_X;
+	public static final double PHYS_HEIGHT = PHYS_MAX_Y - PHYS_MIN_Y;
 	
 	// Train parameters
-	public static final double TRAIN_FORM_DISTANCE = 500; // m
-	public static final int TRAIN_LENGTH_LIMIT = 5; // cars
-	public static final double TRAIN_MAX_FORMATION_DISTANCE = 200; // links
-	public static final double TRAIN_MAX_CAR_DIST = 50; // links
-	public static final double TRAIN_MIN_CAR_DIST = 5; // links
+	public static final double TRAIN_FORM_DISTANCE = 5000; // m
+	public static final double TRAIN_MAX_CAR_DIST = 2000; // m
+	public static final double TRAIN_MIN_CAR_DIST = 100; // m
 	
-	// Car parameters
-	public static final int GROUP_A_VEHICLE_COUNT = 3;
+	// Car deployment parameters
+	public static final int GROUP_A_VEHICLE_COUNT = 10;
 	public static final String GROUP_A_POS = "Liberec";
-	public static final double GROUP_A_RADIUS = 0.10 * (WIDTH);
+	public static final double GROUP_A_RADIUS = 0.15 * (WIDTH);
 	public static final String GROUP_A_DST = "Praha";
 	
-	public static final int GROUP_B_VEHICLE_COUNT = 0;
+	public static final int GROUP_B_VEHICLE_COUNT = 10;
 	public static final String GROUP_B_POS = "Ostrava";
-	public static final double GROUP_B_RADIUS = 0.10 * (WIDTH);
+	public static final double GROUP_B_RADIUS = 0.15 * (WIDTH);
 	public static final String GROUP_B_DST = "Brno";
 	
 	// Router settings

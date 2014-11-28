@@ -184,10 +184,15 @@ public class Vehicle {
 			if(carToDestDist == 0) continue;
 			
 			// Skip cars which are too far
-			if(carToDestDist > Settings.TRAIN_MAX_FORMATION_DISTANCE) continue;
+//			System.out.println(String.format("Dist: %s", distToCar));
+//			if(distToCar > Settings.TRAIN_FORM_DISTANCE) continue;
+			
+			
 			
 			// Follow only car on the route to destination
-			boolean distCond = myTargetDist >= distUsingCar;
+			boolean distCond = Math.abs(myTargetDist - distUsingCar) < 1;
+//			if(distCond)
+//				System.out.println(String.format("%s -> %s = %s", myTargetDist, distUsingCar, myTargetDist - distUsingCar));
 			
 			// Do not follow car on the same link if it was not followed before
 			boolean sameLinkCheck = !carLink.equals(currentLink) || (entry.getKey().equals(leaderCar));
