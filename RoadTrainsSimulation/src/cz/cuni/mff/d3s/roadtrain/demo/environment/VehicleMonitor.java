@@ -46,12 +46,11 @@ public class VehicleMonitor {
 		if(nodeColor == null) {
 			nodeColor = "gray";
 		}
-			
 		
 		// Add cities
 		for(String place: Navigator.getCities()) {
 			Coord coord = Navigator.getPosition(place).getCoord();
-			record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", place, convX(coord.getX()), convY(coord.getY())));
+			record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", place, coord.getX() * SCALE, coord.getY() * SCALE));
 		}
 		
 		// Add route
@@ -61,8 +60,8 @@ public class VehicleMonitor {
 			String linkName = String.format("%s_%s", id, i);
 			record.append(String.format("\n%s [pos = \"%s,%s!\", style=\"\", label=\"\", width=\"0.001\", height=\"0.01\"]",
 					linkName,
-					convX(linkPos.getX()),
-					convY(linkPos.getY())
+					linkPos.getX() * SCALE,
+					linkPos.getY() * SCALE
 			));
 			record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", label=\"\"]",
 					last,
@@ -79,8 +78,8 @@ public class VehicleMonitor {
 		record.append(String.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
 				id,
 				id,
-				convX(pos.getX()),
-				convY(pos.getY()),
+				pos.getX() * SCALE,
+				pos.getY() * SCALE,
 				nodeColor,
 				nodeColor
 		));
@@ -96,22 +95,14 @@ public class VehicleMonitor {
 		
 		writer.write("node [shape=box, label=\"\\N\", pin=true\n];\n");
 		  
-		writer.write(String.format("tl [ pos = \"%s,%s!\", style=invis ]\n", 0, 0));
-		writer.write(String.format("tr [ pos = \"%s,%s!\", style=invis ]\n", 0, (Settings.MAX_Y - Settings.MIN_Y)  * SCALE));
-		writer.write(String.format("bl [ pos = \"%s,%s!\", style=invis ]\n", (Settings.MAX_X - Settings.MIN_X) * SCALE, 0));
-		writer.write(String.format("br [ pos = \"%s,%s!\", style=invis ]\n", (Settings.MAX_X - Settings.MIN_X) * SCALE, (Settings.MAX_Y - Settings.MIN_Y) * SCALE));
+		writer.write(String.format("tl [ pos = \"%s,%s!\", style=invis ]\n", Settings.MIN_X * SCALE, Settings.MIN_Y * SCALE));
+		writer.write(String.format("tr [ pos = \"%s,%s!\", style=invis ]\n", Settings.MIN_X * SCALE, Settings.MAX_Y * SCALE));
+		writer.write(String.format("bl [ pos = \"%s,%s!\", style=invis ]\n", Settings.MAX_X * SCALE, Settings.MIN_Y * SCALE));
+		writer.write(String.format("br [ pos = \"%s,%s!\", style=invis ]\n", Settings.MAX_X * SCALE, Settings.MAX_Y * SCALE));
 		writer.write(record.toString());
 		writer.write("\n}");
 		writer.close();
 		
 		record = new StringBuilder();
-	}
-	
-	private static double convX(double value) {
-		return (value - Settings.MIN_X) * SCALE;
-	}
-	
-	private static double convY(double value) {
-		return (value - Settings.MIN_Y) * SCALE;
 	}
 }
