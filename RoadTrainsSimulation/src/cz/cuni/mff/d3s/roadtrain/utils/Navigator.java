@@ -46,6 +46,7 @@ public class Navigator {
 	
 	private static double getLinkDistance(Id link1, Id link2) {
 		return router.route(link1, link2).size();
+		
 	/*	Coord coord1 = router.findLinkById(link1).getCoord();
 		Coord coord2 = router.findLinkById(link2).getCoord();
 		return getEuclidDistance(coord1, coord2);*/

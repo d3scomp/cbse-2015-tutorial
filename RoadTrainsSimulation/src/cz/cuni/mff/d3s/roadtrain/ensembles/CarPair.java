@@ -1,8 +1,5 @@
 package cz.cuni.mff.d3s.roadtrain.ensembles;
 
-import java.util.Map;
-
-import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 
 import cz.cuni.mff.d3s.deeco.annotations.Ensemble;
@@ -12,7 +9,7 @@ import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
-import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
+import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
@@ -20,20 +17,24 @@ public class CarPair {
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
-			@In("member.prevCar") String memeberPrevCar) {
+			@In("member.leaderCar") String memeberLeaderCar) {
 		// Member is following coordinator
-		return memeberPrevCar.equals(coordId);
+		return memeberLeaderCar.equals(coordId);
 	}
-	
+
 	@KnowledgeExchange
-	public static void exchange(
-			@In("coord.id") String coordId,
+	public static void exchange(@In("coord.id") String coordId,
 			@In("member.id") String memberId,
-			@InOut("coord.followers") ParamHolder<Map<String, VehicleInfo> > followers,
-			@In("member.position") Coord position,
-			@In("member.currentLink") Id link) {
+			@In("coord.currentLink") Id coordLink,
+			@In("member.currentLink") Id memberLink,
+			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
+			@InOut("member.leaderDist") ParamHolder<Double> leaderDist) {
 		// TODO: map coord location, speed, ... for precious following
-		
-		followers.value.put(memberId, new VehicleInfo(memberId, position, link));
+
+		// Leader - follower distance
+		double dist = Navigator.getCarToCarDist(coordLink, memberLink);
+		if (nearestFollower.value == null || nearestFollower.value > dist)
+			nearestFollower.value = dist;
+		leaderDist.value = dist;
 	}
 }

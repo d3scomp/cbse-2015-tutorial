@@ -14,6 +14,8 @@ public class Settings {
 	public static final double WIDTH = MAX_X - MIN_X;
 	public static final double HEIGHT = MAX_Y - MIN_Y;
 	
+//	50.0248755, 14.2819905
+//	50.1307352, 14.5509804
 	
 	// Train parameters
 	public static final double TRAIN_FORM_DISTANCE = 500; // m
