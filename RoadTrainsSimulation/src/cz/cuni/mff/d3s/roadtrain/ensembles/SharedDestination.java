@@ -17,7 +17,7 @@ import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
-@PartitionedBy("destination")
+@PartitionedBy("dstCity")
 public class SharedDestination {
 	@Membership
 	public static boolean membership(

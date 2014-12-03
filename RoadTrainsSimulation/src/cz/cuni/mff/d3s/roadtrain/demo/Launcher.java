@@ -59,7 +59,6 @@ public class Launcher {
 				Arrays.asList(jdeecoAgentSource), Settings.MATSIM_CONFIG);
 		router = new MATSimRouter(simulation.getControler(),
 				simulation.getTravelTime(), Settings.ROUTE_CALCULATION_OFFSET);
-		//matSimProviderReceiver..initialize(simulation, router);
 		System.out.println("Creating components");
 		builder = new SimulationRuntimeBuilder();
 		

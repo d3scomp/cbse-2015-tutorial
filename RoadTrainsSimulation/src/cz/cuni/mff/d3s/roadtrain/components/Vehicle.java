@@ -185,9 +185,7 @@ public class Vehicle {
 			
 			// Skip cars which are too far
 //			System.out.println(String.format("Dist: %s", distToCar));
-//			if(distToCar > Settings.TRAIN_FORM_DISTANCE) continue;
-			
-			
+			if(distToCar > Settings.TRAIN_FORM_DISTANCE) continue;
 			
 			// Follow only car on the route to destination
 			boolean distCond = Math.abs(myTargetDist - distUsingCar) < 1;

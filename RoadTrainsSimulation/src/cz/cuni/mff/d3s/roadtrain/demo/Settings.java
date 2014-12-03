@@ -29,8 +29,8 @@ public class Settings {
 	}
 	
 	// Train parameters
-	public static final double TRAIN_FORM_DISTANCE = 8000; // m
-	public static final double TRAIN_MAX_CAR_DIST = 3000; // m
+	public static final double TRAIN_FORM_DISTANCE = 5000; // m
+	public static final double TRAIN_MAX_CAR_DIST = 2000; // m
 	public static final double TRAIN_MIN_CAR_DIST = 1000; // m
 	
 	// Car deployment parameters
