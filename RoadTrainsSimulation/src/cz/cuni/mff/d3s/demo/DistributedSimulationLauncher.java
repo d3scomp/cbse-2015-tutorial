@@ -15,7 +15,7 @@ import cz.cuni.mff.d3s.deeco.model.runtime.custom.RuntimeMetadataFactoryExt;
 import cz.cuni.mff.d3s.deeco.runtime.RuntimeFramework;
 import cz.cuni.mff.d3s.deeco.simulation.DirectKnowledgeDataHandler;
 import cz.cuni.mff.d3s.deeco.simulation.DirectSimulationHost;
-import cz.cuni.mff.d3s.deeco.simulation.NetworkKnowledgeDataHandler;
+import cz.cuni.mff.d3s.deeco.simulation.NetworkDataHandler;
 import cz.cuni.mff.d3s.deeco.simulation.SimulationRuntimeBuilder;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.DefaultMATSimExtractor;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.DefaultMATSimUpdater;
@@ -40,7 +40,7 @@ public class DistributedSimulationLauncher {
 		System.out.println("Preparing simulation");
 		jdeecoAgentSource = new JDEECoAgentSource();
 		matSimProviderReceiver = new MATSimDataProviderReceiver(linksToDisable);
-		NetworkKnowledgeDataHandler networkHandler = new DirectKnowledgeDataHandler();
+		NetworkDataHandler networkHandler = new DirectKnowledgeDataHandler();
 		simulation = new MATSimSimulation(matSimProviderReceiver,
 				matSimProviderReceiver, new DefaultMATSimUpdater(),
 				new DefaultMATSimExtractor(), networkHandler,

@@ -1,25 +1,22 @@
 package cz.cuni.mff.d3s.demo;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import cz.cuni.mff.d3s.deeco.network.AbstractHost;
-import cz.cuni.mff.d3s.deeco.network.KnowledgeData;
-import cz.cuni.mff.d3s.deeco.network.KnowledgeDataReceiver;
+import cz.cuni.mff.d3s.deeco.network.DataReceiver;
 import cz.cuni.mff.d3s.deeco.simulation.DirectKnowledgeDataHandler;
 
-public class NoRebroadcastDirectKnowledgeDataHandler extends
-		DirectKnowledgeDataHandler {
-	
+@SuppressWarnings({ "rawtypes" })
+public class NoRebroadcastDirectKnowledgeDataHandler extends DirectKnowledgeDataHandler {
+
 	@Override
-	public void networkBroadcast(AbstractHost from, List<? extends KnowledgeData> knowledgeData, Collection<KnowledgeDataReceiver> receivers) {
-		for (KnowledgeData kd: knowledgeData) {
-			kd.getMetaData().rssi = -1.0;
-		}
-		for (KnowledgeDataReceiver receiver: receivers) {
-			receiver.receive(knowledgeData);
+	public void networkBroadcast(AbstractHost from, Object data, Map<AbstractHost, Collection<DataReceiver>> receivers) {
+		for (Collection<DataReceiver> innerReceivers : receivers.values()) {
+			for (DataReceiver receiver : innerReceivers) {
+				receiver.checkAndReceive(data, DEFAULT_MANET_RSSI);
+			}
 		}
 	}
-
 
 }
