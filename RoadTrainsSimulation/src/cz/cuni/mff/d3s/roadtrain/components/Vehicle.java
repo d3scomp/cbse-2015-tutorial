@@ -73,6 +73,9 @@ public class Vehicle {
 	public Actuator<List<Id> > routeActuator;
 	
 	@Local
+	public Actuator<Double> speedActuator;
+	
+	@Local
 	public Sensor<Id> currentLinkSensor;
 
 	@Local
@@ -87,6 +90,7 @@ public class Vehicle {
 		this.id = id;
 		this.dstCity = dstCity;
 		this.routeActuator = actuatorProvider.createActuator(ActuatorType.ROUTE);
+		this.speedActuator = actuatorProvider.createActuator(ActuatorType.SPEED);
 		this.currentLinkSensor = sensorProvider.createSensor(SensorType.CURRENT_LINK);
 		this.router = router;
 		this.clock = clock;
@@ -234,6 +238,7 @@ public class Vehicle {
 			@In("dstCity") String dstCity,
 			@InOut("route") ParamHolder<List<Id> > route,
 			@In("routeActuator") Actuator<List<Id> > routeActuator,
+			@In("speedActuator") Actuator<Double> speedActuator,
 			@In("router") MATSimRouter router,
 			@In("nearestFollower") Double nearestFollower,
 			@In("leaderDist") Double leaderDist) throws Exception {
@@ -252,23 +257,21 @@ public class Vehicle {
 			wait = true;
 		}
 		
+		if(!wait) {
+			speedActuator.set(Settings.VEHICLE_FULL_SPEED);
+		} else {
+			speedActuator.set(Settings.VEHICLE_WAIT_SPEED);
+		}	
+		
 		// No car in front of us -> drive directly to destination
 		if(leaderCar == null) {
-			if(!wait) {
-				route.value = router.route(currentLink, Navigator.getPosition(dstCity).getId(), route.value);
-			} else {
-				route.value = new LinkedList<Id>();
-			}
+			route.value = router.route(currentLink, Navigator.getPosition(dstCity).getId(), route.value);
 		}
 		
 		// Car in front of us -> follow it
 		if(leaderCar != null) {
-			if(!wait) {
-				Id carLink = group.get(leaderCar).link;
-				route.value = router.route(currentLink, carLink, route.value);
-			} else {
-				route.value = new LinkedList<Id>();
-			}
+			Id carLink = group.get(leaderCar).link;
+			route.value = router.route(currentLink, carLink, route.value);
 		}
 		
 		// Already at the destination -> stop

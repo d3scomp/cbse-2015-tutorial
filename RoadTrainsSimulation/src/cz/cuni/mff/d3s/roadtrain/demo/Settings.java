@@ -32,6 +32,8 @@ public class Settings {
 	public static final double TRAIN_FORM_DISTANCE = 5000; // m
 	public static final double TRAIN_MAX_CAR_DIST = 2000; // m
 	public static final double TRAIN_MIN_CAR_DIST = 1000; // m
+	public static final double VEHICLE_FULL_SPEED = 20; // m/s
+	public static final double VEHICLE_WAIT_SPEED = 10; // m/s
 	
 	// Car deployment parameters
 	public static final int GROUP_A_VEHICLE_COUNT = 10;
@@ -39,7 +41,7 @@ public class Settings {
 	public static final double GROUP_A_RADIUS = 0.20 * (WIDTH);
 	public static final String GROUP_A_DST = "Praha";
 	
-	public static final int GROUP_B_VEHICLE_COUNT = 10;
+	public static final int GROUP_B_VEHICLE_COUNT = 0;
 	public static final String GROUP_B_POS = "Ostrava";
 	public static final double GROUP_B_RADIUS = 0.20 * (WIDTH);
 	public static final String GROUP_B_DST = "Brno";

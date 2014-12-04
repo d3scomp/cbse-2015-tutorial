@@ -175,6 +175,19 @@ public class MATSimDataProviderReceiver implements MATSimDataReceiver,
 				}
 			};
 		}
+		if (actuatorType == ActuatorType.SPEED) {
+			return new Actuator<Double>() {
+				@Override
+				public void set(Double meterPerSecond) {
+					mData.speed = meterPerSecond;
+				}
+
+				@Override
+				public ActuatorType getActuatorType() {
+					return ActuatorType.SPEED;
+				}
+			};
+		}
 		return null;
 	}
 
