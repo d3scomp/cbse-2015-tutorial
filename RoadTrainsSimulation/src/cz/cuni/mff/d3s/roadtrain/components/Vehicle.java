@@ -52,6 +52,8 @@ public class Vehicle {
 	 */
 	public Id currentLink;
 	
+	public String trainId;
+	
 	public String leaderCar;
 	
 	public Double leaderDist = null;		
@@ -88,6 +90,7 @@ public class Vehicle {
 			ActuatorProvider actuatorProvider, SensorProvider sensorProvider,
 			MATSimRouter router, CurrentTimeProvider clock) {
 		this.id = id;
+		this.trainId = id;
 		this.dstCity = dstCity;
 		this.routeActuator = actuatorProvider.createActuator(ActuatorType.ROUTE);
 		this.speedActuator = actuatorProvider.createActuator(ActuatorType.SPEED);
@@ -113,11 +116,12 @@ public class Vehicle {
 			@In("clock") CurrentTimeProvider clock,
 			@In("nearestFollower") Double nearestFollower,
 			@In("leaderDist") Double leaderDist,
-			@In("router") MATSimRouter router) {
+			@In("router") MATSimRouter router,
+			@In("trainId") String trainId) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, leader: %s, dst: %s(%s)\n",
+		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, leader: %s, dst: %s(%s), train: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				currentLinkSensor.read(),
@@ -127,7 +131,8 @@ public class Vehicle {
 				Navigator.getDesDist(dstCity, currentLinkSensor.read()),
 				leaderCar,
 				Navigator.getPosition(dstCity).getId(),
-				dstCity);
+				dstCity,
+				trainId);
 		
 		// Report information about vehicle
 		VehicleMonitor.report(
@@ -139,7 +144,8 @@ public class Vehicle {
 				route,
 				router,
 				leaderDist,
-				nearestFollower);
+				nearestFollower,
+				trainId);
 	}
 
 	/**
@@ -168,7 +174,8 @@ public class Vehicle {
 			@In("currentLink") Id currentLink,
 			@In("router") MATSimRouter router,
 			@InOut("leaderCar") ParamHolder<String> leaderCar,
-			@InOut("leaderDist") ParamHolder<Double> leaderDist) {		
+			@InOut("leaderDist") ParamHolder<Double> leaderDist,
+			@InOut("trainId") ParamHolder<String> trainId) {		
 		double myTargetDist = Navigator.getDesDist(dstCity, currentLink);
 		
 		// Do nothing when already at destination
@@ -189,7 +196,7 @@ public class Vehicle {
 			
 			// Skip cars which are too far
 //			System.out.println(String.format("Dist: %s", distToCar));
-			if(distToCar > Settings.TRAIN_FORM_DISTANCE) continue;
+			if(distToCar > Settings.LINK_FORM_DISTANCE) continue;
 			
 			// Follow only car on the route to destination
 			boolean distCond = Math.abs(myTargetDist - distUsingCar) < 1;
@@ -215,6 +222,7 @@ public class Vehicle {
 			// or road train is too long -> lead the new train
 			leaderCar.value = null;
 			leaderDist.value = null;
+			trainId.value = id;
 		}
 	}
 	
@@ -246,13 +254,13 @@ public class Vehicle {
 		boolean wait = false;
 		
 		// Wait for followers
-		if(nearestFollower != null && nearestFollower > Settings.TRAIN_MAX_CAR_DIST) {
+		if(nearestFollower != null && nearestFollower > Settings.LINK_MAX_CAR_DIST) {
 			System.out.println(id + " waiting for followers");
 			wait = true;
 		}
 		
 		// Wait for leaders
-		if(leaderDist != null && leaderDist < Settings.TRAIN_MIN_CAR_DIST) {
+		if(leaderDist != null && leaderDist < Settings.LINK_MIN_CAR_DIST) {
 			System.out.println(id + " waiting to let leader lead");
 			wait = true;
 		}

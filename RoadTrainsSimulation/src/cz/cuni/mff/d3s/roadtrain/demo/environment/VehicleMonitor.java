@@ -19,29 +19,29 @@ public class VehicleMonitor {
 	final static String prefix = "visual" + File.separator + "time-";
 	static StringBuilder record = new StringBuilder();
 	static long time = 0;
-	
+
 	static final double SCALE = 0.1;
-	
-	/* static final String[] colors = {"aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque",
-	"black", "blanchedalmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse",
-	"chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan",
-	"darkgoldenrod", "darkgreen", "darkgrey", "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange",
-	"darkorchid", "darkred", "darksalmon", "darkseagreen", "darkslateblue", "darkslategray", "darkslategrey",
-	"darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray", "dimgrey", "dodgerblue", "firebrick",
-	"floralwhite", "forestgreen", "fuchsia", "gainsboro", "ghostwhite", "gold", "goldenrod", "green",
-	"greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory", "khaki", "lavender",
-	"lavenderblush", "lawngreen", "lemonchiffon", "lightblue", "lightcoral", "lightcyan",
-	"lightgoldenrodyellow", "lightgray", "lightgreen", "lightgrey", "lightpink", "lightsalmon",
-	"lightseagreen", "lightskyblue", "lightslategray", "lightslategrey", "lightsteelblue", "lightyellow",
-	"lime", "limegreen", "linen", "magenta", "maroon", "mediumaquamarine", "mediumblue", "mediumorchid",
-	"mediumpurple", "mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturquoise",
-	"mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin", "navajowhite", "navy",
-	"oldlace", "olive", "olivedrab", "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
-	"paleturquoise", "palevioletred", "papayawhip", "peachpuff", " peru", "pink", "plum", "powderblue",
-	"purple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen", "seashell",
-	"sienna", "silver", "skyblue", "slateblue", "slategray", "slategrey", "springgreen", "steelblue", "tan",
-	"teal", "thistle", "tomato", "turquoise", "violet", "yellow", "yellowgreen" };*/
-	
+
+	/*
+	 * static final String[] colors = {"aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque",
+	 * "black", "blanchedalmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse", "chocolate",
+	 * "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgreen",
+	 * "darkgrey", "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange", "darkorchid", "darkred", "darksalmon",
+	 * "darkseagreen", "darkslateblue", "darkslategray", "darkslategrey", "darkturquoise", "darkviolet", "deeppink",
+	 * "deepskyblue", "dimgray", "dimgrey", "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia",
+	 * "gainsboro", "ghostwhite", "gold", "goldenrod", "green", "greenyellow", "honeydew", "hotpink", "indianred",
+	 * "indigo", "ivory", "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon", "lightblue", "lightcoral",
+	 * "lightcyan", "lightgoldenrodyellow", "lightgray", "lightgreen", "lightgrey", "lightpink", "lightsalmon",
+	 * "lightseagreen", "lightskyblue", "lightslategray", "lightslategrey", "lightsteelblue", "lightyellow", "lime",
+	 * "limegreen", "linen", "magenta", "maroon", "mediumaquamarine", "mediumblue", "mediumorchid", "mediumpurple",
+	 * "mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturquoise", "mediumvioletred", "midnightblue",
+	 * "mintcream", "mistyrose", "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab", "orange",
+	 * "orangered", "orchid", "palegoldenrod", "palegreen", "paleturquoise", "palevioletred", "papayawhip", "peachpuff",
+	 * " peru", "pink", "plum", "powderblue", "purple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon",
+	 * "sandybrown", "seagreen", "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray", "slategrey",
+	 * "springgreen", "steelblue", "tan", "teal", "thistle", "tomato", "turquoise", "violet", "yellow", "yellowgreen" };
+	 */
+
 	static final Map<String, String> colorMap = new HashMap<String, String>();
 	static {
 		colorMap.put("V0", "green");
@@ -65,11 +65,11 @@ public class VehicleMonitor {
 		colorMap.put("V18", "cyan");
 		colorMap.put("V19", "chartreuse");
 	}
-	
-	
-	public static synchronized void report(long timeMs, String id, Coord pos, String leader, String dstCity, List<Id> route, MATSimRouter router, Double leaderDist, Double nearestFollower) {
+
+	public static synchronized void report(long timeMs, String id, Coord pos, String leader, String dstCity,
+			List<Id> route, MATSimRouter router, Double leaderDist, Double nearestFollower, String train) {
 		// Start new frame if needed
-		if(time != timeMs) {
+		if (time != timeMs) {
 			try {
 				dump();
 			} catch (IOException e) {
@@ -77,70 +77,63 @@ public class VehicleMonitor {
 			}
 			time = timeMs;
 		}
-		
+
 		// Decide color
-		String nodeColor = colorMap.get(id);
-		if(nodeColor == null) {
+		String nodeColor = colorMap.get(train);
+		if (nodeColor == null) {
 			nodeColor = "gray";
 		}
-		
+
 		// Add cities
-		for(String place: Navigator.getCities()) {
+		for (String place : Navigator.getCities()) {
 			Coord coord = Navigator.getPosition(place).getCoord();
-			record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", place, coord.getX() * SCALE, coord.getY() * SCALE));
+			record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", place, coord.getX() * SCALE, coord.getY()
+					* SCALE));
 		}
-		
+
 		// Add route
 		String last = id;
-		for(Id i: route) {
+		for (Id i : route) {
 			Coord linkPos = router.findLinkById(i).getCoord();
 			String linkName = String.format("%s_%s", id, i);
-			record.append(String.format("\n%s [pos = \"%s,%s!\", style=\"\", label=\"\", width=\"0.001\", height=\"0.01\"]",
-					linkName,
-					linkPos.getX() * SCALE,
-					linkPos.getY() * SCALE
-			));
-			record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", label=\"\"]",
-					last,
-					linkName,
-					nodeColor
-			));
+			record.append(String.format(
+					"\n%s [pos = \"%s,%s!\", style=\"\", label=\"\", width=\"0.001\", height=\"0.01\"]", linkName,
+					linkPos.getX() * SCALE, linkPos.getY() * SCALE));
+			record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", label=\"\"]", last, linkName,
+					nodeColor));
 			last = linkName;
 		}
-		
+
 		// Vehicle
-		if(leader == null) {
+		if (leader == null) {
 			leader = dstCity;
 			leaderDist = 0.0;
 		}
-		record.append(String.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
-				id,
-				id,
-				pos.getX() * SCALE,
-				pos.getY() * SCALE,
-				nodeColor,
-				nodeColor
-		));
-		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]",
-				id, leader, nodeColor, leaderDist.intValue()
-		));
+		record.append(String
+				.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
+						id, id, pos.getX() * SCALE, pos.getY() * SCALE, nodeColor, nodeColor));
+		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leader, nodeColor, leaderDist.intValue()));
 	}
 
 	public static void dump() throws IOException {
 		String filename = String.format("%s%08d.dot", prefix, time);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
 		writer.write("digraph " + time + " {\n");
-		
+
 		writer.write("node [shape=box, label=\"\\N\", pin=true\n];\n");
-		  
-		writer.write(String.format("tl [ pos = \"%s,%s!\", style=invis ]\n", Settings.MIN_X * SCALE, Settings.MIN_Y * SCALE));
-		writer.write(String.format("tr [ pos = \"%s,%s!\", style=invis ]\n", Settings.MIN_X * SCALE, Settings.MAX_Y * SCALE));
-		writer.write(String.format("bl [ pos = \"%s,%s!\", style=invis ]\n", Settings.MAX_X * SCALE, Settings.MIN_Y * SCALE));
-		writer.write(String.format("br [ pos = \"%s,%s!\", style=invis ]\n", Settings.MAX_X * SCALE, Settings.MAX_Y * SCALE));
+
+		writer.write(String.format("tl [ pos = \"%s,%s!\", style=invis ]\n", Settings.MIN_X * SCALE, Settings.MIN_Y
+				* SCALE));
+		writer.write(String.format("tr [ pos = \"%s,%s!\", style=invis ]\n", Settings.MIN_X * SCALE, Settings.MAX_Y
+				* SCALE));
+		writer.write(String.format("bl [ pos = \"%s,%s!\", style=invis ]\n", Settings.MAX_X * SCALE, Settings.MIN_Y
+				* SCALE));
+		writer.write(String.format("br [ pos = \"%s,%s!\", style=invis ]\n", Settings.MAX_X * SCALE, Settings.MAX_Y
+				* SCALE));
 		writer.write(record.toString());
 		writer.write("\n}");
 		writer.close();
-		
+
 		record = new StringBuilder();
 	}
 }

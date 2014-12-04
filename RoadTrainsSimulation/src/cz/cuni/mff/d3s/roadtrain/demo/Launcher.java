@@ -30,7 +30,7 @@ import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimSimulation;
 import cz.cuni.mff.d3s.demo.AlwaysRebroadcastingKnowledgeDataManager;
 import cz.cuni.mff.d3s.demo.environment.MATSimDataProviderReceiver;
 import cz.cuni.mff.d3s.roadtrain.components.Vehicle;
-import cz.cuni.mff.d3s.roadtrain.ensembles.CarPair;
+import cz.cuni.mff.d3s.roadtrain.ensembles.LeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 
@@ -100,7 +100,7 @@ public class Launcher {
 				matSimProviderReceiver.getSensorProvider(compId), router,
 				simulation);
 
-		processor.process(component, SharedDestination.class, CarPair.class);
+		processor.process(component, SharedDestination.class, LeaderFollower.class);
 	}
 	
 	private static int getCarId() {
