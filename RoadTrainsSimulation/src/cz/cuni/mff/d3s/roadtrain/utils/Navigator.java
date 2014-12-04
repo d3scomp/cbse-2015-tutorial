@@ -45,17 +45,11 @@ public class Navigator {
 	}
 	
 	private static double getLinkDistance(Id link1, Id link2) {
-	//	return router.route(link1, link2).size();
-		
 		double dist = 0;
 		for(Id id: router.route(link1, link2)) {
 			dist += router.findLinkById(id).getLength();
 		}		
 		return dist;
-		
-	/*	Coord coord1 = router.findLinkById(link1).getCoord();
-		Coord coord2 = router.findLinkById(link2).getCoord();
-		return getEuclidDistance(coord1, coord2);*/
 	}
 	
 	public static double getEuclidDistance(Coord p1, Coord p2) {
