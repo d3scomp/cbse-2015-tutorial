@@ -22,7 +22,23 @@ public class Navigator {
 		places.put("Brno", router.findNearestLink(new CoordImpl(Settings.MIN_X + Settings.WIDTH * 0.10, Settings.MIN_Y + Settings.HEIGHT * 0.90)));		
 		places.put("Liberec", router.findNearestLink(new CoordImpl(Settings.MIN_X + Settings.WIDTH * 0.75, Settings.MIN_Y + Settings.HEIGHT * 0.25)));
 		places.put("Ostrava", router.findNearestLink(new CoordImpl(Settings.MIN_X + Settings.WIDTH * 0.75, Settings.MIN_Y + Settings.HEIGHT * 0.75)));
+		
+		// Fire stations
+		putLocation("HS_1", 50.0763769, 14.4292897);
+		putLocation("HS_2", 50.0864694, 14.3401217);
+		putLocation("HS_3", 50.1069967, 14.4441611);		
+		putLocation("HS_4", 50.0327289, 14.5027281);
+		putLocation("HS_5", 50.0655097, 14.5001003);
+		putLocation("HS_6", 50.0411614, 14.4488708);		
+		putLocation("HS_7", 50.0593000, 14.3730000);
+		putLocation("HS_8", 49.9921206, 14.3449481);		
+		putLocation("HS_9", 50.0905178, 14.3988442);
+		putLocation("HS_10", 50.1262236, 14.5761058);
 	};
+	
+	private static void putLocation(String name, double lat , double lon) {
+		places.put(name, router.findNearestLink(new CoordImpl(Settings.physToX(lon), Settings.physToY(lat))));
+	}
 	
 	public static Collection<String> getCities() {
 		return places.keySet();
