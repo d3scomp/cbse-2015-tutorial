@@ -16,7 +16,6 @@ import cz.cuni.mff.d3s.deeco.annotations.Local;
 import cz.cuni.mff.d3s.deeco.annotations.Out;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.annotations.Process;
-import cz.cuni.mff.d3s.deeco.demo.convoy.Leader;
 import cz.cuni.mff.d3s.deeco.logging.Log;
 import cz.cuni.mff.d3s.deeco.scheduler.CurrentTimeProvider;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
@@ -199,11 +198,11 @@ public class Vehicle {
 		String nearestCarId = null;
 		Double nearestDist = null;
 		Id nearestCarLink = null;
-		for(Entry<String, VehicleInfo> entry: destGroup.entrySet()) {
-			Id carLink = entry.getValue().link;
-			double distUsingCar = Navigator.getDestDistUsingCar(dstCity, currentLink, carLink);
+		for(VehicleInfo info: destGroup.values()) {
+			Id carLink = info.link;
 			double distToCar = Navigator.getCarToCarDist(currentLink, carLink);
 			double carToDestDist = Navigator.getDesDist(dstCity, carLink);
+			double distUsingCar = distToCar + carToDestDist;
 			
 			// Skip cars already at destination
 			if(carToDestDist == 0) continue;
@@ -218,12 +217,12 @@ public class Vehicle {
 //				System.out.println(String.format("%s -> %s = %s", myTargetDist, distUsingCar, myTargetDist - distUsingCar));
 			
 			// Do not follow car on the same link if it was not followed before
-			boolean sameLinkCheck = !carLink.equals(currentLink) || (entry.getKey().equals(leaderId));
+			boolean sameLinkCheck = !carLink.equals(currentLink) || (info.id.equals(leaderId));
 			
 			if((distCond && sameLinkCheck) && (nearestDist == null || nearestDist > distToCar)) {
-				nearestCarId = entry.getKey();
+				nearestCarId = info.id;
 				nearestDist = distToCar;
-				nearestCarLink = entry.getValue().link;
+				nearestCarLink = info.link;
 			}
 		}
 		
@@ -268,7 +267,9 @@ public class Vehicle {
 			double carToDestDist = Navigator.getCarToCarDist(info.link, trainLeader.link);
 			double distUsingCar = distToCar + carToDestDist;
 			
-			if(nearestDist == null || nearestDist > distUsingCar) {
+			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leaderId));
+			
+			if(sameLinkCheck && (nearestDist == null || nearestDist > distUsingCar)) {
 				nearestDist = distUsingCar;
 				nearestCarId = info.id;
 				nearestCarLink = info.link;
