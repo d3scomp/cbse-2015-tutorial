@@ -247,6 +247,8 @@ public class Vehicle {
 	public static void organizeTrain(
 			@In("trainGroup") Map<String, VehicleInfo> train,
 			@In("trainId") String trainId,
+			@In("currentLink") Id currentLink,
+			@InOut("leaderId") ParamHolder<String> leaderId,
 			@InOut("leaderLink") ParamHolder<Id> leaderLink,
 			@InOut("leaderDist") ParamHolder<Double> leaderDist) {
 		// Get train leader
@@ -258,8 +260,9 @@ public class Vehicle {
 		}
 		
 		// Follow train leader
+		leaderId.value = trainId;
 		leaderLink.value = trainLeader.link;
-		
+		leaderDist.value = Navigator.getCarToCarDist(currentLink, leaderLink.value);
 	}
 	
 	@Process
