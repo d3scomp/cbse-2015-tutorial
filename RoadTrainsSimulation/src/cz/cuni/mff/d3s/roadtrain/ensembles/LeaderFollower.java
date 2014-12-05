@@ -18,9 +18,9 @@ public class LeaderFollower {
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
-			@In("member.leaderCar") String memeberLeaderCar) {
+			@In("member.leaderId") String memeberLeaderId) {
 		// Member is following coordinator
-		return memeberLeaderCar.equals(coordId);
+		return memeberLeaderId.equals(coordId);
 	}
 
 	@KnowledgeExchange

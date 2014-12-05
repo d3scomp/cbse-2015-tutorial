@@ -41,12 +41,12 @@ public class Settings {
 	// Car deployment parameters
 	public static final int GROUP_A_VEHICLE_COUNT = 3;
 	public static final String GROUP_A_POS = "Liberec";
-	public static final double GROUP_A_RADIUS = 0.10 * (WIDTH);
+	public static final double GROUP_A_RADIUS = 0.05 * (WIDTH);
 	public static final String GROUP_A_DST = "Praha";
 	
 	public static final int GROUP_B_VEHICLE_COUNT = 0;
 	public static final String GROUP_B_POS = "Ostrava";
-	public static final double GROUP_B_RADIUS = 0.10 * (WIDTH);
+	public static final double GROUP_B_RADIUS = 0.05 * (WIDTH);
 	public static final String GROUP_B_DST = "Brno";
 	
 	// Router settings

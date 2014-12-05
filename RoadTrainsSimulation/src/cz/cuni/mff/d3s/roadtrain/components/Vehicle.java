@@ -16,6 +16,7 @@ import cz.cuni.mff.d3s.deeco.annotations.Local;
 import cz.cuni.mff.d3s.deeco.annotations.Out;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.annotations.Process;
+import cz.cuni.mff.d3s.deeco.demo.convoy.Leader;
 import cz.cuni.mff.d3s.deeco.logging.Log;
 import cz.cuni.mff.d3s.deeco.scheduler.CurrentTimeProvider;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
@@ -56,7 +57,8 @@ public class Vehicle {
 	
 	public String trainId;
 	
-	public String leaderCar;
+	public String leaderId = null;
+	public Id leaderLink = null;
 	
 	public Double leaderDist = null;		
 	public Double nearestFollower = null;
@@ -112,7 +114,7 @@ public class Vehicle {
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("position") Coord position,
 			@In("dstCity") String dstCity,
-			@In("leaderCar") String leaderCar,
+			@In("leaderId") String leaderId,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("trainGroup") Map<String, VehicleInfo> trainGroup,
 			@In("route") List<Id> route,
@@ -133,7 +135,7 @@ public class Vehicle {
 				groupToString(destGroup),
 				groupToString(trainGroup),
 				Navigator.getDesDist(dstCity, currentLinkSensor.read()),
-				leaderCar,
+				leaderId,
 				Navigator.getPosition(dstCity).getId(),
 				dstCity,
 				trainId);
@@ -143,7 +145,7 @@ public class Vehicle {
 				clock.getCurrentMilliseconds(),
 				id,
 				position,
-				leaderCar,
+				leaderId,
 				dstCity,
 				route,
 				router,
@@ -171,24 +173,32 @@ public class Vehicle {
 	
 	@Process
 	@PeriodicScheduling(period = 2356)
-	public static void organizeRoadTrains(
+	public static void organizeLeaderFollowerLinks(
 			@In("id") String id,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstCity") String dstCity,
 			@In("currentLink") Id currentLink,
-			@In("router") MATSimRouter router,
-			@InOut("leaderCar") ParamHolder<String> leaderCar,
+			@InOut("leaderId") ParamHolder<String> leaderId,
+			@InOut("leaderLink") ParamHolder<Id> leaderLink,
 			@InOut("leaderDist") ParamHolder<Double> leaderDist,
 			@InOut("trainId") ParamHolder<String> trainId) {		
 		double myTargetDist = Navigator.getDesDist(dstCity, currentLink);
 		
 		// Do nothing when already at destination
-		if(myTargetDist == 0)
+		if(myTargetDist == 0) {
 			return;
+		}
+		
+		// Do nothing when already on the train
+		if(!id.equals(trainId.value)) {
+			System.out.println("Already on train");
+			return;
+		}
 		
 		// Try to find a car to follow
 		String nearestCarId = null;
 		Double nearestDist = null;
+		Id nearestCarLink = null;
 		for(Entry<String, VehicleInfo> entry: destGroup.entrySet()) {
 			Id carLink = entry.getValue().link;
 			double distUsingCar = Navigator.getDestDistUsingCar(dstCity, currentLink, carLink);
@@ -208,11 +218,12 @@ public class Vehicle {
 //				System.out.println(String.format("%s -> %s = %s", myTargetDist, distUsingCar, myTargetDist - distUsingCar));
 			
 			// Do not follow car on the same link if it was not followed before
-			boolean sameLinkCheck = !carLink.equals(currentLink) || (entry.getKey().equals(leaderCar));
+			boolean sameLinkCheck = !carLink.equals(currentLink) || (entry.getKey().equals(leaderId));
 			
 			if((distCond && sameLinkCheck) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = entry.getKey();
 				nearestDist = distToCar;
+				nearestCarLink = entry.getValue().link;
 			}
 		}
 		
@@ -220,21 +231,52 @@ public class Vehicle {
 		if(nearestCarId != null) {
 			// There is car that is in front of us on the path to destination
 			// and the road train is short enough -> follow it
-			leaderCar.value = nearestCarId;
+			leaderId.value = nearestCarId;
+			leaderLink.value = nearestCarLink;
 		} else {
 			// There is no car in front of us on the path to destination,
 			// or road train is too long -> lead the new train
-			leaderCar.value = null;
+			leaderId.value = null;
+			leaderLink.value = null;
 			leaderDist.value = null;
-			trainId.value = id;
 		}
 	}
 	
 	@Process
+	@PeriodicScheduling(period = 1000)
+	public static void organizeTrain(
+			@In("trainGroup") Map<String, VehicleInfo> train,
+			@In("trainId") String trainId,
+			@InOut("leaderLink") ParamHolder<Id> leaderLink,
+			@InOut("leaderDist") ParamHolder<Double> leaderDist) {
+		// Get train leader
+		VehicleInfo trainLeader = null;
+		for(VehicleInfo info: train.values()) {
+			if(info.id.equals(trainId)) {
+				trainLeader = info;
+			}
+		}
+		
+		// Follow train leader
+		leaderLink.value = trainLeader.link;
+		
+	}
+	
+	@Process
 	@PeriodicScheduling(period = 10000)
-	public static void resetNearestFolllower(
-			@Out("nearestFollower") ParamHolder<Double> nearestFollower) {
+	public static void resetOldData(
+			@Out("nearestFollower") ParamHolder<Double> nearestFollower,
+			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
+			@In("clock") CurrentTimeProvider clock) {
+		// Reset followers TODO: use timestamps to do that
 		nearestFollower.value = null;
+		
+		for(VehicleInfo info: destGroup.value.values()) {
+			if(clock.getCurrentMilliseconds() - info.time > 10000) {
+				System.out.println("Removing old dest group item");
+				destGroup.value.remove(info.id);
+			}
+		}
 	}
 	
 	/**
@@ -245,7 +287,7 @@ public class Vehicle {
 	public static void planRouteAndDrive(
 			@In("id") String id,
 			@In("currentLink") Id currentLink,
-			@In("leaderCar") String leaderCar,
+			@In("leaderLink") Id leaderLink,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstCity") String dstCity,
 			@InOut("route") ParamHolder<List<Id> > route,
@@ -273,17 +315,16 @@ public class Vehicle {
 			speedActuator.set(Settings.VEHICLE_FULL_SPEED);
 		} else {
 			speedActuator.set(Settings.VEHICLE_WAIT_SPEED);
-		}	
+		}
 		
 		// No car in front of us -> drive directly to destination
-		if(leaderCar == null) {
+		if(leaderLink == null) {
 			route.value = router.route(currentLink, Navigator.getPosition(dstCity).getId(), route.value);
 		}
 		
 		// Car in front of us -> follow it
-		if(leaderCar != null) {
-			Id carLink = destGroup.get(leaderCar).link;
-			route.value = router.route(currentLink, carLink, route.value);
+		if(leaderLink != null) {
+			route.value = router.route(currentLink, leaderLink, route.value);
 		}
 		
 		// Already at the destination -> stop

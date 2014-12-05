@@ -11,6 +11,7 @@ import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
+import cz.cuni.mff.d3s.deeco.scheduler.CurrentTimeProvider;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
 import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
@@ -32,8 +33,9 @@ public class Train {
 			@In("member.id") String memberId,
 			@In("member.position") Coord memberPosition,
 			@In("member.currentLink") Id memberLink,
-			@InOut("coord.trainGroup") ParamHolder<Map<String, VehicleInfo> > coordGroup) {
+			@InOut("coord.trainGroup") ParamHolder<Map<String, VehicleInfo> > coordGroup,
+			@In("coord.clock") CurrentTimeProvider clock) {
 		// Exchange information about the road train
-		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink));
+		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, clock.getCurrentMilliseconds()));
 	}
 }
