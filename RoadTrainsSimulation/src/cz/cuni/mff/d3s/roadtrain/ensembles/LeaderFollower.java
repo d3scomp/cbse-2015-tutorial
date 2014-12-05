@@ -40,6 +40,7 @@ public class LeaderFollower {
 		}
 		leaderDist.value = distance;
 		
+		// Assign vehicle to train
 		if(distance < Settings.TRAIN_FORM_DISTANCE) {
 			memeberTrainId.value = coordTrainId;
 		}

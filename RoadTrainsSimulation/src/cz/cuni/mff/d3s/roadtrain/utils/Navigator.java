@@ -101,9 +101,6 @@ public class Navigator {
 		putLocation("A16", 50.0351742, 14.5111614);
 		putLocation("A17", 50.0337653, 14.5936147);
 		putLocation("A18", 49.9922836, 14.3883783);
-		
-		
-		
 	};
 	
 	private static void putLocation(String name, double lat , double lon) {

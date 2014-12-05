@@ -10,26 +10,21 @@ import cz.cuni.mff.d3s.deeco.annotations.In;
 import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
-import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
 import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
-@PartitionedBy("dstCity")
-public class SharedDestination {
+public class Train {
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
-			@In("coord.dstCity") String coordDstCity,
 			@In("coord.trainId") String coordTrainId,
 			@In("member.id") String memberId,
-			@In("member.dstCity") String memberDstCity,
 			@In("member.trainId") String memberTrainId) {
-		// Same destination, not the same vehicle, not part of the train
-		return coordDstCity.equals(memberDstCity) && !coordId.equals(memberId) && memberTrainId.equals(memberId)
-				&& coordTrainId.equals(coordId);
+		// Not the same cars and the same train
+		return !memberId.equals(coordId) && memberTrainId.equals(coordTrainId);
 	}
 
 	@KnowledgeExchange
@@ -37,8 +32,8 @@ public class SharedDestination {
 			@In("member.id") String memberId,
 			@In("member.position") Coord memberPosition,
 			@In("member.currentLink") Id memberLink,
-			@InOut("coord.destGroup") ParamHolder<Map<String, VehicleInfo>> coordGroup) {
-		// Exchange information about the group sharing the same destination
+			@InOut("coord.trainGroup") ParamHolder<Map<String, VehicleInfo> > coordGroup) {
+		// Exchange information about the road train
 		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink));
 	}
 }

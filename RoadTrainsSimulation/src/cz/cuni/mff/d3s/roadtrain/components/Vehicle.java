@@ -45,7 +45,9 @@ public class Vehicle {
 	@Local
 	public List<Id> route;
 	
-	public Map<String, VehicleInfo> group = new HashMap<String, VehicleInfo>();
+	public Map<String, VehicleInfo> destGroup = new HashMap<String, VehicleInfo>();
+	
+	public Map<String, VehicleInfo> trainGroup = new HashMap<String, VehicleInfo>();
 
 	/**
 	 * Link where the vehicle is currently at.
@@ -111,7 +113,8 @@ public class Vehicle {
 			@In("position") Coord position,
 			@In("dstCity") String dstCity,
 			@In("leaderCar") String leaderCar,
-			@In("group") Map<String, VehicleInfo> group,
+			@In("destGroup") Map<String, VehicleInfo> destGroup,
+			@In("trainGroup") Map<String, VehicleInfo> trainGroup,
 			@In("route") List<Id> route,
 			@In("clock") CurrentTimeProvider clock,
 			@In("nearestFollower") Double nearestFollower,
@@ -121,13 +124,14 @@ public class Vehicle {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s(%s, %s), group: %s, dist: %s, leader: %s, dst: %s(%s), train: %s\n",
+		System.out.format("%s [%s] pos: %s(%s, %s), GDest: %s, GTrain: %s, dist: %s, leader: %s, dst: %s(%s), train: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				currentLinkSensor.read(),
 				position.getX(),
 				position.getY(),
-				groupToString(group),
+				groupToString(destGroup),
+				groupToString(trainGroup),
 				Navigator.getDesDist(dstCity, currentLinkSensor.read()),
 				leaderCar,
 				Navigator.getPosition(dstCity).getId(),
@@ -169,7 +173,7 @@ public class Vehicle {
 	@PeriodicScheduling(period = 2356)
 	public static void organizeRoadTrains(
 			@In("id") String id,
-			@In("group") Map<String, VehicleInfo> group,
+			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstCity") String dstCity,
 			@In("currentLink") Id currentLink,
 			@In("router") MATSimRouter router,
@@ -185,7 +189,7 @@ public class Vehicle {
 		// Try to find a car to follow
 		String nearestCarId = null;
 		Double nearestDist = null;
-		for(Entry<String, VehicleInfo> entry: group.entrySet()) {
+		for(Entry<String, VehicleInfo> entry: destGroup.entrySet()) {
 			Id carLink = entry.getValue().link;
 			double distUsingCar = Navigator.getDestDistUsingCar(dstCity, currentLink, carLink);
 			double distToCar = Navigator.getCarToCarDist(currentLink, carLink);
@@ -242,7 +246,7 @@ public class Vehicle {
 			@In("id") String id,
 			@In("currentLink") Id currentLink,
 			@In("leaderCar") String leaderCar,
-			@In("group") Map<String, VehicleInfo> group,
+			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstCity") String dstCity,
 			@InOut("route") ParamHolder<List<Id> > route,
 			@In("routeActuator") Actuator<List<Id> > routeActuator,
@@ -278,7 +282,7 @@ public class Vehicle {
 		
 		// Car in front of us -> follow it
 		if(leaderCar != null) {
-			Id carLink = group.get(leaderCar).link;
+			Id carLink = destGroup.get(leaderCar).link;
 			route.value = router.route(currentLink, carLink, route.value);
 		}
 		
@@ -290,12 +294,12 @@ public class Vehicle {
 		routeActuator.set(route.value);
 	}
 	
-	private static String groupToString(Map<String, VehicleInfo> group) {
+	private static String groupToString(Map<String, VehicleInfo> destGroup) {
 		StringBuilder builder = new StringBuilder();
 		
 		boolean first = true;
 		builder.append("[");
-		for(Entry<String, VehicleInfo> entry: group.entrySet()) {
+		for(Entry<String, VehicleInfo> entry: destGroup.entrySet()) {
 			if(!first)
 				builder.append(", ");
 			first = false;
