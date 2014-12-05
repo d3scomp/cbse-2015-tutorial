@@ -259,9 +259,25 @@ public class Vehicle {
 			}
 		}
 		
-		// Follow train leader
-		leaderId.value = trainId;
-		leaderLink.value = trainLeader.link;
+		// Get car to follow
+		String nearestCarId = null;
+		Double nearestDist = null;
+		Id nearestCarLink = null;
+		for(VehicleInfo info: train.values()) {
+			double distToCar = Navigator.getCarToCarDist(currentLink, info.link);
+			double carToDestDist = Navigator.getCarToCarDist(info.link, trainLeader.link);
+			double distUsingCar = distToCar + carToDestDist;
+			
+			if(nearestDist == null || nearestDist > distUsingCar) {
+				nearestDist = distUsingCar;
+				nearestCarId = info.id;
+				nearestCarLink = info.link;
+			}
+		}
+		
+		// Follow nearest car in the train
+		leaderId.value = nearestCarId;
+		leaderLink.value = nearestCarLink;
 		leaderDist.value = Navigator.getCarToCarDist(currentLink, leaderLink.value);
 	}
 	
