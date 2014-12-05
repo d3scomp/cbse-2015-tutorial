@@ -84,11 +84,21 @@ public class VehicleMonitor {
 			nodeColor = "gray";
 		}
 
-		// Add cities
+		// Add places
 		for (String place : Navigator.getCities()) {
 			Coord coord = Navigator.getPosition(place).getCoord();
-			record.append(String.format("\n%s [\n\t pos = \"%s,%s!\"]", place, coord.getX() * SCALE, coord.getY()
-					* SCALE));
+			String color = "grey";
+			if(place.matches("A[0-9]*")) {
+				color = "green";
+			}
+			if(place.matches("F[0-9]*")) {
+				color = "red";
+			}
+			if(place.matches("P[0-9]*")) {
+				color = "blue";
+			}
+			record.append(String.format("\n%s [pos = \"%s,%s!\", color=%s, width=\"0.0002\", height=\"0.002\", fontsize=7]", place, coord.getX() * SCALE, coord.getY()
+					* SCALE, color));
 		}
 
 		// Add route
