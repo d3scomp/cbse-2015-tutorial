@@ -85,7 +85,7 @@ public class VehicleMonitor {
 		}
 
 		// Add places
-		for (String place : Navigator.getCities()) {
+		for (String place : Navigator.getPlaces()) {
 			Coord coord = Navigator.getPosition(place).getCoord();
 			String color = "grey";
 			if(place.matches("A[0-9]*")) {

@@ -103,11 +103,15 @@ public class Navigator {
 		putLocation("A18", 49.9922836, 14.3883783);
 	};
 	
-	private static void putLocation(String name, double lat , double lon) {
+	public static void putLocation(String name, double lat , double lon) {
 		places.put(name, router.findNearestLink(new CoordImpl(Settings.physToX(lon), Settings.physToY(lat))));
 	}
 	
-	public static Collection<String> getCities() {
+	public static void putLink(String name, Link link) {
+		places.put(name, link);
+	}
+	
+	public static Collection<String> getPlaces() {
 		return places.keySet();
 	}
 	
