@@ -33,7 +33,12 @@ public class TrainLeaderFollower {
 			@In("member.currentLink") Id memberLink,
 			@InOut("coord.trainFollowerId") ParamHolder<String> followerId,
 			@InOut("coord.trainFollowerDist") ParamHolder<Double> followerDist) {
-		followerId.value = memberId;
-		followerDist.value = Navigator.getLinkLinkDist(coordLink, memberLink);
+		Double dist = Navigator.getLinkLinkDist(coordLink, memberLink);
+		
+		// TODO: maybe timed rest is needed when some follower gets out of range
+		if(followerDist.value == null || followerDist.value > dist || followerId.equals(memberId)) {
+			followerId.value = memberId;
+			followerDist.value = dist;
+		}
 	}
 }

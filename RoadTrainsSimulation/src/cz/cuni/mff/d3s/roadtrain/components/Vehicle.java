@@ -385,13 +385,13 @@ public class Vehicle {
 		
 		// Wait for follower
 		if(nearestFollower != null && nearestFollower > Settings.LINK_MAX_CAR_DIST) {
-			System.out.println(id + " waiting for followers");
+//			System.out.println(id + " waiting for followers");
 			wait = true;
 		}
 		
 		// Wait for leaders
 		if(leaderDist != null && leaderDist < Settings.LINK_MIN_CAR_DIST) {
-			System.out.println(id + " waiting to let leader lead");
+//			System.out.println(id + " waiting to let leader lead");
 			wait = true;
 		}
 		
