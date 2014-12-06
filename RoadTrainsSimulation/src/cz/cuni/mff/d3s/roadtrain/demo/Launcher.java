@@ -33,6 +33,7 @@ import cz.cuni.mff.d3s.roadtrain.components.Vehicle;
 import cz.cuni.mff.d3s.roadtrain.ensembles.LeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.ensembles.Train;
+import cz.cuni.mff.d3s.roadtrain.ensembles.TrainLeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 
 public class Launcher {
@@ -101,7 +102,7 @@ public class Launcher {
 				matSimProviderReceiver.getSensorProvider(compId), router,
 				simulation);
 
-		processor.process(component, SharedDestination.class, LeaderFollower.class, Train.class);
+		processor.process(component, SharedDestination.class, LeaderFollower.class, Train.class, TrainLeaderFollower.class);
 	}
 	
 	private static int getCarId() {

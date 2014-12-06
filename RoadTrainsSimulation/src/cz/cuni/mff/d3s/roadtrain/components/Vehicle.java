@@ -31,12 +31,21 @@ import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
 
+enum VehicleState {
+	SINGLE,
+	TRAIN_LEADER,
+	TRAIN_MEMBER,
+	TRAIN_TAIL
+}
+
 @Component
 public class Vehicle {
 	/**
 	 * Id of the vehicle component.
 	 */
 	public String id;
+	
+	public VehicleState state = VehicleState.SINGLE;
 
 	/**
 	 * Contains a list of link ids that lead to the destination. It is given to
@@ -59,8 +68,11 @@ public class Vehicle {
 	public String leaderId = null;
 	public Id leaderLink = null;
 	
-	public Double leaderDist = null;		
+	public Double leaderDist = null;
 	public Double nearestFollower = null;
+	
+	public String trainFollowerId = null;
+	public Double trainFollowerDist = null;
 	
 	/**
 	 * Destination city
@@ -110,7 +122,8 @@ public class Vehicle {
 	@PeriodicScheduling(period = 5000, order = 10)
 	public static void reportStatus(
 			@In("id") String id,
-			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
+			@In("state") VehicleState state,
+ 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("position") Coord position,
 			@In("dstCity") String dstCity,
 			@In("leaderId") String leaderId,
@@ -121,13 +134,15 @@ public class Vehicle {
 			@In("nearestFollower") Double nearestFollower,
 			@In("leaderDist") Double leaderDist,
 			@In("router") MATSimRouter router,
-			@In("trainId") String trainId) {
+			@In("trainId") String trainId,
+			@In("trainFollowerId") String trainFollowerId) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] pos: %s(%s, %s), GDest: %s, GTrain: %s, dist: %s, leader: %s, dst: %s(%s), train: %s\n",
+		System.out.format("%s [%s] state: %s, pos: %s(%s, %s), GDest: %s, GTrain: %s, dist: %s, leader: %s, dst: %s(%s), train: %s, tFollower: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
+				state,
 				currentLinkSensor.read(),
 				position.getX(),
 				position.getY(),
@@ -137,7 +152,8 @@ public class Vehicle {
 				leaderId,
 				Navigator.getPosition(dstCity).getId(),
 				dstCity,
-				trainId);
+				trainId,
+				trainFollowerId);
 		
 		// Report information about vehicle
 		VehicleMonitor.report(
@@ -171,6 +187,44 @@ public class Vehicle {
 	}
 	
 	@Process
+	@PeriodicScheduling(period = 200)
+	public static void updateState(
+			@In("id") String id,
+			@In("trainId") String trainId,
+			@In("leaderId") String leaderId,
+			@In("trainFollowerId") String trainFollowerId,
+			@In("trainFollowerDist") Double trainFollowerDist,
+			@Out("state") ParamHolder<VehicleState> state) {
+		// Decide vehicle state
+		
+		// Single
+		if(id.equals(trainId) && trainFollowerId == null) {
+			state.value = VehicleState.SINGLE;
+			return;
+		}
+		
+		// Train leader
+		if(id.equals(trainId) && trainFollowerId != null) {
+			state.value = VehicleState.TRAIN_LEADER;
+			return;
+		}
+		
+		// Train member
+		if(leaderId != null && trainFollowerId != null) {
+			state.value = VehicleState.TRAIN_MEMBER;
+			return;
+		}
+		
+		// Train tail
+		if(leaderId != null && trainFollowerId == null) {
+			state.value = VehicleState.TRAIN_TAIL;
+			return;
+		}
+		
+		throw new RuntimeException(String.format("Vehicle %s is in invalid state", id));
+	}
+	
+	@Process
 	@PeriodicScheduling(period = 2356)
 	public static void organizeLeaderFollowerLinks(
 			@In("id") String id,
@@ -200,7 +254,7 @@ public class Vehicle {
 		Id nearestCarLink = null;
 		for(VehicleInfo info: destGroup.values()) {
 			Id carLink = info.link;
-			double distToCar = Navigator.getCarToCarDist(currentLink, carLink);
+			double distToCar = Navigator.getLinkLinkDist(currentLink, carLink);
 			double carToDestDist = Navigator.getDesDist(dstCity, carLink);
 			double distUsingCar = distToCar + carToDestDist;
 			
@@ -263,8 +317,8 @@ public class Vehicle {
 		Double nearestDist = null;
 		Id nearestCarLink = null;
 		for(VehicleInfo info: train.values()) {
-			double distToCar = Navigator.getCarToCarDist(currentLink, info.link);
-			double carToDestDist = Navigator.getCarToCarDist(info.link, trainLeader.link);
+			double distToCar = Navigator.getLinkLinkDist(currentLink, info.link);
+			double carToDestDist = Navigator.getLinkLinkDist(info.link, trainLeader.link);
 			double distUsingCar = distToCar + carToDestDist;
 			
 			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leaderId));
@@ -279,17 +333,23 @@ public class Vehicle {
 		// Follow nearest car in the train
 		leaderId.value = nearestCarId;
 		leaderLink.value = nearestCarLink;
-		leaderDist.value = Navigator.getCarToCarDist(currentLink, leaderLink.value);
+		leaderDist.value = Navigator.getLinkLinkDist(currentLink, leaderLink.value);
 	}
 	
 	@Process
 	@PeriodicScheduling(period = 10000)
 	public static void resetOldData(
 			@Out("nearestFollower") ParamHolder<Double> nearestFollower,
+			@Out("trainFollowerid") ParamHolder<String> trainFollowerId,
 			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
 			@In("clock") CurrentTimeProvider clock) {
 		// Reset followers TODO: use timestamps to do that
 		nearestFollower.value = null;
+		
+		
+		trainFollowerId.value = null;
+		
+		
 		
 		for(VehicleInfo info: destGroup.value.values()) {
 			if(clock.getCurrentMilliseconds() - info.time > 10000) {

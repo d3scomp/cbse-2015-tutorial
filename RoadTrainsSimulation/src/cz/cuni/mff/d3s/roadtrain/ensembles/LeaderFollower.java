@@ -18,8 +18,9 @@ public class LeaderFollower {
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
-			@In("member.leaderId") String memeberLeaderId) {
-		// Member is following coordinator
+			@In("member.leaderId") String memeberLeaderId,
+			@In("member.trainId") String memberTrainId) {
+		// Member is following coordinator and they are not part of the road train
 		return memeberLeaderId.equals(coordId);
 	}
 
@@ -32,7 +33,7 @@ public class LeaderFollower {
 			@InOut("member.trainId") ParamHolder<String> memeberTrainId,
 			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
 			@InOut("member.leaderDist") ParamHolder<Double> leaderDist) {
-		double distance = Navigator.getCarToCarDist(coordLink, memberLink);
+		double distance = Navigator.getLinkLinkDist(coordLink, memberLink);
 		
 		// Leader - follower distance		
 		if (nearestFollower.value == null || nearestFollower.value > distance) {

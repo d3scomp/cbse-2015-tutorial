@@ -119,12 +119,12 @@ public class Navigator {
 		return getLinkDistance(currentLink, getPosition(destination).getId());
 	}
 	
-	public static double getCarToCarDist(Id car1link, Id car2link) {
+	public static double getLinkLinkDist(Id car1link, Id car2link) {
 		return getLinkDistance(car1link, car2link);
 	}
 	
 	public static double getDestDistUsingCar(String destination, Id currentLink, Id midCarLink) {
-		return getCarToCarDist(currentLink, midCarLink) + getDesDist(destination, midCarLink);
+		return getLinkLinkDist(currentLink, midCarLink) + getDesDist(destination, midCarLink);
 	}
 	
 	private static double getLinkDistance(Id link1, Id link2) {
