@@ -30,13 +30,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
 import cz.cuni.mff.d3s.roadtrain.utils.VehicleInfo;
-
-enum VehicleState {
-	SINGLE,
-	TRAIN_LEADER,
-	TRAIN_MEMBER,
-	TRAIN_TAIL
-}
+import cz.cuni.mff.d3s.roadtrain.utils.VehicleState;
 
 @Component
 public class Vehicle {
@@ -190,6 +184,8 @@ public class Vehicle {
 	@PeriodicScheduling(period = 200)
 	public static void updateState(
 			@In("id") String id,
+			@In("dstCity") String dstCity,
+			@In("currentLink") Id currentLink,
 			@In("trainId") String trainId,
 			@In("leaderId") String leaderId,
 			@In("trainFollowerId") String trainFollowerId,
@@ -221,6 +217,12 @@ public class Vehicle {
 			return;
 		}
 		
+		// Done
+		if(Navigator.getDesDist(dstCity, currentLink) == 0) {
+			state.value = VehicleState.DONE;
+			return;
+		}
+		
 		throw new RuntimeException(String.format("Vehicle %s is in invalid state", id));
 	}
 	
@@ -228,6 +230,7 @@ public class Vehicle {
 	@PeriodicScheduling(period = 2356)
 	public static void organizeLeaderFollowerLinks(
 			@In("id") String id,
+			@In("state") VehicleState state,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstCity") String dstCity,
 			@In("currentLink") Id currentLink,
@@ -236,15 +239,9 @@ public class Vehicle {
 			@InOut("leaderDist") ParamHolder<Double> leaderDist,
 			@InOut("trainId") ParamHolder<String> trainId) {		
 		double myTargetDist = Navigator.getDesDist(dstCity, currentLink);
-		
-		// Do nothing when already at destination
-		if(myTargetDist == 0) {
-			return;
-		}
-		
-		// Do nothing when already on the train
-		if(!id.equals(trainId.value)) {
-			System.out.println("Already on train");
+				
+		// Do nothing when not single vehicle
+		if(state != VehicleState.SINGLE) {
 			return;
 		}
 		
@@ -298,12 +295,18 @@ public class Vehicle {
 	@Process
 	@PeriodicScheduling(period = 1000)
 	public static void organizeTrain(
+			@In("state") VehicleState state,
 			@In("trainGroup") Map<String, VehicleInfo> train,
 			@In("trainId") String trainId,
 			@In("currentLink") Id currentLink,
 			@InOut("leaderId") ParamHolder<String> leaderId,
 			@InOut("leaderLink") ParamHolder<Id> leaderLink,
 			@InOut("leaderDist") ParamHolder<Double> leaderDist) {
+		// Do nothing when not on train
+		if(state == VehicleState.SINGLE || state == VehicleState.SINGLE) {
+			return;
+		}
+		
 		// Get train leader
 		VehicleInfo trainLeader = null;
 		for(VehicleInfo info: train.values()) {
@@ -354,7 +357,6 @@ public class Vehicle {
 		
 		for(VehicleInfo info: destGroup.value.values()) {
 			if(clock.getCurrentMilliseconds() - info.time > 10000) {
-				System.out.println("Removing old dest group item");
 				destGroup.value.remove(info.id);
 			}
 		}
@@ -367,6 +369,7 @@ public class Vehicle {
 	@PeriodicScheduling(period = 2000, order = 4)
 	public static void planRouteAndDrive(
 			@In("id") String id,
+			@In("state") VehicleState state,
 			@In("currentLink") Id currentLink,
 			@In("leaderLink") Id leaderLink,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
@@ -380,7 +383,7 @@ public class Vehicle {
 		
 		boolean wait = false;
 		
-		// Wait for followers
+		// Wait for follower
 		if(nearestFollower != null && nearestFollower > Settings.LINK_MAX_CAR_DIST) {
 			System.out.println(id + " waiting for followers");
 			wait = true;
@@ -409,7 +412,7 @@ public class Vehicle {
 		}
 		
 		// Already at the destination -> stop
-		if(currentLink.equals(Navigator.getPosition(dstCity).getId())) {
+		if(state == VehicleState.DONE) {
 			route.value = new LinkedList<Id>();
 		}
 		
