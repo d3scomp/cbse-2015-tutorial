@@ -344,9 +344,10 @@ public class Vehicle {
 			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
 			@In("clock") CurrentTimeProvider clock) {
 		// Reset followers TODO: use timestamps to do that
+		// TODO: This is not nice
 		nearestFollower.value = null;
 		
-		
+		// TODO: This is not nice
 		trainFollowerId.value = null;
 		
 		
