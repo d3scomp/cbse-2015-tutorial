@@ -86,19 +86,10 @@ public class Launcher {
 		System.out.println(String.format("Simulation Finished in: %s.%ss", diffTime / 1000, diffTime % 1000));
 	}
 	
-	private static void deployVehicle(int idx, Id sourceLinkId, String destination)
-			throws AnnotationProcessorException {
-		String compIdString = "V" + idx;
-		Id compId = new IdImpl(compIdString);
-				
-		agentSource.addAgent(new JDEECoAgent(compId, sourceLinkId));
-
-		Vehicle component = new Vehicle(compIdString, destination, sourceLinkId,
-				matSimProviderReceiver.getActuatorProvider(compId),
-				matSimProviderReceiver.getSensorProvider(compId), router,
-				sim);
-
-		processor.process(component, SharedDestination.class, LeaderFollower.class, Train.class, TrainLeaderFollower.class);
+	private static void deployVehicle(Vehicle vehicle) throws AnnotationProcessorException {				
+		agentSource.addAgent(new JDEECoAgent(new IdImpl(vehicle.id), vehicle.currentLink));
+		processor.process(vehicle,
+				SharedDestination.class, LeaderFollower.class, Train.class, TrainLeaderFollower.class);
 	}
 	
 	private static int getCarId() {
@@ -135,12 +126,15 @@ public class Launcher {
 		}
 		
 		for(String p: places) {
-			deployVehicle(
-					getCarId(),
-					Navigator.getPosition(p).getId(),
-					crashSite);
+			String compIdString = "V" + getCarId();
+			Id compId = new IdImpl(compIdString);
+
+			Vehicle vehicle = new Vehicle(compIdString, crashSite, Navigator.getPosition(p).getId(),
+					matSimProviderReceiver.getActuatorProvider(compId),
+					matSimProviderReceiver.getSensorProvider(compId), router,
+					sim);
+			
+			deployVehicle(vehicle);
 		}
 	}
-	
-	
 }

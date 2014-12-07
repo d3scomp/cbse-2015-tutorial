@@ -101,6 +101,7 @@ public class Vehicle {
 		this.id = id;
 		this.trainId = id;
 		this.dstCity = dstCity;
+		this.currentLink = currentLink;
 		this.routeActuator = actuatorProvider.createActuator(ActuatorType.ROUTE);
 		this.speedActuator = actuatorProvider.createActuator(ActuatorType.SPEED);
 		this.currentLinkSensor = sensorProvider.createSensor(SensorType.CURRENT_LINK);
