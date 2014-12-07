@@ -3,11 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: RoadTrainsSimulation
 Bundle-SymbolicName: RoadTrainsSimulation
 Bundle-Version: 1.0.0.qualifier
-Export-Package: cz.cuni.mff.d3s.demo,
- cz.cuni.mff.d3s.demo.components,
- cz.cuni.mff.d3s.demo.ensembles,
- cz.cuni.mff.d3s.demo.environment,
- cz.cuni.mff.d3s.demo.knowledge,
- cz.cuni.mff.d3s.demo.parking.network.generator
 Import-Package: org.eclipse.emf.common.util,
  org.eclipse.emf.ecore
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
