@@ -38,7 +38,13 @@ public class Settings {
 	public static final double VEHICLE_FULL_SPEED = 20; // m/s
 	public static final double VEHICLE_WAIT_SPEED = 10; // m/s
 	
-	// Car deployment parameters
+	// Vehicle deployment parameters - Emergency demo
+	public static final int CRASH_SITES = 5;
+	public static final int POLICE_PER_CRASH = 1;
+	public static final int AMBULANCE_PER_CRASH = 2;
+	public static final int FIRE_PER_CRASH = 2;
+	
+	// Vehicle deployment parameters - Group demo
 	public static final int GROUP_A_VEHICLE_COUNT = 3;
 	public static final String GROUP_A_POS = "Liberec";
 	public static final double GROUP_A_RADIUS = 0.05 * (WIDTH);

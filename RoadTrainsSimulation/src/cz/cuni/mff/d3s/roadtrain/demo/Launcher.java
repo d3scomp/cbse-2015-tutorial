@@ -70,10 +70,16 @@ public class Launcher {
 		processor = new AnnotationProcessor(
 				RuntimeMetadataFactoryExt.eINSTANCE, model, new CloningKnowledgeManagerFactory());
 		
+		
+		
 		// Deploy components
 		System.out.println("Deploying components");
 		//deployCarGroups();
-		deployAccidentSites(3, 1, 2, 2);
+		deployAccidentSites(
+				Settings.CRASH_SITES,
+				Settings.POLICE_PER_CRASH,
+				Settings.AMBULANCE_PER_CRASH,
+				Settings.FIRE_PER_CRASH);
 		
 		DirectSimulationHost host = simulation.getHost("Host");
 		RuntimeFramework runtime = builder.build(host, simulation, null, model, new AlwaysRebroadcastingKnowledgeDataManager(model.getEnsembleDefinitions(), null), new CloningKnowledgeManagerFactory());

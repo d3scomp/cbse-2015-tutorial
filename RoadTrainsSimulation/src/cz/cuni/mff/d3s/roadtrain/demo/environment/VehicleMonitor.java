@@ -53,7 +53,7 @@ public class VehicleMonitor {
 		colorMap.put("V6", "gold");
 		colorMap.put("V7", "purple");
 		colorMap.put("V8", "cyan");
-		colorMap.put("V9", "chartreuse");
+		colorMap.put("V9", "azure");
 		colorMap.put("V10", "green");
 		colorMap.put("V11", "orange");
 		colorMap.put("V12", "blue");
@@ -64,6 +64,12 @@ public class VehicleMonitor {
 		colorMap.put("V17", "purple");
 		colorMap.put("V18", "cyan");
 		colorMap.put("V19", "chartreuse");
+		colorMap.put("V20", "brown");
+		colorMap.put("V21", "yellowgreen");
+		colorMap.put("V22", "steelblue");
+		colorMap.put("V23", "springgreen");
+		colorMap.put("V24", "plum");
+		colorMap.put("V25", "chocolate");
 	}
 
 	public static synchronized void report(long timeMs, String id, Coord pos, String leader, String dstCity,
