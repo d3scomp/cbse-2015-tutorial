@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.*;
 
 import org.matsim.api.core.v01.Coord;
@@ -12,7 +11,7 @@ import org.matsim.api.core.v01.Id;
 
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
-import cz.cuni.mff.d3s.roadtrain.utils.Navigator;
+import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
 public class VehicleMonitor {
 	// TODO: remove static methods, move prefix settings to constructor

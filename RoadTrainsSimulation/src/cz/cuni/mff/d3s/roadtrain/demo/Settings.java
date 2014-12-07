@@ -1,12 +1,9 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 public class Settings {
-	//public static double mapDimension = Settings.CELL_COUNT*Settings.LINKS_PER_EDGE*Settings.LINK_LENGTH;
-	
 	public static final String MATSIM_CONFIG_TEMPLATE = "input/config.xml";
 	public static final String ANALYSES_DIRECTORY = "measurements";
 	
-	// Map parameters
 	public static final double MIN_X = 1090633.9990942501;
 	public static final double MAX_X = 1108409.9502133469;
 	public static final double MIN_Y = 564064.6541308606;
@@ -43,30 +40,9 @@ public class Settings {
 	public static final int POLICE_PER_CRASH = 1;
 	public static final int AMBULANCE_PER_CRASH = 2;
 	public static final int FIRE_PER_CRASH = 2;
-	
-	// Vehicle deployment parameters - Group demo
-	public static final int GROUP_A_VEHICLE_COUNT = 3;
-	public static final String GROUP_A_POS = "Liberec";
-	public static final double GROUP_A_RADIUS = 0.05 * (WIDTH);
-	public static final String GROUP_A_DST = "Praha";
-	
-	public static final int GROUP_B_VEHICLE_COUNT = 0;
-	public static final String GROUP_B_POS = "Ostrava";
-	public static final double GROUP_B_RADIUS = 0.05 * (WIDTH);
-	public static final String GROUP_B_DST = "Brno";
-	
+		
 	// Router settings
 	public static final int ROUTE_CALCULATION_OFFSET = 0;
-	
-	// ENSEMBLE
-	public static final double ENSEMBLE_RADIUS = 700.0; // sqrt(2) * 500
-	
-	// Network generation
-	public static final int CELL_COUNT = 10;
-	public static final int LINKS_PER_EDGE = 20; // Each street is 200m long assuming 10m long segment
-	public static final double LINK_LENGTH = 10.0; // IN METERS
-	public static final String NETWORK_OUTPUT = "input/network.xml";
-	public static final boolean BIDIRECTIONAL_STREETS = false;
 	
 	// Link parameters
 	public final static double FREE_SPEED = 10.0; // m/s
