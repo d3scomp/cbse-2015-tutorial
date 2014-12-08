@@ -53,7 +53,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.ensembles.TrainLeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.MATSimDataProviderReceiver;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
-public class LauncherWithGroupers implements Launcher, VehicleDeployer {
+public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	private JDEECoAgentSource agentSource;
 	private MATSimSimulation sim;
 	private MATSimRouter router;
@@ -62,12 +62,15 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	private AgentSourceBasedPosition positionProvider;
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
-	private int grouperCount;
 	
-	public LauncherWithGroupers(int grouperCount) {
-		this.grouperCount = grouperCount; 
-	}
-	
+	// For dummy gossip
+	private final DummyRecipientSelector dummyRecipientSelector = new DummyRecipientSelector();
+	private final DirectGossipStrategy directGossipStrategy = new DirectGossipStrategy() {
+		public Collection<String> filterRecipients(Collection<String> recipients) {
+			return recipients;
+		}
+	};
+		
 	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
 		// Setup simulation
 		System.out.println("Preparing simulation");
@@ -91,21 +94,6 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		System.out.println("Deploying components");
 		demoDeployer.deploy();
 		
-		// Deploy groupers
-		// TODO: May be better code can be here
-		List<Set<Object>> cDom = new ArrayList<Set<Object> >();
-		for(int i = 0; i < grouperCount; ++i) {
-			cDom.add(new HashSet<Object>());
-		}
-		int cnt = 0;
-		for(String dest: destinations) {
-			cDom.get(cnt++ % cDom.size()).add(dest);
-		}
-		cnt = 0;
-		for(Set<Object> domain: cDom) {
-			deployConnector("G" + cnt++, domain);
-		}
-		
 		// Run the simulation
 		System.out.println("Running simulation");
 		long startTime = System.currentTimeMillis();
@@ -117,17 +105,8 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	
 	
 	public IPGossipStrategy getStrategy(Vehicle component, Object commGroup, RuntimeMetadata model, DirectSimulationHost host) {
-		IPControllerImpl controller = new IPControllerImpl();
-		
-		// TODO: default IP should be added automatically based on current ensemble definition
-		controller.getRegister(commGroup).add("G1");
-		host.addDataReceiver(controller);
-		
-		Set<String> partitions = new HashSet<String>();
-		for (EnsembleDefinition ens : model.getEnsembleDefinitions())
-			partitions.add(ens.getPartitionedBy());
-		
-		return new IPGossipClientStrategy(partitions, controller);
+		dummyRecipientSelector.add(component.id);
+		return new RandomIPGossip(Arrays.asList((DirectRecipientSelector)dummyRecipientSelector), directGossipStrategy);
 	}
 	
 	
