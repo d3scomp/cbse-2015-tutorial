@@ -92,14 +92,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	
 		// Deploy components
 		System.out.println("Deploying components");
-		//deployCarGroups();
-	/*	deployAccidentSites(
-				Settings.CRASH_SITES,
-				Settings.POLICE_PER_CRASH,
-				Settings.AMBULANCE_PER_CRASH,
-				Settings.FIRE_PER_CRASH);*/
 		demoDeployer.deploy();
-		
 		
 		if(Settings.useGroupers) {
 			// Deploy groupers
@@ -117,7 +110,6 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 			deployConnector("G2", cDom.get(1));
 			deployConnector("G3", cDom.get(2));
 		}
-		
 		
 		// Run the simulation
 		System.out.println("Running simulation");
