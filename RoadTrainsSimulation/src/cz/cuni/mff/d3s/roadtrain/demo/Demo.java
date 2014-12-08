@@ -5,7 +5,8 @@ public class Demo {
 	public static void main(String[] args) throws Exception {
 		System.out.println("Launching default simulation");
 		
-		Launcher.run();
+		Launcher launcher = new LauncherWithGroupers();
+		launcher.run();
 		
 		System.out.println("Simulation finished");
 	}
