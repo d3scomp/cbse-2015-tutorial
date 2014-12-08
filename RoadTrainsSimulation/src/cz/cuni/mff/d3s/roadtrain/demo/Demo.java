@@ -5,8 +5,16 @@ public class Demo {
 	public static void main(String[] args) throws Exception {
 		System.out.println("Launching default simulation");
 		
-		Launcher launcher = new LauncherWithGroupers();
-		launcher.run();
+		LauncherWithGroupers launcher = new LauncherWithGroupers();
+		
+		DemoDeployer demoDeployer = new EmergencyDemoDeployer(
+				Settings.CRASH_SITES,
+				Settings.AMBULANCE_PER_CRASH,
+				Settings.FIRE_PER_CRASH,
+				Settings.POLICE_PER_CRASH,
+				launcher);
+				
+		launcher.run(demoDeployer);
 		
 		System.out.println("Simulation finished");
 	}

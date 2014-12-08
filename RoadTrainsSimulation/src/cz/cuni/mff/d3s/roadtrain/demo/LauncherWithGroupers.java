@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.core.basic.v01.IdImpl;
 
@@ -54,13 +53,12 @@ import cz.cuni.mff.d3s.roadtrain.demo.ensembles.TrainLeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.MATSimDataProviderReceiver;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
-public class LauncherWithGroupers implements Launcher {
+public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	private JDEECoAgentSource agentSource;
 	private MATSimSimulation sim;
 	private MATSimRouter router;
 	private MATSimDataProviderReceiver matSimProviderReceiver;
 	private SimulationRuntimeBuilder builder;	
-	private int vehicleCounter = 0;
 	private AgentSourceBasedPosition positionProvider;
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
@@ -73,7 +71,7 @@ public class LauncherWithGroupers implements Launcher {
 		}
 	};
 		
-	public void run() throws AnnotationProcessorException, IOException {
+	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
 		// Setup simulation
 		System.out.println("Preparing simulation");
 		agentSource = new JDEECoAgentSource();
@@ -95,11 +93,13 @@ public class LauncherWithGroupers implements Launcher {
 		// Deploy components
 		System.out.println("Deploying components");
 		//deployCarGroups();
-		deployAccidentSites(
+	/*	deployAccidentSites(
 				Settings.CRASH_SITES,
 				Settings.POLICE_PER_CRASH,
 				Settings.AMBULANCE_PER_CRASH,
-				Settings.FIRE_PER_CRASH);
+				Settings.FIRE_PER_CRASH);*/
+		demoDeployer.deploy();
+		
 		
 		if(Settings.useGroupers) {
 			// Deploy groupers
@@ -219,57 +219,6 @@ public class LauncherWithGroupers implements Launcher {
 		runtime.start();
 	}
 	
-	
-	
-	private int getCarId() {
-		return vehicleCounter++;
-	}
-	
-	private void deployAccidentSites(int sites, int policeCount, int ambulanceCount, int fireCount)
-			throws AnnotationProcessorException {
-		for(int i = 0; i < sites; ++i)
-			deployAccidentSite(i, policeCount, ambulanceCount, fireCount);
-	}
-	
-	private void deployAccidentSite(int siteNum, int policeCount, int ambulanceCount, int fireCount)
-			throws AnnotationProcessorException {
-		Link crashSite = Navigator.getRandomLink();
-		String crashSiteName = String.format("C%d", siteNum);
-		
-		Navigator.putLink(crashSiteName, crashSite);
-		destinations.add(crashSiteName);
-		
-		// Deploy police vehicles
-		deploySquad("P", crashSiteName, policeCount);
-		
-		// Deploy ambulance vehicles
-		deploySquad("A", crashSiteName, ambulanceCount);
-				
-		// Deploy fire vehicles
-		deploySquad("F", crashSiteName, fireCount);
-	}
-	
-	private void deploySquad(String prefix, String crashSite, int count) throws AnnotationProcessorException {
-		// Deploy squad vehicles
-		Set<String> places = new HashSet<String>();
-		for(int i = 0; i < count; ++i) {
-			String start = Navigator.getNearestPlace(prefix, crashSite, places);
-			places.add(start);
-		}
-		
-		for(String p: places) {
-			String compIdString = "V" + getCarId();
-			Id compId = new IdImpl(compIdString);
-
-			Vehicle vehicle = new Vehicle(compIdString, crashSite, Navigator.getPosition(p).getId(),
-					matSimProviderReceiver.getActuatorProvider(compId),
-					matSimProviderReceiver.getSensorProvider(compId), router,
-					sim);
-			
-			deployVehicle(vehicle);
-		}
-	}
-	
 	private class IPDataSenderWrapper implements IPDataSender {
 
 		private final DataSender sender;
@@ -286,5 +235,27 @@ public class LauncherWithGroupers implements Launcher {
 			sender.broadcastData(data);
 		}
 
+	}
+
+	@Override
+	public MATSimSimulation getSimulation() {
+		return sim;
+	}
+
+
+	@Override
+	public MATSimRouter getRouter() {
+		return router;
+	}
+
+
+	@Override
+	public MATSimDataProviderReceiver getProviderReceiver() {
+		return matSimProviderReceiver;
+	}
+
+	@Override
+	public void addDestination(String destination) {
+		destinations.add(destination);
 	}
 }
