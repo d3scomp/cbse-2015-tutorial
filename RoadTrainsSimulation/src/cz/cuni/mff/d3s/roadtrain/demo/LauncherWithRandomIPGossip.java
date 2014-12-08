@@ -51,7 +51,7 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	private Set<String> destinations = new HashSet<String>();
 	
 	// For dummy gossip
-	private final DummyRecipientSelector dummyRecipientSelector = new DummyRecipientSelector();
+	private final DummyRecipientSelector dummyRecipientSelector = new DummyRecipientSelector(5);
 	private final DirectGossipStrategy directGossipStrategy = new DirectGossipStrategy() {
 		public Collection<String> filterRecipients(Collection<String> recipients) {
 			return recipients;
