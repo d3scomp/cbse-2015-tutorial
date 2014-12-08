@@ -1,10 +1,12 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.matsim.api.core.v01.Id;
@@ -39,7 +41,6 @@ import cz.cuni.mff.d3s.deeco.simulation.matsim.JDEECoAgentSource;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimSimulation;
 import cz.cuni.mff.d3s.roadtrain.demo.components.AgentSourceBasedPosition;
-import cz.cuni.mff.d3s.roadtrain.demo.components.Position;
 import cz.cuni.mff.d3s.roadtrain.demo.components.Vehicle;
 import cz.cuni.mff.d3s.roadtrain.demo.custom.KnowledgeProvider;
 import cz.cuni.mff.d3s.roadtrain.demo.custom.RealisticKnowledgeDataHandler;
@@ -59,6 +60,7 @@ public class Launcher {
 	private static int vehicleCounter = 0;
 	private static AgentSourceBasedPosition positionProvider;
 	private static CloningKnowledgeManagerFactory kmFactory;
+	private static Set<String> destinations = new HashSet<String>();
 		
 	public static void run() throws AnnotationProcessorException, IOException {
 		// Setup simulation
@@ -89,6 +91,21 @@ public class Launcher {
 				Settings.AMBULANCE_PER_CRASH,
 				Settings.FIRE_PER_CRASH);
 		
+		// Deploy groupers
+		List<Set<Object>> cDom = new ArrayList<Set<Object> >();
+		cDom.add(new HashSet<Object>());
+		cDom.add(new HashSet<Object>());
+		cDom.add(new HashSet<Object>());
+		
+		int cnt = 0;
+		for(String dest: destinations) {
+			cDom.get(cnt++ % 3).add(dest);
+		}
+				
+		deployConnector("G1", cDom.get(0));
+		deployConnector("G2", cDom.get(1));
+		deployConnector("G3", cDom.get(2));
+		
 		
 		// Run the simulation
 		System.out.println("Running simulation");
@@ -112,7 +129,7 @@ public class Launcher {
 		IPControllerImpl controller = new IPControllerImpl();
 		
 		// TODO: default IP should be added automatically based on current ensemble definition
-		controller.getRegister(component.destination).add("C1");
+		controller.getRegister(component.destination).add("G1");
 		host.addDataReceiver(controller);
 		
 		Set<String> partitions = new HashSet<String>();
@@ -129,7 +146,10 @@ public class Launcher {
 	
 	
 	
-	public static void deployConnector(String id, Position position, Collection<Object> range) throws AnnotationProcessorException {
+	public static void deployConnector(String id, Collection<Object> range) throws AnnotationProcessorException {
+		Link link = Navigator.getRandomLink();
+		agentSource.addAgent(new JDEECoAgent(new IdImpl(id), link.getId()));
+		
 		/* Model */
 		KnowledgeManagerFactory knowledgeManagerFactory = new CloningKnowledgeManagerFactory();
 		RuntimeMetadata model = RuntimeMetadataFactoryExt.eINSTANCE.createRuntimeMetadata();
@@ -165,7 +185,7 @@ public class Launcher {
 		processor.process(connector);
 		
 		// provide list of initial IPs
-		controller.getRegister(connector.connector_group).add("C1"); //.add("C2", "C3");
+		controller.getRegister(connector.connector_group).add("G1"); //.add("C2", "C3");
 		
 		IPGossipStrategy strategy = new IPGossipConnectorStrategy(partitions, controller);	
 		KnowledgeDataManager kdm = new DefaultKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
@@ -189,6 +209,7 @@ public class Launcher {
 		String crashSiteName = String.format("C%d", siteNum);
 		
 		Navigator.putLink(crashSiteName, crashSite);
+		destinations.add(crashSiteName);
 		
 		// Deploy police vehicles
 		deploySquad("P", crashSiteName, policeCount);
