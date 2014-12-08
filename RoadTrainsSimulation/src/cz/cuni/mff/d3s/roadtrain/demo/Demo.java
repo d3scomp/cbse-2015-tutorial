@@ -4,7 +4,7 @@ public class Demo {
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Launching default simulation");
-		
+				
 		LauncherWithGroupers launcher = new LauncherWithGroupers(3);
 		
 		DemoDeployer demoDeployer = new EmergencyDemoDeployer(
