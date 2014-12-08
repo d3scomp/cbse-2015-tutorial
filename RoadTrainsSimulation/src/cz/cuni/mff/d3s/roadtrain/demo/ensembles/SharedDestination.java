@@ -18,18 +18,18 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleInfo;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
-@PartitionedBy("dstCity")
+@PartitionedBy("dstPlace")
 public class SharedDestination {
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
-			@In("coord.dstCity") String coordDstCity,
+			@In("coord.dstPlace") String coordDstPlace,
 			@In("coord.trainId") String coordTrainId,
 			@In("member.id") String memberId,
-			@In("member.dstCity") String memberDstCity,
+			@In("member.dstPlace") String memberDstPlace,
 			@In("member.trainId") String memberTrainId) {
 		// Same destination, not the same vehicle, not part of the train
-		return coordDstCity.equals(memberDstCity) && !coordId.equals(memberId) && memberTrainId.equals(memberId)
+		return coordDstPlace.equals(memberDstPlace) && !coordId.equals(memberId) && memberTrainId.equals(memberId)
 				&& coordTrainId.equals(coordId);
 	}
 

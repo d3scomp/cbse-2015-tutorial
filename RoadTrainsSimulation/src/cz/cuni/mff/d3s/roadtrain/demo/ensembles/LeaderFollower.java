@@ -7,6 +7,7 @@ import cz.cuni.mff.d3s.deeco.annotations.In;
 import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
+import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
@@ -15,6 +16,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
+@PartitionedBy("dstPlace")
 public class LeaderFollower {
 	@Membership
 	public static boolean membership(

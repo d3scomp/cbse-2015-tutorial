@@ -123,13 +123,18 @@ public class Launcher {
 		RuntimeMetadata model = RuntimeMetadataFactoryExt.eINSTANCE.createRuntimeMetadata();
 		AnnotationProcessor processor = new AnnotationProcessor(RuntimeMetadataFactoryExt.eINSTANCE, model,
 				kmFactory, new PartitionedByProcessor());
-		processor.process(component, SharedDestination.class, LeaderFollower.class, Train.class, TrainLeaderFollower.class);
+		processor.process(
+				component,
+				SharedDestination.class,
+				LeaderFollower.class,
+				Train.class,
+				TrainLeaderFollower.class);
 
 		DirectSimulationHost host = sim.getHost(component.id);
 		IPControllerImpl controller = new IPControllerImpl();
 		
 		// TODO: default IP should be added automatically based on current ensemble definition
-		controller.getRegister(component.destination).add("G1");
+		controller.getRegister(component.dstPlace).add("G1");
 		host.addDataReceiver(controller);
 		
 		Set<String> partitions = new HashSet<String>();

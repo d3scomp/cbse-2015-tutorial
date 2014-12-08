@@ -71,7 +71,7 @@ public class Vehicle {
 	/**
 	 * Destination city
 	 */
-	public String dstCity;
+	public String dstPlace;
 	
 	/**
 	 * Position of the current link.
@@ -95,12 +95,12 @@ public class Vehicle {
 	@Local
 	public CurrentTimeProvider clock;
 
-	public Vehicle(String id, String dstCity, Id currentLink,
+	public Vehicle(String id, String dstPlace, Id currentLink,
 			ActuatorProvider actuatorProvider, SensorProvider sensorProvider,
 			MATSimRouter router, CurrentTimeProvider clock) {
 		this.id = id;
 		this.trainId = id;
-		this.dstCity = dstCity;
+		this.dstPlace = dstPlace;
 		this.currentLink = currentLink;
 		this.routeActuator = actuatorProvider.createActuator(ActuatorType.ROUTE);
 		this.speedActuator = actuatorProvider.createActuator(ActuatorType.SPEED);
@@ -120,7 +120,7 @@ public class Vehicle {
 			@In("state") VehicleState state,
  			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("position") Coord position,
-			@In("dstCity") String dstCity,
+			@In("dstPlace") String dstPlace,
 			@In("leaderId") String leaderId,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("trainGroup") Map<String, VehicleInfo> trainGroup,
@@ -143,10 +143,10 @@ public class Vehicle {
 				position.getY(),
 				groupToString(destGroup),
 				groupToString(trainGroup),
-				Navigator.getDesDist(dstCity, currentLinkSensor.read()),
+				Navigator.getDesDist(dstPlace, currentLinkSensor.read()),
 				leaderId,
-				Navigator.getPosition(dstCity).getId(),
-				dstCity,
+				Navigator.getPosition(dstPlace).getId(),
+				dstPlace,
 				trainId,
 				trainFollowerId);
 		
@@ -156,7 +156,7 @@ public class Vehicle {
 				id,
 				position,
 				leaderId,
-				dstCity,
+				dstPlace,
 				route,
 				router,
 				leaderDist,
@@ -185,7 +185,7 @@ public class Vehicle {
 	@PeriodicScheduling(period = 200)
 	public static void updateState(
 			@In("id") String id,
-			@In("dstCity") String dstCity,
+			@In("dstPlace") String dstPlace,
 			@In("currentLink") Id currentLink,
 			@In("trainId") String trainId,
 			@In("leaderId") String leaderId,
@@ -219,7 +219,7 @@ public class Vehicle {
 		}
 		
 		// Done
-		if(Navigator.getDesDist(dstCity, currentLink) == 0) {
+		if(Navigator.getDesDist(dstPlace, currentLink) == 0) {
 			state.value = VehicleState.DONE;
 			return;
 		}
@@ -233,13 +233,13 @@ public class Vehicle {
 			@In("id") String id,
 			@In("state") VehicleState state,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
-			@In("dstCity") String dstCity,
+			@In("dstPlace") String dstPlace,
 			@In("currentLink") Id currentLink,
 			@InOut("leaderId") ParamHolder<String> leaderId,
 			@InOut("leaderLink") ParamHolder<Id> leaderLink,
 			@InOut("leaderDist") ParamHolder<Double> leaderDist,
 			@InOut("trainId") ParamHolder<String> trainId) {		
-		double myTargetDist = Navigator.getDesDist(dstCity, currentLink);
+		double myTargetDist = Navigator.getDesDist(dstPlace, currentLink);
 				
 		// Do nothing when not single vehicle
 		if(state != VehicleState.SINGLE) {
@@ -253,7 +253,7 @@ public class Vehicle {
 		for(VehicleInfo info: destGroup.values()) {
 			Id carLink = info.link;
 			double distToCar = Navigator.getLinkLinkDist(currentLink, carLink);
-			double carToDestDist = Navigator.getDesDist(dstCity, carLink);
+			double carToDestDist = Navigator.getDesDist(dstPlace, carLink);
 			double distUsingCar = distToCar + carToDestDist;
 			
 			// Skip cars already at destination
@@ -374,7 +374,7 @@ public class Vehicle {
 			@In("currentLink") Id currentLink,
 			@In("leaderLink") Id leaderLink,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
-			@In("dstCity") String dstCity,
+			@In("dstPlace") String dstPlace,
 			@InOut("route") ParamHolder<List<Id> > route,
 			@In("routeActuator") Actuator<List<Id> > routeActuator,
 			@In("speedActuator") Actuator<Double> speedActuator,
@@ -404,7 +404,7 @@ public class Vehicle {
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderLink == null) {
-			route.value = router.route(currentLink, Navigator.getPosition(dstCity).getId(), route.value);
+			route.value = router.route(currentLink, Navigator.getPosition(dstPlace).getId(), route.value);
 		}
 		
 		// Car in front of us -> follow it
