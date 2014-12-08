@@ -134,7 +134,7 @@ public class Vehicle {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] state: %s, pos: %s(%s, %s), GDest: %s, GTrain: %s, dist: %s, leader: %s, dst: %s(%s), train: %s, tFollower: %s\n",
+		System.out.format("%s [%s] state: %s, pos: %s(%.0f, %.0f), GDest: %s, GTrain: %s, dist: %s, leader: %s, dst: %s(%s), train: %s, tFollower: %s\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				state,
