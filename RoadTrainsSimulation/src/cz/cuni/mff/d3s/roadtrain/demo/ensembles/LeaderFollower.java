@@ -26,7 +26,7 @@ public class LeaderFollower {
 			@In("member.leaderId") String memeberLeaderId,
 			@In("member.trainId") String memberTrainId) {
 		// Member is following coordinator and they are not part of the road train
-		return memeberLeaderId.equals(coordId) && coordState.isFollowable() && memberState.canFollow();
+		return memeberLeaderId.equals(coordId) && coordState.canLead() && memberState.canFollow();
 	}
 
 	@KnowledgeExchange

@@ -52,7 +52,7 @@ public class VehicleMonitor {
 		colorMap.put("V6", "gold");
 		colorMap.put("V7", "purple");
 		colorMap.put("V8", "cyan");
-		colorMap.put("V9", "azure");
+		colorMap.put("V9", "khaki");
 		colorMap.put("V10", "green");
 		colorMap.put("V11", "orange");
 		colorMap.put("V12", "blue");

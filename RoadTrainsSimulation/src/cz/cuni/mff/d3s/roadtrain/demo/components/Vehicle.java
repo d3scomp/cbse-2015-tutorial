@@ -1,6 +1,7 @@
 package cz.cuni.mff.d3s.roadtrain.demo.components;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,8 @@ public class Vehicle {
 	public String trainFollowerId = null;
 	public Double trainFollowerDist = null;
 	
+	public Double speed;
+	
 	/**
 	 * Destination city
 	 */
@@ -130,11 +133,12 @@ public class Vehicle {
 			@In("leaderDist") Double leaderDist,
 			@In("router") MATSimRouter router,
 			@In("trainId") String trainId,
-			@In("trainFollowerId") String trainFollowerId) {
+			@In("trainFollowerId") String trainFollowerId,
+			@In("speed") Double speed) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] state: %s, pos: %s(%.0f, %.0f), GDest: %s, GTrain: %s, dist: %s, leader: %s, dst: %s(%s), train: %s, tFollower: %s\n",
+		System.out.format("%s [%s] state: %s, pos: %s(%.0f, %.0f), GDest: %s, GTrain: %s, dist: %s, leader: %s, dst: %s(%s), train: %s, tFollower: %s, speed: %.0f\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				state,
@@ -148,7 +152,8 @@ public class Vehicle {
 				Navigator.getPosition(dstPlace).getId(),
 				dstPlace,
 				trainId,
-				trainFollowerId);
+				trainFollowerId,
+				speed);
 		
 		// Report information about vehicle
 		VehicleMonitor.report(
@@ -194,6 +199,12 @@ public class Vehicle {
 			@Out("state") ParamHolder<VehicleState> state) {
 		// Decide vehicle state
 		
+		// Done
+		if(Navigator.getDesDist(dstPlace, currentLink) == 0) {
+			state.value = VehicleState.DONE;
+			return;
+		}
+		
 		// Single
 		if(id.equals(trainId) && trainFollowerId == null) {
 			state.value = VehicleState.SINGLE;
@@ -215,12 +226,6 @@ public class Vehicle {
 		// Train tail
 		if(leaderId != null && trainFollowerId == null) {
 			state.value = VehicleState.TRAIN_TAIL;
-			return;
-		}
-		
-		// Done
-		if(Navigator.getDesDist(dstPlace, currentLink) == 0) {
-			state.value = VehicleState.DONE;
 			return;
 		}
 		
@@ -346,6 +351,10 @@ public class Vehicle {
 			@Out("nearestFollower") ParamHolder<Double> nearestFollower,
 			@Out("trainFollowerid") ParamHolder<String> trainFollowerId,
 			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
+			@InOut("trainGroup") ParamHolder<Map<String, VehicleInfo> > trainGroup,
+			@InOut("leaderId") ParamHolder<String> leaderId,
+			@InOut("leaderLink") ParamHolder<Id> leaderLink,
+			@InOut("leaderDist") ParamHolder<Double> leaderDist,
 			@In("clock") CurrentTimeProvider clock) {
 		// Reset followers TODO: use timestamps to do that
 		// TODO: This is not nice
@@ -355,10 +364,30 @@ public class Vehicle {
 		trainFollowerId.value = null;
 		
 		
-		
-		for(VehicleInfo info: destGroup.value.values()) {
+		// Clear shared destination group old data
+		Iterator<VehicleInfo> it = destGroup.value.values().iterator();
+		while(it.hasNext()) {
+			VehicleInfo info = it.next();
 			if(clock.getCurrentMilliseconds() - info.time > 10000) {
-				destGroup.value.remove(info.id);
+				it.remove();
+			}
+		}
+		
+		// Clear train group old data
+		it = trainGroup.value.values().iterator();
+		while(it.hasNext()) {
+			VehicleInfo info = it.next();
+			if(clock.getCurrentMilliseconds() - info.time > 10000) {
+				it.remove();
+			}
+		}
+		
+		// Reset leader link when leader not present in groups
+		if(leaderId.value != null) {
+			if(!destGroup.value.containsKey(leaderId.value) && !trainGroup.value.containsKey(leaderId.value)) {
+				leaderId.value = null;
+				leaderLink.value = null;
+				leaderDist.value = null;
 			}
 		}
 	}
@@ -380,7 +409,8 @@ public class Vehicle {
 			@In("speedActuator") Actuator<Double> speedActuator,
 			@In("router") MATSimRouter router,
 			@In("nearestFollower") Double nearestFollower,
-			@In("leaderDist") Double leaderDist) throws Exception {
+			@In("leaderDist") Double leaderDist,
+			@Out("speed") ParamHolder<Double> speed) throws Exception {
 		
 		boolean wait = false;
 		
@@ -397,10 +427,11 @@ public class Vehicle {
 		}
 		
 		if(!wait) {
-			speedActuator.set(Settings.VEHICLE_FULL_SPEED);
+			speed.value = Settings.VEHICLE_FULL_SPEED;
 		} else {
-			speedActuator.set(Settings.VEHICLE_WAIT_SPEED);
+			speed.value = Settings.VEHICLE_WAIT_SPEED;
 		}
+		speedActuator.set(speed.value);
 		
 		// No car in front of us -> drive directly to destination
 		if(leaderLink == null) {

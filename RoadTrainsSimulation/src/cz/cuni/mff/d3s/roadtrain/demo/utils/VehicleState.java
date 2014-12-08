@@ -7,7 +7,7 @@ public enum VehicleState {
 	TRAIN_TAIL,
 	DONE;
 	
-	public boolean isFollowable() {
+	public boolean canLead() {
 		return this == SINGLE || this == TRAIN_TAIL;
 	}
 	
@@ -17,5 +17,9 @@ public enum VehicleState {
 	
 	public boolean onTrain() {
 		return this == TRAIN_LEADER || this == TRAIN_MEMBER || this == TRAIN_TAIL;
+	}
+	
+	public boolean destinationExchange() {
+		return this == SINGLE || canFollow() || canLead();
 	}
 }
