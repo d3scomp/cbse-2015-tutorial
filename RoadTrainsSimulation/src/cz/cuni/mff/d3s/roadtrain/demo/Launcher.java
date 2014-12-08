@@ -99,9 +99,9 @@ public class Launcher {
 		
 		int cnt = 0;
 		for(String dest: destinations) {
-			cDom.get(cnt++ % 3).add(dest);
+			cDom.get(cnt++ % cDom.size()).add(dest);
 		}
-				
+
 		deployConnector("G1", cDom.get(0));
 		deployConnector("G2", cDom.get(1));
 		deployConnector("G3", cDom.get(2));
