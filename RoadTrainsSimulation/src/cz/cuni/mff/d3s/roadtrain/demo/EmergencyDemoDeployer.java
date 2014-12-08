@@ -30,7 +30,7 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 	@Override
 	public void deploy() throws AnnotationProcessorException {
 		for(int i = 0; i < numCrashSites; ++i) {
-			deployAccidentSite(i, numPolicePerCrashSite, numAmbulancePerCrashSite, numFirePerCrashSite);
+			deployAccidentSite(i);
 		}
 	}
 	
@@ -38,7 +38,7 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 		return vehicleCounter++;
 	}
 	
-	private void deployAccidentSite(int siteNum, int policeCount, int ambulanceCount, int fireCount)
+	private void deployAccidentSite(int siteNum)
 			throws AnnotationProcessorException {
 		Link crashSite = Navigator.getRandomLink();
 		String crashSiteName = String.format("C%d", siteNum);
@@ -47,13 +47,13 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 		deployer.addDestination(crashSiteName);
 		
 		// Deploy police vehicles
-		deploySquad("P", crashSiteName, policeCount);
+		deploySquad("P", crashSiteName, numPolicePerCrashSite);
 		
 		// Deploy ambulance vehicles
-		deploySquad("A", crashSiteName, ambulanceCount);
+		deploySquad("A", crashSiteName, numAmbulancePerCrashSite);
 				
 		// Deploy fire vehicles
-		deploySquad("F", crashSiteName, fireCount);
+		deploySquad("F", crashSiteName, numFirePerCrashSite);
 	}
 	
 	private void deploySquad(String prefix, String crashSite, int count) throws AnnotationProcessorException {
@@ -76,8 +76,5 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 			
 			deployer.deployVehicle(vehicle);
 		}
-	}
-
-	
-	
+	}	
 }
