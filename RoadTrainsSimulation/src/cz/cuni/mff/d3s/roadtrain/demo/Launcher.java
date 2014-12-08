@@ -22,8 +22,11 @@ import cz.cuni.mff.d3s.deeco.model.runtime.api.RuntimeMetadata;
 import cz.cuni.mff.d3s.deeco.model.runtime.custom.RuntimeMetadataFactoryExt;
 import cz.cuni.mff.d3s.deeco.network.DataSender;
 import cz.cuni.mff.d3s.deeco.network.DefaultKnowledgeDataManager;
+import cz.cuni.mff.d3s.deeco.network.DirectGossipStrategy;
+import cz.cuni.mff.d3s.deeco.network.DirectRecipientSelector;
 import cz.cuni.mff.d3s.deeco.network.IPGossipStrategy;
 import cz.cuni.mff.d3s.deeco.network.KnowledgeDataManager;
+import cz.cuni.mff.d3s.deeco.network.RandomIPGossip;
 import cz.cuni.mff.d3s.deeco.network.connector.ConnectorComponent;
 import cz.cuni.mff.d3s.deeco.network.connector.ConnectorEnsemble;
 import cz.cuni.mff.d3s.deeco.network.connector.IPGossipConnectorStrategy;
@@ -61,6 +64,14 @@ public class Launcher {
 	private static AgentSourceBasedPosition positionProvider;
 	private static CloningKnowledgeManagerFactory kmFactory;
 	private static Set<String> destinations = new HashSet<String>();
+	
+	// For dummy gossip
+	private static final DummyRecipientSelector dummyRecipientSelector = new DummyRecipientSelector();
+	private static final DirectGossipStrategy directGossipStrategy = new DirectGossipStrategy() {
+		public Collection<String> filterRecipients(Collection<String> recipients) {
+			return recipients;
+		}
+	};
 		
 	public static void run() throws AnnotationProcessorException, IOException {
 		// Setup simulation
@@ -78,7 +89,6 @@ public class Launcher {
 		builder = new SimulationRuntimeBuilder();
 		kmFactory = new CloningKnowledgeManagerFactory();
 		
-		
 		// Setup navigator
 		Navigator.init(router);
 	
@@ -91,20 +101,22 @@ public class Launcher {
 				Settings.AMBULANCE_PER_CRASH,
 				Settings.FIRE_PER_CRASH);
 		
-		// Deploy groupers
-		List<Set<Object>> cDom = new ArrayList<Set<Object> >();
-		cDom.add(new HashSet<Object>());
-		cDom.add(new HashSet<Object>());
-		cDom.add(new HashSet<Object>());
-		
-		int cnt = 0;
-		for(String dest: destinations) {
-			cDom.get(cnt++ % cDom.size()).add(dest);
+		if(Settings.useGroupers) {
+			// Deploy groupers
+			List<Set<Object>> cDom = new ArrayList<Set<Object> >();
+			cDom.add(new HashSet<Object>());
+			cDom.add(new HashSet<Object>());
+			cDom.add(new HashSet<Object>());
+			
+			int cnt = 0;
+			for(String dest: destinations) {
+				cDom.get(cnt++ % cDom.size()).add(dest);
+			}
+	
+			deployConnector("G1", cDom.get(0));
+			deployConnector("G2", cDom.get(1));
+			deployConnector("G3", cDom.get(2));
 		}
-
-		deployConnector("G1", cDom.get(0));
-		deployConnector("G2", cDom.get(1));
-		deployConnector("G3", cDom.get(2));
 		
 		
 		// Run the simulation
@@ -115,6 +127,25 @@ public class Launcher {
 		System.out.println(String.format("Simulation Finished in: %s.%ss", diffTime / 1000, diffTime % 1000));
 	}
 	
+	
+	public static IPGossipStrategy getStrategy(Vehicle component, Object commGroup, RuntimeMetadata model, DirectSimulationHost host) {
+		if(Settings.useGroupers) {
+			IPControllerImpl controller = new IPControllerImpl();
+			
+			// TODO: default IP should be added automatically based on current ensemble definition
+			controller.getRegister(commGroup).add("G1");
+			host.addDataReceiver(controller);
+			
+			Set<String> partitions = new HashSet<String>();
+			for (EnsembleDefinition ens : model.getEnsembleDefinitions())
+				partitions.add(ens.getPartitionedBy());
+			
+			return new IPGossipClientStrategy(partitions, controller);
+		} else {
+			dummyRecipientSelector.add(component.id);
+			return new RandomIPGossip(Arrays.asList((DirectRecipientSelector)dummyRecipientSelector), directGossipStrategy);
+		}
+	}
 	
 	
 	public static void deployVehicle(Vehicle component) throws AnnotationProcessorException {
@@ -131,18 +162,7 @@ public class Launcher {
 				TrainLeaderFollower.class);
 
 		DirectSimulationHost host = sim.getHost(component.id);
-		IPControllerImpl controller = new IPControllerImpl();
-		
-		// TODO: default IP should be added automatically based on current ensemble definition
-		controller.getRegister(component.dstPlace).add("G1");
-		host.addDataReceiver(controller);
-		
-		Set<String> partitions = new HashSet<String>();
-		for (EnsembleDefinition ens : model.getEnsembleDefinitions())
-			partitions.add(ens.getPartitionedBy());
-		
-		IPGossipStrategy strategy = new IPGossipClientStrategy(partitions, controller);
-		
+		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
 		KnowledgeDataManager kdm = new DefaultKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
 		
 		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory());
@@ -192,7 +212,7 @@ public class Launcher {
 		// provide list of initial IPs
 		controller.getRegister(connector.connector_group).add("G1"); //.add("C2", "C3");
 		
-		IPGossipStrategy strategy = new IPGossipConnectorStrategy(partitions, controller);	
+		IPGossipStrategy strategy = new IPGossipConnectorStrategy(partitions, controller);
 		KnowledgeDataManager kdm = new DefaultKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
 		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory());
 		runtime.start();

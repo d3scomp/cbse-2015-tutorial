@@ -25,6 +25,8 @@ public class Settings {
 		return MIN_Y + ((physY - PHYS_MIN_Y) / (PHYS_HEIGHT)) * HEIGHT;
 	}
 	
+	public static final boolean useGroupers = false;
+	
 	// Train parameters
 	public static final double TRAIN_FORM_DISTANCE = 1000; // m
 	
