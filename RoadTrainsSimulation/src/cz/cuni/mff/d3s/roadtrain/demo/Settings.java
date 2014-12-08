@@ -38,7 +38,7 @@ public class Settings {
 	public static final double VEHICLE_WAIT_SPEED = 10; // m/s
 	
 	// Vehicle deployment parameters - Emergency demo
-	public static final int CRASH_SITES = 3;
+	public static final int CRASH_SITES = 10;
 	public static final int POLICE_PER_CRASH = 1;
 	public static final int AMBULANCE_PER_CRASH = 2;
 	public static final int FIRE_PER_CRASH = 2;

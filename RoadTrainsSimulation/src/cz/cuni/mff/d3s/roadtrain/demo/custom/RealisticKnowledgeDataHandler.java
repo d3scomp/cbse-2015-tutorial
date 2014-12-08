@@ -7,6 +7,7 @@ import java.util.Map;
 import cz.cuni.mff.d3s.deeco.network.AbstractHost;
 import cz.cuni.mff.d3s.deeco.network.DataReceiver;
 import cz.cuni.mff.d3s.deeco.simulation.DirectKnowledgeDataHandler;
+import cz.cuni.mff.d3s.roadtrain.demo.MessageProbe;
 import cz.cuni.mff.d3s.roadtrain.demo.components.Position;
 import cz.cuni.mff.d3s.roadtrain.demo.components.PositionAware;
 
@@ -25,12 +26,15 @@ public class RealisticKnowledgeDataHandler extends
 	@Override
 	public void networkSend(AbstractHost from, Object data, AbstractHost recipientHost, Collection<DataReceiver> recipientReceivers) {
 		for (DataReceiver receiver: recipientReceivers) {
+			MessageProbe.messageSentIP();
 			receiver.checkAndReceive(data, DEFAULT_IP_RSSI);
 		}
 	}
 	
 	@Override
 	public void networkBroadcast(AbstractHost from, Object data, Map<AbstractHost, Collection<DataReceiver>> receivers) {
+		MessageProbe.messageSentMANET();
+		
 		Position fromPosition = positions.getPosition(from.getHostId());
 		Iterator<Map.Entry<AbstractHost, Collection<DataReceiver>>> entries = receivers.entrySet().iterator();
 		Map.Entry<AbstractHost, Collection<DataReceiver>> entry;

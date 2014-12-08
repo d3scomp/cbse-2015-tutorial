@@ -19,7 +19,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 public class Navigator {
 	private static Map<String, Link> places = new HashMap<String, Link>();
 	private static MATSimRouter router;
-	private static Random random = new Random();
+	private static Random random = new Random(42);
 			
 	public static void init(MATSimRouter router) {
 		Navigator.router = router;

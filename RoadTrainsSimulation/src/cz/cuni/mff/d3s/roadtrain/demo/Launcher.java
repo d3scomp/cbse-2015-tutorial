@@ -125,6 +125,7 @@ public class Launcher {
 		sim.run();
 		long diffTime = System.currentTimeMillis() - startTime;
 		System.out.println(String.format("Simulation Finished in: %s.%ss", diffTime / 1000, diffTime % 1000));
+		System.out.println(MessageProbe.report());
 	}
 	
 	
