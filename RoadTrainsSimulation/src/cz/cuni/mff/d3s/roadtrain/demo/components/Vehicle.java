@@ -82,6 +82,9 @@ public class Vehicle {
 	public Coord position;
 	
 	public Coord destination;
+	
+	@Local
+	public VehicleMonitor vehicleMonitor;
 
 	@Local
 	public Actuator<List<Id> > routeActuator;
@@ -100,7 +103,7 @@ public class Vehicle {
 
 	public Vehicle(String id, String dstPlace, Id currentLink,
 			ActuatorProvider actuatorProvider, SensorProvider sensorProvider,
-			MATSimRouter router, CurrentTimeProvider clock) {
+			MATSimRouter router, CurrentTimeProvider clock, VehicleMonitor vehicleMonitor) {
 		this.id = id;
 		this.trainId = id;
 		this.dstPlace = dstPlace;
@@ -110,6 +113,7 @@ public class Vehicle {
 		this.currentLinkSensor = sensorProvider.createSensor(SensorType.CURRENT_LINK);
 		this.router = router;
 		this.clock = clock;
+		this.vehicleMonitor = vehicleMonitor;
 	}
 
 	/**
@@ -134,7 +138,8 @@ public class Vehicle {
 			@In("router") MATSimRouter router,
 			@In("trainId") String trainId,
 			@In("trainFollowerId") String trainFollowerId,
-			@In("speed") Double speed) {
+			@In("speed") Double speed,
+			@In("vehicleMonitor") VehicleMonitor vehicleMonitor) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
@@ -156,7 +161,7 @@ public class Vehicle {
 				speed);
 		
 		// Report information about vehicle
-		VehicleMonitor.report(
+		vehicleMonitor.report(
 				clock.getCurrentMilliseconds(),
 				id,
 				position,

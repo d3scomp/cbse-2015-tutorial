@@ -14,12 +14,17 @@ import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
 public class VehicleMonitor {
-	// TODO: remove static methods, move prefix settings to constructor
-	final static String prefix = "visual" + File.separator + "time-";
-	static StringBuilder record = new StringBuilder();
-	static long time = 0;
-
-	static final double SCALE = 0.1;
+	private String dir;
+	private StringBuilder record;
+	private long time;
+	
+	private final double SCALE = 0.1;
+	
+	public VehicleMonitor(String dirName) {
+		dir = dirName;
+		time = 0;
+		record = new StringBuilder();
+	}
 
 	/*
 	 * static final String[] colors = {"aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque",
@@ -71,7 +76,7 @@ public class VehicleMonitor {
 		colorMap.put("V25", "chocolate");
 	}
 
-	public static synchronized void report(long timeMs, String id, Coord pos, String leader, String dstCity,
+	public synchronized void report(long timeMs, String id, Coord pos, String leader, String dstCity,
 			List<Id> route, MATSimRouter router, Double leaderDist, Double nearestFollower, String train) {
 		// Start new frame if needed
 		if (time != timeMs) {
@@ -130,9 +135,11 @@ public class VehicleMonitor {
 		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leader, nodeColor, leaderDist.intValue()));
 	}
 
-	public static void dump() throws IOException {
-		String filename = String.format("%s%08d.dot", prefix, time);
-		BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+	public void dump() throws IOException {
+		String fileName = String.format("%s%stime-%08d.dot", dir, File.separator, time);
+		File file = new File(fileName);
+		file.getParentFile().mkdirs();
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		writer.write("digraph " + time + " {\n");
 
 		writer.write("node [shape=box, label=\"\\N\", pin=true\n];\n");

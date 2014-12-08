@@ -1,7 +1,6 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
@@ -9,6 +8,7 @@ import org.matsim.core.basic.v01.IdImpl;
 
 import cz.cuni.mff.d3s.deeco.annotations.processor.AnnotationProcessorException;
 import cz.cuni.mff.d3s.roadtrain.demo.components.Vehicle;
+import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
 public class EmergencyDemoDeployer implements DemoDeployer {
@@ -18,13 +18,16 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 	private int numPolicePerCrashSite;
 	private int vehicleCounter = 0;
 	private VehicleDeployer deployer;
+	private VehicleMonitor vehicleMonitor;
 	
-	public EmergencyDemoDeployer(int crashSites, int numAmbulance, int numFire, int numPolice, VehicleDeployer deployer) {
+	public EmergencyDemoDeployer(int crashSites, int numAmbulance, int numFire, int numPolice, VehicleDeployer deployer,
+			VehicleMonitor vehicleMonitor) {
 		numCrashSites = crashSites;
 		numAmbulancePerCrashSite = numAmbulance;
 		numFirePerCrashSite = numFire;
 		numPolicePerCrashSite = numPolice;
 		this.deployer = deployer;
+		this.vehicleMonitor = vehicleMonitor;
 	}
 	
 	@Override
@@ -72,7 +75,8 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 					deployer.getProviderReceiver().getActuatorProvider(compId),
 					deployer.getProviderReceiver().getSensorProvider(compId),
 					deployer.getRouter(),
-					deployer.getSimulation());
+					deployer.getSimulation(),
+					vehicleMonitor);
 			
 			deployer.deployVehicle(vehicle);
 		}

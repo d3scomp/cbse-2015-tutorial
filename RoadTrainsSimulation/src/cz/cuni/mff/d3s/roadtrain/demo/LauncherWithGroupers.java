@@ -48,6 +48,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.Train;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.TrainLeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.MATSimDataProviderReceiver;
+import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
 public class LauncherWithGroupers implements Launcher, VehicleDeployer {
@@ -60,9 +61,9 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
 	private int grouperCount;
-	
+		
 	public LauncherWithGroupers(int grouperCount) {
-		this.grouperCount = grouperCount; 
+		this.grouperCount = grouperCount;
 	}
 	
 	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
