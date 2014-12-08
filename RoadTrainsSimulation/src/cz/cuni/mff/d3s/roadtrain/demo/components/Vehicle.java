@@ -421,7 +421,7 @@ public class Vehicle {
 		}
 		
 		// Wait for leaders
-		if(leaderDist != null && leaderDist < Settings.LINK_MIN_CAR_DIST) {
+		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leaderDist != null && leaderDist < Settings.LINK_MIN_CAR_DIST) {
 //			System.out.println(id + " waiting to let leader lead");
 			wait = true;
 		}

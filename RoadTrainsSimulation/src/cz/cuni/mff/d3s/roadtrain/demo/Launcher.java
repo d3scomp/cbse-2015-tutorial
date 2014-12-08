@@ -204,12 +204,14 @@ public class Launcher {
 		return vehicleCounter++;
 	}
 	
-	private static void deployAccidentSites(int sites, int policeCount, int ambulanceCount, int fireCount) throws AnnotationProcessorException {
+	private static void deployAccidentSites(int sites, int policeCount, int ambulanceCount, int fireCount)
+			throws AnnotationProcessorException {
 		for(int i = 0; i < sites; ++i)
 			deployAccidentSite(i, policeCount, ambulanceCount, fireCount);
 	}
 	
-	private static void deployAccidentSite(int siteNum, int policeCount, int ambulanceCount, int fireCount) throws AnnotationProcessorException {
+	private static void deployAccidentSite(int siteNum, int policeCount, int ambulanceCount, int fireCount)
+			throws AnnotationProcessorException {
 		Link crashSite = Navigator.getRandomLink();
 		String crashSiteName = String.format("C%d", siteNum);
 		
