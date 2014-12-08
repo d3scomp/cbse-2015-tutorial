@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.matsim.api.core.v01.network.Link;
@@ -48,7 +49,6 @@ import cz.cuni.mff.d3s.roadtrain.demo.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.Train;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.TrainLeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.MATSimDataProviderReceiver;
-import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
 public class LauncherWithGroupers implements Launcher, VehicleDeployer {
@@ -61,12 +61,11 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
 	private int grouperCount;
+	private Navigator navigator;
 		
-	public LauncherWithGroupers(int grouperCount) {
+	public LauncherWithGroupers(int grouperCount, Random random) {
 		this.grouperCount = grouperCount;
-	}
-	
-	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
+		
 		// Setup simulation
 		System.out.println("Preparing simulation");
 		agentSource = new JDEECoAgentSource();
@@ -82,9 +81,10 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		builder = new SimulationRuntimeBuilder();
 		kmFactory = new CloningKnowledgeManagerFactory();
 		
-		// Setup navigator
-		Navigator.init(router);
+		this.navigator = new Navigator(router, random);
+	}
 	
+	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
 		// Deploy components
 		System.out.println("Deploying components");
 		demoDeployer.deploy();
@@ -153,7 +153,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	
 	
 	public void deployConnector(String id, Collection<Object> range) throws AnnotationProcessorException {
-		Link link = Navigator.getRandomLink();
+		Link link = navigator.getRandomLink();
 		agentSource.addAgent(new JDEECoAgent(new IdImpl(id), link.getId()));
 		
 		/* Model */
@@ -237,5 +237,10 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	@Override
 	public void addDestination(String destination) {
 		destinations.add(destination);
+	}
+
+	@Override
+	public Navigator getNavigator() {
+		return navigator;
 	}
 }

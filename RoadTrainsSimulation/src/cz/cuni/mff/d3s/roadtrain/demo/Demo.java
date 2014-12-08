@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Random;
 
 import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
-import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
 public class Demo {
 	public static void main(String[] args) throws Exception {
@@ -14,16 +13,19 @@ public class Demo {
 			throw new Exception("Please provide gossip strategy as first param \"groupers\" or \"random\" and number of crash sites as second parameter \"crashes=10\"");
 		}
 		
+		// Set random generator
+		Random random = new Random(42);
+		
 		// Determine whenever to use groupers
 		Object launcher = null;
 		switch(args[0]) {
 		case "groupers":
 			System.out.println("Running simulation with groupers");
-			launcher = new LauncherWithGroupers(3);
+			launcher = new LauncherWithGroupers(3, random);
 			break;
 		case "random":
 			System.out.println("Running simulation with random gossip");
-			launcher = new LauncherWithRandomIPGossip();
+			launcher = new LauncherWithRandomIPGossip(random);
 			break;
 		}
 		
@@ -38,10 +40,7 @@ public class Demo {
 		} else {
 			outDir += "default";
 		}
-		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir);
-		
-		// Setup random number generator for locations
-		Navigator.setRandom(new Random(42));
+		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir, ((VehicleDeployer)launcher).getNavigator());
 		
 		DemoDeployer demoDeployer = new EmergencyDemoDeployer(
 				crashes,

@@ -38,8 +38,9 @@ public class LeaderFollower {
 			@In("member.id") String memberId,
 			@In("member.currentLink") Id memberLink,
 			@InOut("member.trainId") ParamHolder<String> memeberTrainId,
-			@InOut("member.leaderDist") ParamHolder<Double> leaderDist) {
-		double distance = Navigator.getLinkLinkDist(coordLink, memberLink);
+			@InOut("member.leaderDist") ParamHolder<Double> leaderDist,
+			@In("coord.navigator") Navigator navigator) {
+		double distance = navigator.getLinkLinkDist(coordLink, memberLink);
 		
 		// Leader - follower distance		
 		if (nearestFollower.value == null || nearestFollower.value > distance) {

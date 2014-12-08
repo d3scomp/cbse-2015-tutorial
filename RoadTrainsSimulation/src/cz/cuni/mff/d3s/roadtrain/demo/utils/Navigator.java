@@ -17,16 +17,13 @@ import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 
 public class Navigator {
-	private static Map<String, Link> places = new HashMap<String, Link>();
-	private static MATSimRouter router;
-	private static Random random;
-	
-	public static void setRandom(Random random) {
-		Navigator.random = random;
-	}
-			
-	public static void init(MATSimRouter router) {
-		Navigator.router = router;
+	private Map<String, Link> places = new HashMap<String, Link>();
+	private MATSimRouter router;
+	private Random random;
+				
+	public Navigator(MATSimRouter router, Random random) {
+		this.router = router;
+		this.random = random;
 	
 		// Fire stations
 		putLocation("F1", 50.0763769, 14.4292897);
@@ -108,35 +105,35 @@ public class Navigator {
 		putLocation("A18", 49.9922836, 14.3883783);
 	};
 	
-	public static void putLocation(String name, double lat , double lon) {
+	public void putLocation(String name, double lat , double lon) {
 		places.put(name, router.findNearestLink(new CoordImpl(Settings.physToX(lon), Settings.physToY(lat))));
 	}
 	
-	public static void putLink(String name, Link link) {
+	public void putLink(String name, Link link) {
 		places.put(name, link);
 	}
 	
-	public static Collection<String> getPlaces() {
+	public Collection<String> getPlaces() {
 		return places.keySet();
 	}
 	
-	public static Link getPosition(String name) {
+	public Link getPosition(String name) {
 		return places.get(name);
 	}
 	
-	public static double getDesDist(String destination, Id currentLink) {
+	public double getDesDist(String destination, Id currentLink) {
 		return getLinkDistance(currentLink, getPosition(destination).getId());
 	}
 	
-	public static double getLinkLinkDist(Id car1link, Id car2link) {
+	public double getLinkLinkDist(Id car1link, Id car2link) {
 		return getLinkDistance(car1link, car2link);
 	}
 	
-	public static double getDestDistUsingCar(String destination, Id currentLink, Id midCarLink) {
+	public double getDestDistUsingCar(String destination, Id currentLink, Id midCarLink) {
 		return getLinkLinkDist(currentLink, midCarLink) + getDesDist(destination, midCarLink);
 	}
 	
-	private static double getLinkDistance(Id link1, Id link2) {
+	private double getLinkDistance(Id link1, Id link2) {
 		double dist = 0;
 		for(Id id: router.route(link1, link2)) {
 			dist += router.findLinkById(id).getLength();
@@ -144,7 +141,7 @@ public class Navigator {
 		return dist;
 	}
 	
-	public static double getEuclidDistance(Coord p1, Coord p2) {
+	public double getEuclidDistance(Coord p1, Coord p2) {
 		if (p1 == null || p2 == null) {
 			return Double.POSITIVE_INFINITY;
 		}
@@ -155,12 +152,12 @@ public class Navigator {
 		return Math.sqrt(dx*dx + dy*dy);
 	}
 	
-	public static String getRandomPlace(String prefix) {
+	public String getRandomPlace(String prefix) {
 		List<String> matching = getMatchingPlaces(prefix);
 		return matching.remove(random.nextInt(matching.size() - 1));
 	}
 	
-	public static String getNearestPlace(String prefix, String toPlace, Set<String> ommit) {
+	public String getNearestPlace(String prefix, String toPlace, Set<String> ommit) {
 		String nearest = null;
 		double nearestDist = 0;
 		
@@ -168,8 +165,8 @@ public class Navigator {
 		matching.removeAll(ommit);
 		
 		for(String place: matching) {
-			Link pos = Navigator.getPosition(place);
-			double dist = Navigator.getDesDist(toPlace, pos.getId());
+			Link pos = getPosition(place);
+			double dist = getDesDist(toPlace, pos.getId());
 			
 			if(nearest == null || dist < nearestDist) {
 				nearest = place;
@@ -180,10 +177,10 @@ public class Navigator {
 		return nearest;
 	}
 	
-	public static List<String> getMatchingPlaces(String prefix) {
+	public List<String> getMatchingPlaces(String prefix) {
 		// Get matching places
 		List<String> matching = new LinkedList<String>();
-		for(String place: Navigator.getPlaces()) {
+		for(String place: getPlaces()) {
 			if(place.startsWith(prefix)) {
 				matching.add(place);
 			}
@@ -191,13 +188,13 @@ public class Navigator {
 		return matching;
 	}
 	
-	public static Link getRandomLinkAround(double x, double y, double radius) {
+	public Link getRandomLinkAround(double x, double y, double radius) {
 		double dx = (0.5 - random.nextDouble()) * 2 * radius;
 		double dy = (0.5 - random.nextDouble()) * 2 * radius;
 		return router.findNearestLink(new CoordImpl(x + dx, y + dy));
 	}
 	
-	public static Link getRandomLink() {
+	public Link getRandomLink() {
 		double x = Settings.MIN_X + random.nextDouble() * Settings.WIDTH;
 		double y = Settings.MIN_Y + random.nextDouble() * Settings.HEIGHT;
 		return router.findNearestLink(new CoordImpl(x, y));

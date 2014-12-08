@@ -1,11 +1,7 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 import org.matsim.core.basic.v01.IdImpl;
 
@@ -49,16 +45,9 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	private AgentSourceBasedPosition positionProvider;
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
+	private Navigator navigator;
 	
-	// For dummy gossip
-	private final DummyRecipientSelector dummyRecipientSelector = new DummyRecipientSelector(5);
-	private final DirectGossipStrategy directGossipStrategy = new DirectGossipStrategy() {
-		public Collection<String> filterRecipients(Collection<String> recipients) {
-			return recipients;
-		}
-	};
-		
-	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
+	public LauncherWithRandomIPGossip(Random random) {
 		// Setup simulation
 		System.out.println("Preparing simulation");
 		agentSource = new JDEECoAgentSource();
@@ -74,9 +63,18 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		builder = new SimulationRuntimeBuilder();
 		kmFactory = new CloningKnowledgeManagerFactory();
 		
-		// Setup navigator
-		Navigator.init(router);
+		this.navigator = new Navigator(router, random);
+	}
 	
+	// For dummy gossip
+	private final DummyRecipientSelector dummyRecipientSelector = new DummyRecipientSelector(5);
+	private final DirectGossipStrategy directGossipStrategy = new DirectGossipStrategy() {
+		public Collection<String> filterRecipients(Collection<String> recipients) {
+			return recipients;
+		}
+	};
+		
+	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
 		// Deploy components
 		System.out.println("Deploying components");
 		demoDeployer.deploy();
@@ -136,5 +134,10 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	@Override
 	public void addDestination(String destination) {
 		destinations.add(destination);
+	}
+
+	@Override
+	public Navigator getNavigator() {
+		return navigator;
 	}
 }
