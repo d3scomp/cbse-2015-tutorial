@@ -12,7 +12,8 @@ import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 public class MeasureData {
 	static final Random random = new Random(42);
 	
-	static final int[] CRASH_SITES = {3, 5, 10, 15, 20};
+	//static final int[] CRASH_SITES = {3, 5, 10, 15, 20};
+	static final int[] CRASH_SITES = {1, 2};
 	
 	static final int RUNS = 5;
 	
@@ -31,12 +32,12 @@ public class MeasureData {
 			for(int i = 0; i < RUNS; ++i) {
 				MessageProbe.reset();
 				runSimulationWithGroupers(sites, i);
-				gWriter.write(String.format("%d %d", MessageProbe.getMsgSentMANET(), MessageProbe.getMsgSentIP()));
+				gWriter.write(String.format("%d %d\n", MessageProbe.getMsgSentMANET(), MessageProbe.getMsgSentIP()));
 				gWriter.flush();
 				
 				MessageProbe.reset();
 				runSimulationWithRandom(sites, i);
-				rWriter.write(String.format("%d %d", MessageProbe.getMsgSentMANET(), MessageProbe.getMsgSentIP()));
+				rWriter.write(String.format("%d %d\n", MessageProbe.getMsgSentMANET(), MessageProbe.getMsgSentIP()));
 				rWriter.flush();
 			}
 			

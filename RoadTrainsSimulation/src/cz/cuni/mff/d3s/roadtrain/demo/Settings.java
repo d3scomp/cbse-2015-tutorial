@@ -44,7 +44,7 @@ public class Settings {
 	public static final int ROUTE_CALCULATION_OFFSET = 0;
 	
 	// Link parameters
-	public final static double FREE_SPEED = 10.0; // m/s
+	public final static double FREE_SPEED = 30.0; // m/s
 	public final static double CAPACITY = 5000.0; // v/s
 	public final static double PERMLANES = 3.0;
 	public final static int ONEWAY = 1;
