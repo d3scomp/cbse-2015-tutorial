@@ -302,6 +302,7 @@ public class Vehicle {
 			// and the road train is short enough -> follow it
 			leaderId.value = nearestCarId;
 			leaderLink.value = nearestCarLink;
+			leaderDist.value = nearestDist;
 		} else {
 			// There is no car in front of us on the path to destination,
 			// or road train is too long -> lead the new train
@@ -431,13 +432,13 @@ public class Vehicle {
 		
 		// Wait for follower
 		if(nearestFollower != null && nearestFollower > Settings.LINK_MAX_CAR_DIST) {
-//			System.out.println(id + " waiting for followers");
+			System.out.println(id + " waiting for followers");
 			wait = true;
 		}
 		
 		// Wait for leaders
 		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leaderDist != null && leaderDist < Settings.LINK_MIN_CAR_DIST) {
-//			System.out.println(id + " waiting to let leader lead");
+			System.out.println(id + " waiting to let leader lead");
 			wait = true;
 		}
 		
