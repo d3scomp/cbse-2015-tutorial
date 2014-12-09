@@ -1,31 +1,31 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 public class MessageProbe {
-	private static long msgSentMANET = 0;
-	private static long msgSentIP = 0;
+	private long msgSentMANET;
+	private long msgSentIP;
 	
-	public static void reset() {
+	public MessageProbe() {
 		msgSentMANET = 0;
 		msgSentIP = 0;
 	}
 	
-	public static long getMsgSentMANET() {
+	public long getMsgSentMANET() {
 		return msgSentMANET;
 	}
 
-	public static long getMsgSentIP() {
+	public long getMsgSentIP() {
 		return msgSentIP;
 	}
 
-	public static void messageSentMANET() {
+	public void messageSentMANET() {
 		msgSentMANET++;
 	}
 	
-	public static void messageSentIP() {
+	public void messageSentIP() {
 		msgSentIP++;
 	}
 	
-	public static String report() {
+	public String report() {
 		return String.format("Total number of messages sent MANET: %d IP: %d", msgSentMANET, msgSentIP);
 	}
 }

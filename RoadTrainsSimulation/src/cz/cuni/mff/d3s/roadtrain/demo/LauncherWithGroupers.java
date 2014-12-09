@@ -62,15 +62,14 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	private Set<String> destinations = new HashSet<String>();
 	private int grouperCount;
 	private Navigator navigator;
+	private MessageProbe messageProbe;
 		
-	public LauncherWithGroupers(int grouperCount, Random random) {
-		this.grouperCount = grouperCount;
-		
+	public LauncherWithGroupers(int grouperCount, Random random, MessageProbe messageProbe) {
 		// Setup simulation
 		System.out.println("Preparing simulation");
 		agentSource = new JDEECoAgentSource();
 		positionProvider = new AgentSourceBasedPosition(agentSource);
-		NetworkDataHandler networkHandler = new RealisticKnowledgeDataHandler(positionProvider);
+		NetworkDataHandler networkHandler = new RealisticKnowledgeDataHandler(positionProvider, messageProbe);
 		matSimProviderReceiver = new MATSimDataProviderReceiver(new LinkedList<String>());
 		sim = new MATSimSimulation(matSimProviderReceiver,
 				matSimProviderReceiver, new DefaultMATSimUpdater(),
@@ -80,7 +79,9 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		positionProvider.setRouter(router);
 		builder = new SimulationRuntimeBuilder();
 		kmFactory = new CloningKnowledgeManagerFactory();
-		
+
+		this.grouperCount = grouperCount;
+		this.messageProbe = messageProbe;
 		this.navigator = new Navigator(router, random);
 	}
 	
@@ -110,7 +111,9 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		sim.run();
 		long diffTime = System.currentTimeMillis() - startTime;
 		System.out.println(String.format("Simulation Finished in: %s.%ss", diffTime / 1000, diffTime % 1000));
-		System.out.println(MessageProbe.report());
+		if(messageProbe != null) {
+			System.out.println(messageProbe.report());
+		}
 	}
 	
 	

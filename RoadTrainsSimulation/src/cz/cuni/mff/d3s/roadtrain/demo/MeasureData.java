@@ -30,14 +30,14 @@ public class MeasureData {
 			
 			
 			for(int i = 0; i < RUNS; ++i) {
-				MessageProbe.reset();
-				runSimulationWithGroupers(sites, i);
-				gWriter.write(String.format("%d %d\n", MessageProbe.getMsgSentMANET(), MessageProbe.getMsgSentIP()));
+				MessageProbe gProbe = new MessageProbe();
+				runSimulationWithGroupers(sites, i, gProbe);
+				gWriter.write(String.format("%d %d\n", gProbe.getMsgSentMANET(), gProbe.getMsgSentIP()));
 				gWriter.flush();
 				
-				MessageProbe.reset();
-				runSimulationWithRandom(sites, i);
-				rWriter.write(String.format("%d %d\n", MessageProbe.getMsgSentMANET(), MessageProbe.getMsgSentIP()));
+				MessageProbe rProbe = new MessageProbe();
+				runSimulationWithRandom(sites, i, rProbe);
+				rWriter.write(String.format("%d %d\n", rProbe.getMsgSentMANET(), rProbe.getMsgSentIP()));
 				rWriter.flush();
 			}
 			
@@ -47,10 +47,10 @@ public class MeasureData {
 		
 	}
 	
-	private static void runSimulationWithGroupers(int crashes, int series) throws AnnotationProcessorException, IOException {
+	private static void runSimulationWithGroupers(int crashes, int series, MessageProbe messageProbe) throws AnnotationProcessorException, IOException {
 		System.out.println("Launching simulation WITH groupers and " + crashes + " crash sites #" + series);
 				
-		LauncherWithGroupers launcher = new LauncherWithGroupers(3, random);
+		LauncherWithGroupers launcher = new LauncherWithGroupers(3, random, messageProbe);
 
 		final String ident = String.format("groupers-Crash%d-%d", crashes, series);
 
@@ -68,10 +68,10 @@ public class MeasureData {
 		launcher.run(demoDeployer);
 	}
 	
-	private static void runSimulationWithRandom(int crashes, int series) throws AnnotationProcessorException, IOException {
+	private static void runSimulationWithRandom(int crashes, int series, MessageProbe messageProbe) throws AnnotationProcessorException, IOException {
 		System.out.println("Launching simulation WITHOUT groupers and " + crashes + " crash sites #" + series);
 				
-		LauncherWithRandomIPGossip launcher = new LauncherWithRandomIPGossip(random);
+		LauncherWithRandomIPGossip launcher = new LauncherWithRandomIPGossip(random, messageProbe);
 
 		final String ident = String.format("random-Crash%d-%d", crashes, series);
 

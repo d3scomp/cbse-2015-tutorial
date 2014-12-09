@@ -46,13 +46,14 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
 	private Navigator navigator;
+	private MessageProbe messageProbe;
 	
-	public LauncherWithRandomIPGossip(Random random) {
+	public LauncherWithRandomIPGossip(Random random, MessageProbe messageProbe) {
 		// Setup simulation
 		System.out.println("Preparing simulation");
 		agentSource = new JDEECoAgentSource();
 		positionProvider = new AgentSourceBasedPosition(agentSource);
-		NetworkDataHandler networkHandler = new RealisticKnowledgeDataHandler(positionProvider);
+		NetworkDataHandler networkHandler = new RealisticKnowledgeDataHandler(positionProvider, messageProbe);
 		matSimProviderReceiver = new MATSimDataProviderReceiver(new LinkedList<String>());
 		sim = new MATSimSimulation(matSimProviderReceiver,
 				matSimProviderReceiver, new DefaultMATSimUpdater(),
@@ -64,6 +65,7 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		kmFactory = new CloningKnowledgeManagerFactory();
 		
 		this.navigator = new Navigator(router, random);
+		this.messageProbe = messageProbe;
 	}
 	
 	// For dummy gossip
@@ -85,7 +87,9 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		sim.run();
 		long diffTime = System.currentTimeMillis() - startTime;
 		System.out.println(String.format("Simulation Finished in: %s.%ss", diffTime / 1000, diffTime % 1000));
-		System.out.println(MessageProbe.report());
+		if(messageProbe != null) {
+			System.out.println(messageProbe.report());
+		}
 	}
 	
 	

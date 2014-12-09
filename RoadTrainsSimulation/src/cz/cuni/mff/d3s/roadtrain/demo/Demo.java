@@ -16,16 +16,18 @@ public class Demo {
 		// Set random generator
 		Random random = new Random(42);
 		
+		MessageProbe messageProbe = new MessageProbe();
+		
 		// Determine whenever to use groupers
 		Object launcher = null;
 		switch(args[0]) {
 		case "groupers":
 			System.out.println("Running simulation with groupers");
-			launcher = new LauncherWithGroupers(3, random);
+			launcher = new LauncherWithGroupers(3, random, messageProbe);
 			break;
 		case "random":
 			System.out.println("Running simulation with random gossip");
-			launcher = new LauncherWithRandomIPGossip(random);
+			launcher = new LauncherWithRandomIPGossip(random, messageProbe);
 			break;
 		}
 		

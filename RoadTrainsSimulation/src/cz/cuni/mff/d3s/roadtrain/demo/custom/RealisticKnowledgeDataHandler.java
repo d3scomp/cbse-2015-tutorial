@@ -18,22 +18,24 @@ public class RealisticKnowledgeDataHandler extends
 	public static final double MANET_RANGE = 250.0;
 	
 	private final PositionAware positions;
+	private MessageProbe messageProbe;
 	
-	public RealisticKnowledgeDataHandler(PositionAware positions) {
+	public RealisticKnowledgeDataHandler(PositionAware positions, MessageProbe messageProbe) {
 		this.positions = positions;
+		this.messageProbe = messageProbe;
 	}
 	
 	@Override
 	public void networkSend(AbstractHost from, Object data, AbstractHost recipientHost, Collection<DataReceiver> recipientReceivers) {
 		for (DataReceiver receiver: recipientReceivers) {
-			MessageProbe.messageSentIP();
+			messageProbe.messageSentIP();
 			receiver.checkAndReceive(data, DEFAULT_IP_RSSI);
 		}
 	}
 	
 	@Override
 	public void networkBroadcast(AbstractHost from, Object data, Map<AbstractHost, Collection<DataReceiver>> receivers) {
-		MessageProbe.messageSentMANET();
+		messageProbe.messageSentMANET();
 		
 		Position fromPosition = positions.getPosition(from.getHostId());
 		Iterator<Map.Entry<AbstractHost, Collection<DataReceiver>>> entries = receivers.entrySet().iterator();
