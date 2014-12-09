@@ -424,6 +424,8 @@ public class Vehicle {
 			@In("speedActuator") Actuator<Double> speedActuator,
 			@In("router") MATSimRouter router,
 			@In("nearestFollower") Double nearestFollower,
+			@In("trainFollowerId") String trainFollowerId,
+			@In("trainFollowerDist") Double trainFollowerDistance,
 			@In("leaderDist") Double leaderDist,
 			@Out("speed") ParamHolder<Double> speed,
 			@In("navigator") Navigator navigator) throws Exception {
@@ -431,14 +433,20 @@ public class Vehicle {
 		boolean wait = false;
 		
 		// Wait for follower
-		if(nearestFollower != null && nearestFollower > Settings.LINK_MAX_CAR_DIST) {
-			System.out.println(id + " waiting for followers");
+		if(nearestFollower != null) {
+			System.out.println(id + " waiting for non train followers");
 			wait = true;
 		}
 		
-		// Wait for leaders
+		// Wait for train follower
+		if(trainFollowerId != null && trainFollowerDistance > Settings.LINK_MAX_CAR_DIST) {
+			System.out.println(id + " waiting for train followers");
+			wait = true;
+		}
+		
+		// Wait for train leaders
 		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leaderDist != null && leaderDist < Settings.LINK_MIN_CAR_DIST) {
-			System.out.println(id + " waiting to let leader lead");
+			System.out.println(id + " waiting to let train leader lead");
 			wait = true;
 		}
 		
