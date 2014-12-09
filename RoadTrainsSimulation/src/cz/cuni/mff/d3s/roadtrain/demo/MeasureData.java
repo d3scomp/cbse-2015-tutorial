@@ -10,7 +10,10 @@ import cz.cuni.mff.d3s.deeco.annotations.processor.AnnotationProcessorException;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 
 public class MeasureData {
-	static final Random random = new Random(42);
+	static final long seed = 42;
+	
+	static final Random gRandom = new Random(seed);
+	static final Random rRandom = new Random(seed);
 	
 	//static final int[] CRASH_SITES = {1, 2, 3, 5, 10, 15, 20};
 	static final int[] CRASH_SITES = {1};
@@ -76,7 +79,7 @@ public class MeasureData {
 	private static void runSimulationWithGroupers(int crashes, int series, MessageProbe messageProbe) throws AnnotationProcessorException, IOException {
 		System.out.println("Launching simulation WITH groupers and " + crashes + " crash sites #" + series);
 				
-		LauncherWithGroupers launcher = new LauncherWithGroupers(3, random, messageProbe);
+		LauncherWithGroupers launcher = new LauncherWithGroupers(3, gRandom, messageProbe);
 
 		final String ident = String.format("groupers-Crash%d-%d", crashes, series);
 
@@ -97,7 +100,7 @@ public class MeasureData {
 	private static void runSimulationWithRandom(int crashes, int series, MessageProbe messageProbe) throws AnnotationProcessorException, IOException {
 		System.out.println("Launching simulation WITHOUT groupers and " + crashes + " crash sites #" + series);
 				
-		LauncherWithRandomIPGossip launcher = new LauncherWithRandomIPGossip(random, messageProbe);
+		LauncherWithRandomIPGossip launcher = new LauncherWithRandomIPGossip(rRandom, messageProbe);
 
 		final String ident = String.format("random-Crash%d-%d", crashes, series);
 
