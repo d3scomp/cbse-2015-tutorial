@@ -12,8 +12,8 @@ import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 public class MeasureData {
 	static final Random random = new Random(42);
 	
-	//static final int[] CRASH_SITES = {3, 5, 10, 15, 20};
-	static final int[] CRASH_SITES = {1, 2};
+	//static final int[] CRASH_SITES = {1, 2, 3, 5, 10, 15, 20};
+	static final int[] CRASH_SITES = {1};
 	
 	static final int RUNS = 5;
 	
@@ -30,15 +30,41 @@ public class MeasureData {
 			
 			
 			for(int i = 0; i < RUNS; ++i) {
-				MessageProbe gProbe = new MessageProbe();
-				runSimulationWithGroupers(sites, i, gProbe);
-				gWriter.write(String.format("%d %d\n", gProbe.getMsgSentMANET(), gProbe.getMsgSentIP()));
-				gWriter.flush();
+				final int currentI = i;
 				
-				MessageProbe rProbe = new MessageProbe();
-				runSimulationWithRandom(sites, i, rProbe);
-				rWriter.write(String.format("%d %d\n", rProbe.getMsgSentMANET(), rProbe.getMsgSentIP()));
-				rWriter.flush();
+				Thread gThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							MessageProbe gProbe = new MessageProbe();
+							runSimulationWithGroupers(sites, currentI, gProbe);
+							gWriter.write(String.format("%d %d\n", gProbe.getMsgSentMANET(), gProbe.getMsgSentIP()));
+							gWriter.flush();
+						} catch(Exception e) {
+							System.out.println("Measurement endded with exception !!!!!");
+						}
+					}
+				});
+				
+				Thread rThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							MessageProbe rProbe = new MessageProbe();
+							runSimulationWithRandom(sites, currentI, rProbe);
+							rWriter.write(String.format("%d %d\n", rProbe.getMsgSentMANET(), rProbe.getMsgSentIP()));
+							rWriter.flush();
+						} catch(Exception e) {
+							System.out.println("Measurement endded with exception !!!!!");
+						}
+					}
+				});
+				
+				gThread.start();
+				rThread.start();
+				
+				gThread.join();
+				rThread.join();
 			}
 			
 			gWriter.close();
