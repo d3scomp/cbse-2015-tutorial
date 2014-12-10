@@ -31,6 +31,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.environment.SensorType;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.VehicleMonitor;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleInfo;
+import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleLink;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 
 @Component
@@ -60,14 +61,16 @@ public class Vehicle {
 	
 	public String trainId;
 	
-	public String leaderId = null;
-	public Id leaderLink = null;
+	public VehicleLink leader;
+//	public String leaderId = null;
+//	public Id leaderLink = null;
 	
-	public Double leaderDist = null;
+//	public Double leaderDist = null;
 	public Double nearestFollower = null;
 	
-	public String trainFollowerId = null;
-	public Double trainFollowerDist = null;
+	public VehicleLink trainFollower;
+//	public String trainFollowerId = null;
+//	public Double trainFollowerDist = null;
 	
 	public Double speed;
 	
@@ -128,16 +131,15 @@ public class Vehicle {
  			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
 			@In("position") Coord position,
 			@In("dstPlace") String dstPlace,
-			@In("leaderId") String leaderId,
+			@In("leader") VehicleLink leader,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("trainGroup") Map<String, VehicleInfo> trainGroup,
 			@In("route") List<Id> route,
 			@In("clock") CurrentTimeProvider clock,
 			@In("nearestFollower") Double nearestFollower,
-			@In("leaderDist") Double leaderDist,
 			@In("router") MATSimRouter router,
 			@In("trainId") String trainId,
-			@In("trainFollowerId") String trainFollowerId,
+			@In("trainFollower") VehicleLink trainFollower,
 			@In("speed") Double speed,
 			@In("vehicleMonitor") VehicleMonitor vehicleMonitor) {
 
@@ -153,11 +155,11 @@ public class Vehicle {
 				groupToString(destGroup),
 				groupToString(trainGroup),
 				Navigator.getDesDist(dstPlace, currentLinkSensor.read()),
-				leaderId,
+				leader,
 				Navigator.getPosition(dstPlace).getId(),
 				dstPlace,
 				trainId,
-				trainFollowerId,
+				trainFollower,
 				speed);
 		
 		// Report information about vehicle
@@ -165,11 +167,10 @@ public class Vehicle {
 				clock.getCurrentMilliseconds(),
 				id,
 				position,
-				leaderId,
+				leader,
 				dstPlace,
 				route,
 				router,
-				leaderDist,
 				nearestFollower,
 				trainId);
 	}
@@ -198,9 +199,8 @@ public class Vehicle {
 			@In("dstPlace") String dstPlace,
 			@In("currentLink") Id currentLink,
 			@In("trainId") String trainId,
-			@In("leaderId") String leaderId,
-			@In("trainFollowerId") String trainFollowerId,
-			@In("trainFollowerDist") Double trainFollowerDist,
+			@In("leader") VehicleLink leader,
+			@In("trainFollower") VehicleLink trainFollower,
 			@Out("state") ParamHolder<VehicleState> state) {
 		// Decide vehicle state
 		
@@ -211,25 +211,25 @@ public class Vehicle {
 		}
 		
 		// Single
-		if(id.equals(trainId) && trainFollowerId == null) {
+		if(id.equals(trainId) && trainFollower == null) {
 			state.value = VehicleState.SINGLE;
 			return;
 		}
 		
 		// Train leader
-		if(id.equals(trainId) && trainFollowerId != null) {
+		if(id.equals(trainId) && trainFollower != null) {
 			state.value = VehicleState.TRAIN_LEADER;
 			return;
 		}
 		
 		// Train member
-		if(leaderId != null && trainFollowerId != null) {
+		if(leader != null && trainFollower != null) {
 			state.value = VehicleState.TRAIN_MEMBER;
 			return;
 		}
 		
 		// Train tail
-		if(leaderId != null && trainFollowerId == null) {
+		if(leader != null && trainFollower == null) {
 			state.value = VehicleState.TRAIN_TAIL;
 			return;
 		}
@@ -245,9 +245,7 @@ public class Vehicle {
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstPlace") String dstPlace,
 			@In("currentLink") Id currentLink,
-			@InOut("leaderId") ParamHolder<String> leaderId,
-			@InOut("leaderLink") ParamHolder<Id> leaderLink,
-			@InOut("leaderDist") ParamHolder<Double> leaderDist,
+			@InOut("leader") ParamHolder<VehicleLink> leader,
 			@InOut("trainId") ParamHolder<String> trainId) {		
 		double myTargetDist = Navigator.getDesDist(dstPlace, currentLink);
 				
@@ -279,7 +277,7 @@ public class Vehicle {
 //				System.out.println(String.format("%s -> %s = %s", myTargetDist, distUsingCar, myTargetDist - distUsingCar));
 			
 			// Do not follow car on the same link if it was not followed before
-			boolean sameLinkCheck = !carLink.equals(currentLink) || (info.id.equals(leaderId));
+			boolean sameLinkCheck = !carLink.equals(currentLink) || (info.id.equals(leader.value.id));
 			
 			if((distCond && sameLinkCheck) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = info.id;
@@ -292,15 +290,11 @@ public class Vehicle {
 		if(nearestCarId != null) {
 			// There is car that is in front of us on the path to destination
 			// and the road train is short enough -> follow it
-			leaderId.value = nearestCarId;
-			leaderLink.value = nearestCarLink;
-			leaderDist.value = nearestDist;
+			leader.value = new VehicleLink(nearestCarId, nearestCarLink, nearestDist);
 		} else {
 			// There is no car in front of us on the path to destination,
 			// or road train is too long -> lead the new train
-			leaderId.value = null;
-			leaderLink.value = null;
-			leaderDist.value = null;
+			leader.value = null;
 		}
 	}
 	
@@ -311,9 +305,7 @@ public class Vehicle {
 			@In("trainGroup") Map<String, VehicleInfo> train,
 			@In("trainId") String trainId,
 			@In("currentLink") Id currentLink,
-			@InOut("leaderId") ParamHolder<String> leaderId,
-			@InOut("leaderLink") ParamHolder<Id> leaderLink,
-			@InOut("leaderDist") ParamHolder<Double> leaderDist) {
+			@InOut("leader") ParamHolder<VehicleLink> leader) {
 		// Do nothing when not on train
 		if(state == VehicleState.SINGLE || state == VehicleState.DONE) {
 			return;
@@ -328,46 +320,35 @@ public class Vehicle {
 		}
 		
 		// Get car to follow
-		String nearestCarId = null;
 		Double nearestDist = null;
-		Id nearestCarLink = null;
 		for(VehicleInfo info: train.values()) {
 			double distToCar = Navigator.getLinkLinkDist(currentLink, info.link);
 			double carToDestDist = Navigator.getLinkLinkDist(info.link, trainLeader.link);
 			double distUsingCar = distToCar + carToDestDist;
 			
-			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leaderId));
+			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leader.value.id));
 			
 			if(sameLinkCheck && (nearestDist == null || nearestDist > distUsingCar)) {
-				nearestDist = distUsingCar;
-				nearestCarId = info.id;
-				nearestCarLink = info.link;
+				leader.value = new VehicleLink(info.id, info.link, distUsingCar);
 			}
 		}
-		
-		// Follow nearest car in the train
-		leaderId.value = nearestCarId;
-		leaderLink.value = nearestCarLink;
-		leaderDist.value = Navigator.getLinkLinkDist(currentLink, leaderLink.value);
 	}
 	
 	@Process
 	@PeriodicScheduling(period = 10000)
 	public static void resetOldData(
 			@Out("nearestFollower") ParamHolder<Double> nearestFollower,
-			@Out("trainFollowerid") ParamHolder<String> trainFollowerId,
+			@Out("trainFollower") ParamHolder<VehicleInfo> trainFollower,
 			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
 			@InOut("trainGroup") ParamHolder<Map<String, VehicleInfo> > trainGroup,
-			@InOut("leaderId") ParamHolder<String> leaderId,
-			@InOut("leaderLink") ParamHolder<Id> leaderLink,
-			@InOut("leaderDist") ParamHolder<Double> leaderDist,
+			@InOut("leader") ParamHolder<VehicleLink> leader,
 			@In("clock") CurrentTimeProvider clock) {
 		// Reset followers TODO: use timestamps to do that
 		// TODO: This is not nice
-		nearestFollower.value = null;
+		nearestFollower = null;
 		
 		// TODO: This is not nice
-		trainFollowerId.value = null;
+		trainFollower.value = null;
 		
 		
 		// Clear shared destination group old data
@@ -389,11 +370,9 @@ public class Vehicle {
 		}
 		
 		// Reset leader link when leader not present in groups
-		if(leaderId.value != null) {
-			if(!destGroup.value.containsKey(leaderId.value) && !trainGroup.value.containsKey(leaderId.value)) {
-				leaderId.value = null;
-				leaderLink.value = null;
-				leaderDist.value = null;
+		if(leader.value != null) {
+			if(!destGroup.value.containsKey(leader.value.id) && !trainGroup.value.containsKey(leader.value.id)) {
+				leader.value = null;
 			}
 		}
 	}
@@ -407,7 +386,7 @@ public class Vehicle {
 			@In("id") String id,
 			@In("state") VehicleState state,
 			@In("currentLink") Id currentLink,
-			@In("leaderLink") Id leaderLink,
+			@In("leader") VehicleLink leader,
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstPlace") String dstPlace,
 			@InOut("route") ParamHolder<List<Id> > route,
@@ -415,9 +394,7 @@ public class Vehicle {
 			@In("speedActuator") Actuator<Double> speedActuator,
 			@In("router") MATSimRouter router,
 			@In("nearestFollower") Double nearestFollower,
-			@In("trainFollowerId") String trainFollowerId,
-			@In("trainFollowerDist") Double trainFollowerDistance,
-			@In("leaderDist") Double leaderDist,
+			@In("trainFollower") VehicleLink trainFollower,
 			@Out("speed") ParamHolder<Double> speed) throws Exception {
 		
 		boolean wait = false;
@@ -429,13 +406,13 @@ public class Vehicle {
 		}
 		
 		// Wait for train follower
-		if(trainFollowerId != null && trainFollowerDistance > Settings.LINK_MAX_CAR_DIST) {
+		if(trainFollower != null && trainFollower.dist > Settings.LINK_MAX_CAR_DIST) {
 			System.out.println(id + " waiting for train followers");
 			wait = true;
 		}
 		
 		// Wait for train leaders
-		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leaderDist != null && leaderDist < Settings.LINK_MIN_CAR_DIST) {
+		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leader != null && leader.dist < Settings.LINK_MIN_CAR_DIST) {
 			System.out.println(id + " waiting to let train leader lead");
 			wait = true;
 		}
@@ -448,13 +425,13 @@ public class Vehicle {
 		speedActuator.set(speed.value);
 		
 		// No car in front of us -> drive directly to destination
-		if(leaderLink == null) {
+		if(leader == null) {
 			route.value = router.route(currentLink, Navigator.getPosition(dstPlace).getId(), route.value);
 		}
 		
 		// Car in front of us -> follow it
-		if(leaderLink != null) {
-			route.value = router.route(currentLink, leaderLink, route.value);
+		if(leader != null) {
+			route.value = router.route(currentLink, leader.link, route.value);
 		}
 		
 		// Already at the destination -> stop

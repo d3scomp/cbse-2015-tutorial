@@ -12,6 +12,7 @@ import org.matsim.api.core.v01.Id;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
+import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleLink;
 
 public class VehicleMonitor {
 	private String dir;
@@ -76,8 +77,8 @@ public class VehicleMonitor {
 		colorMap.put("V25", "chocolate");
 	}
 
-	public synchronized void report(long timeMs, String id, Coord pos, String leader, String dstCity,
-			List<Id> route, MATSimRouter router, Double leaderDist, Double nearestFollower, String train) {
+	public synchronized void report(long timeMs, String id, Coord pos, VehicleLink leader, String dstCity,
+			List<Id> route, MATSimRouter router, Double nearestFollower, String train) {
 		// Start new frame if needed
 		if (time != timeMs) {
 			try {
@@ -113,26 +114,32 @@ public class VehicleMonitor {
 
 		// Add route
 		String last = id;
-		for (Id i : route) {
-			Coord linkPos = router.findLinkById(i).getCoord();
-			String linkName = String.format("%s_%s", id, i);
-			record.append(String.format(
-					"\n%s [pos = \"%s,%s!\", style=\"\", label=\"\", width=\"0.001\", height=\"0.01\"]", linkName,
-					linkPos.getX() * SCALE, linkPos.getY() * SCALE));
-			record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", label=\"\"]", last, linkName,
-					nodeColor));
-			last = linkName;
+		if(route != null) {
+			for (Id i : route) {
+				Coord linkPos = router.findLinkById(i).getCoord();
+				String linkName = String.format("%s_%s", id, i);
+				record.append(String.format(
+						"\n%s [pos = \"%s,%s!\", style=\"\", label=\"\", width=\"0.001\", height=\"0.01\"]", linkName,
+						linkPos.getX() * SCALE, linkPos.getY() * SCALE));
+				record.append(String.format("\n%s -> %s [color=%s, arrowsize=\"0.1\", label=\"\"]", last, linkName,
+						nodeColor));
+				last = linkName;
+			}
 		}
 
 		// Vehicle
-		if (leader == null) {
-			leader = dstCity;
-			leaderDist = 0.0;
+		String leaderId = dstCity;
+		Double leaderDist = 0.0;
+		
+		if(leader != null) {
+			leaderId = leader.id;
+			leaderDist = leader.dist;
 		}
+		
 		record.append(String
 				.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
 						id, id, pos.getX() * SCALE, pos.getY() * SCALE, nodeColor, nodeColor));
-		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leader, nodeColor, leaderDist.intValue()));
+		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leaderId, nodeColor, leaderDist.intValue()));
 	}
 
 	public void dump() throws IOException {
