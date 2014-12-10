@@ -61,7 +61,6 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
 	private int grouperCount;
-	private Navigator navigator;
 	private MessageProbe messageProbe;
 		
 	public LauncherWithGroupers(int grouperCount, Random random, MessageProbe messageProbe) {
@@ -82,7 +81,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 
 		this.grouperCount = grouperCount;
 		this.messageProbe = messageProbe;
-		this.navigator = new Navigator(router, random);
+		Navigator.init(router, random);
 	}
 	
 	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
@@ -156,7 +155,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	
 	
 	public void deployConnector(String id, Collection<Object> range) throws AnnotationProcessorException {
-		Link link = navigator.getRandomLink();
+		Link link = Navigator.getRandomLink();
 		agentSource.addAgent(new JDEECoAgent(new IdImpl(id), link.getId()));
 		
 		/* Model */
@@ -240,10 +239,5 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	@Override
 	public void addDestination(String destination) {
 		destinations.add(destination);
-	}
-
-	@Override
-	public Navigator getNavigator() {
-		return navigator;
 	}
 }

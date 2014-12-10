@@ -64,7 +64,6 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		builder = new SimulationRuntimeBuilder();
 		kmFactory = new CloningKnowledgeManagerFactory();
 		
-		this.navigator = new Navigator(router, random);
 		this.messageProbe = messageProbe;
 	}
 	
@@ -138,10 +137,5 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	@Override
 	public void addDestination(String destination) {
 		destinations.add(destination);
-	}
-
-	@Override
-	public Navigator getNavigator() {
-		return navigator;
 	}
 }

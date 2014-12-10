@@ -17,13 +17,11 @@ public class VehicleMonitor {
 	private String dir;
 	private StringBuilder record;
 	private long time;
-	private Navigator navigator;
 	
 	private final double SCALE = 0.1;
 	
-	public VehicleMonitor(String dirName, Navigator navigator) {
+	public VehicleMonitor(String dirName) {
 		this.dir = dirName;
-		this.navigator = navigator;
 		time = 0;
 		record = new StringBuilder();
 	}
@@ -97,8 +95,8 @@ public class VehicleMonitor {
 		}
 
 		// Add places
-		for (String place : navigator.getPlaces()) {
-			Coord coord = navigator.getPosition(place).getCoord();
+		for (String place : Navigator.getPlaces()) {
+			Coord coord = Navigator.getPosition(place).getCoord();
 			String color = "grey";
 			if(place.matches("A[0-9]*")) {
 				color = "green";

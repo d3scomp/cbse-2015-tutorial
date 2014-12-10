@@ -84,7 +84,7 @@ public class MeasureData {
 		final String ident = String.format("groupers-Crash%d-%d", crashes, series);
 
 		final String outDir = "output" + File.separator + ident;
-		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir, ((VehicleDeployer)launcher).getNavigator());
+		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir);
 		
 		DemoDeployer demoDeployer = new EmergencyDemoDeployer(
 				crashes,
@@ -105,7 +105,7 @@ public class MeasureData {
 		final String ident = String.format("random-Crash%d-%d", crashes, series);
 
 		final String outDir = "output" + File.separator + ident;
-		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir, ((VehicleDeployer)launcher).getNavigator());
+		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir);
 		
 		DemoDeployer demoDeployer = new EmergencyDemoDeployer(
 				crashes,

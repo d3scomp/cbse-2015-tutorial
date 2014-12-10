@@ -42,7 +42,7 @@ public class Demo {
 		} else {
 			outDir += "default";
 		}
-		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir, ((VehicleDeployer)launcher).getNavigator());
+		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir);
 		
 		DemoDeployer demoDeployer = new EmergencyDemoDeployer(
 				crashes,
