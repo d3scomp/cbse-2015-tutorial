@@ -16,7 +16,7 @@ public class MeasureData {
 	static final Random rRandom = new Random(seed);
 	
 	//static final int[] CRASH_SITES = {1, 2, 3, 5, 10, 15, 20};
-	static final int[] CRASH_SITES = {1};
+	static final int[] CRASH_SITES = {1, 2, 3};
 	
 	static final int RUNS = 5;
 	
@@ -35,39 +35,15 @@ public class MeasureData {
 			for(int i = 0; i < RUNS; ++i) {
 				final int currentI = i;
 				
-				Thread gThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							MessageProbe gProbe = new MessageProbe();
-							runSimulationWithGroupers(sites, currentI, gProbe);
-							gWriter.write(String.format("%d %d\n", gProbe.getMsgSentMANET(), gProbe.getMsgSentIP()));
-							gWriter.flush();
-						} catch(Exception e) {
-							System.out.println("Measurement endded with exception !!!!!");
-						}
-					}
-				});
+				MessageProbe gProbe = new MessageProbe();
+				runSimulationWithGroupers(sites, currentI, gProbe);
+				gWriter.write(String.format("%d %d\n", gProbe.getMsgSentMANET(), gProbe.getMsgSentIP()));
+				gWriter.flush();
 				
-				Thread rThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							MessageProbe rProbe = new MessageProbe();
-							runSimulationWithRandom(sites, currentI, rProbe);
-							rWriter.write(String.format("%d %d\n", rProbe.getMsgSentMANET(), rProbe.getMsgSentIP()));
-							rWriter.flush();
-						} catch(Exception e) {
-							System.out.println("Measurement endded with exception !!!!!");
-						}
-					}
-				});
-				
-				gThread.start();
-				rThread.start();
-				
-				gThread.join();
-				rThread.join();
+				MessageProbe rProbe = new MessageProbe();
+				runSimulationWithRandom(sites, currentI, rProbe);
+				rWriter.write(String.format("%d %d\n", rProbe.getMsgSentMANET(), rProbe.getMsgSentIP()));
+				rWriter.flush();
 			}
 			
 			gWriter.close();
