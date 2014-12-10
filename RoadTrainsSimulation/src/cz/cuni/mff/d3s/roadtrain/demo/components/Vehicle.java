@@ -315,7 +315,7 @@ public class Vehicle {
 			@InOut("leaderLink") ParamHolder<Id> leaderLink,
 			@InOut("leaderDist") ParamHolder<Double> leaderDist) {
 		// Do nothing when not on train
-		if(state == VehicleState.SINGLE || state == VehicleState.SINGLE) {
+		if(state == VehicleState.SINGLE || state == VehicleState.DONE) {
 			return;
 		}
 		
