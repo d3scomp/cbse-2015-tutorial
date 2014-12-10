@@ -17,11 +17,12 @@ import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 
 public class Navigator {
-	private static Map<String, Link> places = new HashMap<String, Link>();
+	private static Map<String, Link> places;
 	private static MATSimRouter router;
 	private static Random random;
-				
+					
 	public static void init(MATSimRouter router, Random random) {
+		places = new HashMap<String, Link>();
 		Navigator.router = router;
 		Navigator.random = random;
 	

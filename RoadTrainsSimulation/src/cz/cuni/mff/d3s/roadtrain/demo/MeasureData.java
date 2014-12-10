@@ -16,9 +16,9 @@ public class MeasureData {
 	static final Random rRandom = new Random(seed);
 	
 	//static final int[] CRASH_SITES = {1, 2, 3, 5, 10, 15, 20};
-	static final int[] CRASH_SITES = {1, 2, 3};
+	static final int[] CRASH_SITES = {1};
 	
-	static final int RUNS = 3;
+	static final int RUNS = 1;
 	
 	public static void main(String[] args) throws Exception {
 		for(int sites: CRASH_SITES) {
