@@ -34,7 +34,6 @@ import cz.cuni.mff.d3s.roadtrain.demo.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.Train;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.TrainLeaderFollower;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.MATSimDataProviderReceiver;
-import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 
 public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	private JDEECoAgentSource agentSource;
@@ -45,7 +44,6 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	private AgentSourceBasedPosition positionProvider;
 	private CloningKnowledgeManagerFactory kmFactory;
 	private Set<String> destinations = new HashSet<String>();
-	private Navigator navigator;
 	private MessageProbe messageProbe;
 	
 	public LauncherWithRandomIPGossip(Random random, MessageProbe messageProbe) {
