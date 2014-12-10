@@ -12,7 +12,6 @@ import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
 import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
-import cz.cuni.mff.d3s.deeco.scheduler.CurrentTimeProvider;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleInfo;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
@@ -39,8 +38,8 @@ public class SharedDestination {
 			@In("member.position") Coord memberPosition,
 			@In("member.currentLink") Id memberLink,
 			@InOut("coord.destGroup") ParamHolder<Map<String, VehicleInfo>> coordGroup,
-			@In("coord.clock") CurrentTimeProvider clock) {
+			@In("coord.curTime") long time) {
 		// Exchange information about the group sharing the same destination
-		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, clock.getCurrentMilliseconds()));
+		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, time));
 	}
 }

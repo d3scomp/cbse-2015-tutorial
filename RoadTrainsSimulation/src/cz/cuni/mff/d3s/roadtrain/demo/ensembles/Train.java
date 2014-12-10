@@ -11,9 +11,9 @@ import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
-import cz.cuni.mff.d3s.deeco.scheduler.CurrentTimeProvider;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleInfo;
+import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 
 @Ensemble
 @PeriodicScheduling(period = 1000)
@@ -22,10 +22,12 @@ public class Train {
 	public static boolean membership(
 			@In("coord.id") String coordId,
 			@In("coord.trainId") String coordTrainId,
+			@In("coord.state") VehicleState coordState,
 			@In("member.id") String memberId,
-			@In("member.trainId") String memberTrainId) {
+			@In("member.trainId") String memberTrainId,
+			@In("member.state") VehicleState memberState) {
 		// Not the same cars and the same train
-		return !memberId.equals(coordId) && memberTrainId.equals(coordTrainId);
+		return !memberId.equals(coordId) && memberTrainId.equals(coordTrainId) && memberState != VehicleState.DONE;
 	}
 
 	@KnowledgeExchange
@@ -34,8 +36,8 @@ public class Train {
 			@In("member.position") Coord memberPosition,
 			@In("member.currentLink") Id memberLink,
 			@InOut("coord.trainGroup") ParamHolder<Map<String, VehicleInfo> > coordGroup,
-			@In("coord.clock") CurrentTimeProvider clock) {
+			@In("coord.curTime") long curTime) {
 		// Exchange information about the road train
-		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, clock.getCurrentMilliseconds()));
+		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, curTime));
 	}
 }

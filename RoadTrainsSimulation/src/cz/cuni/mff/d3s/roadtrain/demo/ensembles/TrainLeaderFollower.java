@@ -19,11 +19,11 @@ public class TrainLeaderFollower {
 	public static boolean membership(
 			@In("coord.id") String coordId,
 			@In("member.id") String memberId,
-			@In("member.leader") VehicleLink memeberLeader,
+			@In("member.leader") VehicleLink memberLeader,
 			@In("coord.trainId") String coordTrainId,
 			@In("member.trainId") String memberTrainId) {
 		// Member is following coordinator in the road train
-		return memeberLeader.id.equals(coordId) && memberTrainId.equals(coordTrainId);
+		return memberLeader != null && memberLeader.id.equals(coordId) && memberTrainId.equals(coordTrainId);
 	}
 
 	@KnowledgeExchange
@@ -32,12 +32,14 @@ public class TrainLeaderFollower {
 			@In("member.id") String memberId,
 			@In("coord.currentLink") Id coordLink,
 			@In("member.currentLink") Id memberLink,
+			@In("coord.curTime") long curTime,
 			@InOut("coord.trainFollower") ParamHolder<VehicleLink> follower) {
 		Double dist = Navigator.getLinkLinkDist(coordLink, memberLink);
 		
 		// TODO: maybe timed rest is needed when some follower gets out of range
 		if(follower.value == null || follower.value.dist > dist || follower.value.id.equals(memberId)) {
-			follower.value = new VehicleLink(memberId, memberLink, dist);
+			follower.value = new VehicleLink(memberId, memberLink, dist, curTime);
 		}
+		follower.value.time = curTime;
 	}
 }

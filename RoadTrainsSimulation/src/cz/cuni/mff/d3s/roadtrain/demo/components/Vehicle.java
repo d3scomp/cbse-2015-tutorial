@@ -103,6 +103,8 @@ public class Vehicle {
 	
 	@Local
 	public CurrentTimeProvider clock;
+	
+	public Long curTime;
 
 	public Vehicle(String id, String dstPlace, Id currentLink,
 			ActuatorProvider actuatorProvider, SensorProvider sensorProvider,
@@ -186,10 +188,13 @@ public class Vehicle {
 			@Out("currentLink") ParamHolder<Id> currentLinkHolder,
 			@Out("position") ParamHolder<Coord> position,
 			@In("currentLinkSensor") Sensor<Id> currentLinkSensor,
-			@In("router") MATSimRouter router) {
+			@In("router") MATSimRouter router,
+			@In("clock") CurrentTimeProvider clock,
+			@Out("curTime") ParamHolder<Long> curTime) {
 		Log.d("Entry [" + id + "]:updateCurrentLink");
 		currentLinkHolder.value = currentLinkSensor.read();
 		position.value = router.getLink(currentLinkHolder.value).getCoord();
+		curTime.value = clock.getCurrentMilliseconds();
 	}
 	
 	@Process
@@ -245,8 +250,9 @@ public class Vehicle {
 			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstPlace") String dstPlace,
 			@In("currentLink") Id currentLink,
+			@In("clock") CurrentTimeProvider clock,
 			@InOut("leader") ParamHolder<VehicleLink> leader,
-			@InOut("trainId") ParamHolder<String> trainId) {		
+			@InOut("trainId") ParamHolder<String> trainId) {
 		double myTargetDist = Navigator.getDesDist(dstPlace, currentLink);
 				
 		// Do nothing when not single vehicle
@@ -290,7 +296,7 @@ public class Vehicle {
 		if(nearestCarId != null) {
 			// There is car that is in front of us on the path to destination
 			// and the road train is short enough -> follow it
-			leader.value = new VehicleLink(nearestCarId, nearestCarLink, nearestDist);
+			leader.value = new VehicleLink(nearestCarId, nearestCarLink, nearestDist, clock.getCurrentMilliseconds());
 		} else {
 			// There is no car in front of us on the path to destination,
 			// or road train is too long -> lead the new train
@@ -305,6 +311,7 @@ public class Vehicle {
 			@In("trainGroup") Map<String, VehicleInfo> train,
 			@In("trainId") String trainId,
 			@In("currentLink") Id currentLink,
+			@In("clock") CurrentTimeProvider clock,
 			@InOut("leader") ParamHolder<VehicleLink> leader) {
 		// Do nothing when not on train
 		if(state == VehicleState.SINGLE || state == VehicleState.DONE) {
@@ -329,7 +336,7 @@ public class Vehicle {
 			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leader.value.id));
 			
 			if(sameLinkCheck && (nearestDist == null || nearestDist > distUsingCar)) {
-				leader.value = new VehicleLink(info.id, info.link, distUsingCar);
+				leader.value = new VehicleLink(info.id, info.link, distUsingCar, clock.getCurrentMilliseconds());
 			}
 		}
 	}
@@ -338,24 +345,30 @@ public class Vehicle {
 	@PeriodicScheduling(period = 10000)
 	public static void resetOldData(
 			@Out("nearestFollower") ParamHolder<Double> nearestFollower,
-			@Out("trainFollower") ParamHolder<VehicleInfo> trainFollower,
+			@InOut("trainFollower") ParamHolder<VehicleLink> trainFollower,
 			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
 			@InOut("trainGroup") ParamHolder<Map<String, VehicleInfo> > trainGroup,
 			@InOut("leader") ParamHolder<VehicleLink> leader,
-			@In("clock") CurrentTimeProvider clock) {
+			@In("curTime") Long curTime) {
 		// Reset followers TODO: use timestamps to do that
 		// TODO: This is not nice
-		nearestFollower = null;
+		nearestFollower.value = null;
 		
-		// TODO: This is not nice
-		trainFollower.value = null;
+		// Reset train follower value when too old
+		if(trainFollower.value != null && curTime - trainFollower.value.time > 10000) {
+			trainFollower.value = null;
+		}
 		
+		// Reset leader when value is too old
+		if(leader.value != null && curTime - leader.value.time > 10000) {
+			leader.value = null;
+		}
 		
 		// Clear shared destination group old data
 		Iterator<VehicleInfo> it = destGroup.value.values().iterator();
 		while(it.hasNext()) {
 			VehicleInfo info = it.next();
-			if(clock.getCurrentMilliseconds() - info.time > 10000) {
+			if(curTime - info.time > 10000) {
 				it.remove();
 			}
 		}
@@ -364,7 +377,7 @@ public class Vehicle {
 		it = trainGroup.value.values().iterator();
 		while(it.hasNext()) {
 			VehicleInfo info = it.next();
-			if(clock.getCurrentMilliseconds() - info.time > 10000) {
+			if(curTime - info.time > 10000) {
 				it.remove();
 			}
 		}
