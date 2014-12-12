@@ -13,6 +13,7 @@ import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleLink;
+import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 
 public class VehicleMonitor {
 	private String dir;
@@ -77,7 +78,7 @@ public class VehicleMonitor {
 		colorMap.put("V25", "chocolate");
 	}
 
-	public synchronized void report(long timeMs, String id, Coord pos, VehicleLink leader, String dstCity,
+	public synchronized void report(long timeMs, String id, VehicleState state, Coord pos, VehicleLink leader, String dstCity,
 			List<Id> route, MATSimRouter router, Double nearestFollower, String train) {
 		// Start new frame if needed
 		if (time != timeMs) {
@@ -138,7 +139,7 @@ public class VehicleMonitor {
 		
 		record.append(String
 				.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
-						id, id, pos.getX() * SCALE, pos.getY() * SCALE, nodeColor, nodeColor));
+						id, id + state.toShortString(), pos.getX() * SCALE, pos.getY() * SCALE, nodeColor, nodeColor));
 		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leaderId, nodeColor, leaderDist.intValue()));
 	}
 

@@ -15,7 +15,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.components.PositionAware;
 public class RealisticKnowledgeDataHandler extends
 		DirectKnowledgeDataHandler {
 	
-	public static final double MANET_RANGE = 250.0;
+	public static final double MANET_RANGE = 2250.0;
 	
 	private final PositionAware positions;
 	private MessageProbe messageProbe;

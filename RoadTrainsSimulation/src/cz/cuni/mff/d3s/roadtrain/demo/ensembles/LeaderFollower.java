@@ -7,6 +7,7 @@ import cz.cuni.mff.d3s.deeco.annotations.In;
 import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
 import cz.cuni.mff.d3s.deeco.annotations.Membership;
+import cz.cuni.mff.d3s.deeco.annotations.Out;
 import cz.cuni.mff.d3s.deeco.annotations.PartitionedBy;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
@@ -35,12 +36,14 @@ public class LeaderFollower {
 			@In("coord.id") String coordId,
 			@In("coord.currentLink") Id coordLink,
 			@In("coord.trainId") String coordTrainId,
-			@In("coord.curTime") long time,
+			@In("coord.curTime") Long time,
 			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
 			@In("member.id") String memberId,
 			@In("member.currentLink") Id memberLink,
 			@InOut("member.trainId") ParamHolder<String> memeberTrainId,
-			@InOut("member.leader") ParamHolder<VehicleLink> leader) {
+			@InOut("member.trainIdTime") ParamHolder<Long> memeberTrainIdTime,
+			@Out("member.leader") ParamHolder<VehicleLink> leader,
+			@In("member.state") VehicleState memberState) {
 		double distance = Navigator.getLinkLinkDist(coordLink, memberLink);
 				
 		// Leader - follower distance		
@@ -51,8 +54,9 @@ public class LeaderFollower {
 		leader.value = new VehicleLink(coordId, coordLink, distance, time);
 		
 		// Assign vehicle to train
-		if(distance < Settings.TRAIN_FORM_DISTANCE) {
+		if(distance < Settings.TRAIN_FORM_DISTANCE && memberState == VehicleState.SINGLE || memberState == VehicleState.TRAIN_LEADER) {
 			memeberTrainId.value = coordTrainId;
+			memeberTrainIdTime.value = time;
 		}
 	}
 }

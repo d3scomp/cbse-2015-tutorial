@@ -59,18 +59,14 @@ public class Vehicle {
 	 */
 	public Id currentLink;
 	
+	public Long trainIdTime;
 	public String trainId;
 	
 	public VehicleLink leader;
-//	public String leaderId = null;
-//	public Id leaderLink = null;
 	
-//	public Double leaderDist = null;
 	public Double nearestFollower = null;
 	
 	public VehicleLink trainFollower;
-//	public String trainFollowerId = null;
-//	public Double trainFollowerDist = null;
 	
 	public Double speed;
 	
@@ -168,6 +164,7 @@ public class Vehicle {
 		vehicleMonitor.report(
 				clock.getCurrentMilliseconds(),
 				id,
+				state,
 				position,
 				leader,
 				dstPlace,
@@ -254,6 +251,11 @@ public class Vehicle {
 			@InOut("leader") ParamHolder<VehicleLink> leader,
 			@InOut("trainId") ParamHolder<String> trainId) {
 		double myTargetDist = Navigator.getDesDist(dstPlace, currentLink);
+		
+		Double leaderDist = null;
+		if(leader.value != null) {
+			leaderDist = Navigator.getLinkLinkDist(currentLink, leader.value.link);
+		}
 				
 		// Do nothing when not single vehicle
 		if(state != VehicleState.SINGLE) {
@@ -278,14 +280,17 @@ public class Vehicle {
 			if(distToCar > Settings.LINK_FORM_DISTANCE) continue;
 			
 			// Follow only car on the route to destination
-			boolean distCond = Math.abs(myTargetDist - distUsingCar) < 1;
+			boolean distCond = myTargetDist - distUsingCar < distToCar / 4;// || (leader.value != null && leader.value.id.equals(info.id));
 //			if(distCond)
 //				System.out.println(String.format("%s -> %s = %s", myTargetDist, distUsingCar, myTargetDist - distUsingCar));
+			
+			boolean leaderDistCond = true; //leaderDist == null || distToCar < leaderDist / 4;
+			
 			
 			// Do not follow car on the same link if it was not followed before
 			boolean sameLinkCheck = !carLink.equals(currentLink) || (info.id.equals(leader.value.id));
 			
-			if((distCond && sameLinkCheck) && (nearestDist == null || nearestDist > distToCar)) {
+			if((distCond && sameLinkCheck && leaderDistCond) && (nearestDist == null || nearestDist > distToCar)) {
 				nearestCarId = info.id;
 				nearestDist = distToCar;
 				nearestCarLink = info.link;
@@ -310,8 +315,9 @@ public class Vehicle {
 			@In("state") VehicleState state,
 			@In("trainGroup") Map<String, VehicleInfo> train,
 			@In("trainId") String trainId,
+			@InOut("trainIdTime") ParamHolder<Long> trainIdTime,
 			@In("currentLink") Id currentLink,
-			@In("clock") CurrentTimeProvider clock,
+			@In("curTime") Long curTime,
 			@InOut("leader") ParamHolder<VehicleLink> leader) {
 		// Do nothing when not on train
 		if(state == VehicleState.SINGLE || state == VehicleState.DONE) {
@@ -326,6 +332,12 @@ public class Vehicle {
 			}
 		}
 		
+		if(trainLeader == null) {
+			return;
+		}
+		
+		trainIdTime.value = curTime;
+		
 		// Get car to follow
 		Double nearestDist = null;
 		for(VehicleInfo info: train.values()) {
@@ -336,7 +348,7 @@ public class Vehicle {
 			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leader.value.id));
 			
 			if(sameLinkCheck && (nearestDist == null || nearestDist > distUsingCar)) {
-				leader.value = new VehicleLink(info.id, info.link, distUsingCar, clock.getCurrentMilliseconds());
+				leader.value = new VehicleLink(info.id, info.link, distUsingCar, curTime);
 			}
 		}
 	}
@@ -349,10 +361,17 @@ public class Vehicle {
 			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
 			@InOut("trainGroup") ParamHolder<Map<String, VehicleInfo> > trainGroup,
 			@InOut("leader") ParamHolder<VehicleLink> leader,
+			@In("trainIdTime") Long trainIdTime,
+			@InOut("trainId") ParamHolder<String> trainId,
+			@In("id") String id,
 			@In("curTime") Long curTime) {
 		// Reset followers TODO: use timestamps to do that
 		// TODO: This is not nice
 		nearestFollower.value = null;
+		
+		if(trainIdTime == null || curTime - trainIdTime > 10000) {
+			trainId.value = id;
+		}
 		
 		// Reset train follower value when too old
 		if(trainFollower.value != null && curTime - trainFollower.value.time > 10000) {
@@ -420,13 +439,13 @@ public class Vehicle {
 		
 		// Wait for train follower
 		if(trainFollower != null && trainFollower.dist > Settings.LINK_MAX_CAR_DIST) {
-			System.out.println(id + " waiting for train followers");
+			System.out.println(id + " waiting for train followers: " + trainFollower.dist);
 			wait = true;
 		}
 		
 		// Wait for train leaders
 		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leader != null && leader.dist < Settings.LINK_MIN_CAR_DIST) {
-			System.out.println(id + " waiting to let train leader lead");
+			System.out.println(id + " waiting to let train leader lead: " + leader.dist);
 			wait = true;
 		}
 		

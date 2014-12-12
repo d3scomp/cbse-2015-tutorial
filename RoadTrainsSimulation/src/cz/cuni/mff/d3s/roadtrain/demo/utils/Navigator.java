@@ -195,9 +195,24 @@ public class Navigator {
 		return router.findNearestLink(new CoordImpl(x + dx, y + dy));
 	}
 	
+	public static Link getRandomLinkAroud(Link link, double radius) {
+		Coord pos = link.getCoord();
+		return getRandomLinkAround(pos.getX(), pos.getY(), radius);
+	}
+	
 	public static Link getRandomLink() {
 		double x = Settings.MIN_X + random.nextDouble() * Settings.WIDTH;
 		double y = Settings.MIN_Y + random.nextDouble() * Settings.HEIGHT;
+		return router.findNearestLink(new CoordImpl(x, y));
+	}
+	
+	public static Link getRandomLinkFixedX(double x) {
+		double y = Settings.MIN_Y + random.nextDouble() * Settings.HEIGHT;
+		return router.findNearestLink(new CoordImpl(x, y));
+	}
+	
+	public static Link getRandomLinkFixedY(double y) {
+		double x = Settings.MIN_X + random.nextDouble() * Settings.WIDTH;
 		return router.findNearestLink(new CoordImpl(x, y));
 	}
 }
