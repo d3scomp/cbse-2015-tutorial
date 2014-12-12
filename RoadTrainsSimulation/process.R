@@ -60,7 +60,7 @@ r = c(r1, r2, r3, r5, r10, r15, r20)
 num <- c(1, 2, 3, 5, 10, 15, 20)
 
 png(paste(prefix, ".png", sep=""), 1024, 768)
-plot(num, r, type="b", col="red")
+plot(num, r, type="b", col="red", xlab="Accidents", ylab="Messages")
 points(num, g, type="b", col="green")
 dev.off()
 
