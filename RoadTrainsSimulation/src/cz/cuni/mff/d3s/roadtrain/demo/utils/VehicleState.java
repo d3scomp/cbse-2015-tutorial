@@ -1,5 +1,7 @@
 package cz.cuni.mff.d3s.roadtrain.demo.utils;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public enum VehicleState {
 	SINGLE,
 	TRAIN_LEADER,
@@ -12,7 +14,7 @@ public enum VehicleState {
 	}
 	
 	public boolean canFollow() {
-		return this == SINGLE;
+		return this == SINGLE || this == TRAIN_LEADER;
 	}
 	
 	public boolean onTrain() {
@@ -20,6 +22,24 @@ public enum VehicleState {
 	}
 	
 	public boolean destinationExchange() {
-		return this == SINGLE || canFollow() || canLead();
+		return canFollow() || canLead();
+	}
+	
+	@Override
+	public String toString() {
+		switch(this) {
+		case SINGLE:
+			return "S";
+		case TRAIN_LEADER:
+			return "L";
+		case TRAIN_MEMBER:
+			return "M";
+		case TRAIN_TAIL:
+			return "T";
+		case DONE:
+			return "D";
+		default:
+			throw new NotImplementedException();
+		}
 	}
 }
