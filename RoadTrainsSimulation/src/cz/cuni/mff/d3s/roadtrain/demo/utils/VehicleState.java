@@ -25,8 +25,7 @@ public enum VehicleState {
 		return canFollow() || canLead();
 	}
 	
-	@Override
-	public String toString() {
+	public String toShortString() {
 		switch(this) {
 		case SINGLE:
 			return "S";
