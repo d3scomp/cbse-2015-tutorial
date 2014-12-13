@@ -59,9 +59,24 @@ r = c(r1, r2, r3, r5, r10, r15, r20)
 
 num <- c(1, 2, 3, 5, 10, 15, 20)
 
-png(paste(prefix, ".png", sep=""), 1024, 768)
-plot(num, r, type="b", col="red", xlab="Accidents", ylab="Messages")
+
+
+win.metafile(paste(prefix, ".wmf", sep=""), width = 8, height = 6)
+
+
+par(cex=1)
+par(lwd=1)
+par(mar=c(4, 4, 0, 0))
+
+plot(num, r, type="b", col="red", xlab="Accident sites", ylab="Total messages", xaxt="n", yaxt="n")
 points(num, g, type="b", col="green")
+
+axis(side=1, c(1,2,3,5,10,15,20))
+axis(side=2)
+
+legend("topleft", c("Gossip","Groupers"), col=c("Red", "Green"),
+ inset = .05, lty=c(1,1))
+
 dev.off()
 
 }

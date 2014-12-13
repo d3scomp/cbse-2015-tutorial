@@ -4,7 +4,7 @@
 <config>
 
 	<module name="network">
-		<param name="inputNetworkFile" value="input/prague.xml" />
+		<param name="inputNetworkFile" value="input/prague-divided.xml" />
 	</module>
 
 	<module name="controler">
