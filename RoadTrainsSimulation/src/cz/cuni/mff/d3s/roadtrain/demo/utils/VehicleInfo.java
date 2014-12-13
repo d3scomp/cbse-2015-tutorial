@@ -12,11 +12,13 @@ public class VehicleInfo implements Serializable {
 	public Coord position;
 	public Id link;
 	public long time;
+	public VehicleState state;
 
-	public VehicleInfo(String id, Coord position, Id link, long time) {
+	public VehicleInfo(String id, Coord position, Id link, long time, VehicleState state) {
 		this.id = id;
 		this.position = position;
 		this.link = link;
 		this.time = time;
+		this.state = state;
 	}
 }

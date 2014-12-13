@@ -10,7 +10,7 @@ public enum VehicleState {
 	DONE;
 	
 	public boolean canLead() {
-		return this == SINGLE || this == TRAIN_TAIL;
+		return this == SINGLE || this == TRAIN_TAIL || this == TRAIN_LEADER;
 	}
 	
 	public boolean canFollow() {

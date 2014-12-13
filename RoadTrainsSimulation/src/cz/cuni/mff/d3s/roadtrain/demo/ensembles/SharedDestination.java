@@ -17,7 +17,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleInfo;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 
 @Ensemble
-@PeriodicScheduling(period = 10000)
+@PeriodicScheduling(period = 4500)
 @PartitionedBy("dstPlace")
 public class SharedDestination {
 	@Membership
@@ -37,9 +37,10 @@ public class SharedDestination {
 			@In("member.id") String memberId,
 			@In("member.position") Coord memberPosition,
 			@In("member.currentLink") Id memberLink,
+			@In("member.state") VehicleState memeberState,
 			@InOut("coord.destGroup") ParamHolder<Map<String, VehicleInfo>> coordGroup,
 			@In("coord.curTime") long time) {
 		// Exchange information about the group sharing the same destination
-		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, time));
+		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, time, memeberState));
 	}
 }
