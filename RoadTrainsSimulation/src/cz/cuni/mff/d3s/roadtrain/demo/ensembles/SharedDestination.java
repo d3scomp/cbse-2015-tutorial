@@ -17,7 +17,7 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleInfo;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 
 @Ensemble
-@PeriodicScheduling(period = 1000)
+@PeriodicScheduling(period = 10000)
 @PartitionedBy("dstPlace")
 public class SharedDestination {
 	@Membership

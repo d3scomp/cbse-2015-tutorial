@@ -240,7 +240,7 @@ public class Vehicle {
 	}
 	
 	@Process
-	@PeriodicScheduling(period = 2356)
+	@PeriodicScheduling(period = 5000)
 	public static void organizeLeaderFollowerLinks(
 			@In("id") String id,
 			@In("state") VehicleState state,
@@ -252,13 +252,13 @@ public class Vehicle {
 			@InOut("trainId") ParamHolder<String> trainId) {
 		double myTargetDist = Navigator.getDesDist(dstPlace, currentLink);
 		
-		Double leaderDist = null;
-		if(leader.value != null) {
-			leaderDist = Navigator.getLinkLinkDist(currentLink, leader.value.link);
-		}
+	//	Double leaderDist = null;
+	//	if(leader.value != null) {
+	//		leaderDist = Navigator.getLinkLinkDist(currentLink, leader.value.link);
+	//	}
 				
 		// Do nothing when not single vehicle
-		if(state != VehicleState.SINGLE) {
+		if(!state.canFollow()) {
 			return;
 		}
 		
@@ -280,7 +280,8 @@ public class Vehicle {
 			if(distToCar > Settings.LINK_FORM_DISTANCE) continue;
 			
 			// Follow only car on the route to destination
-			boolean distCond = myTargetDist - distUsingCar < distToCar / 4;// || (leader.value != null && leader.value.id.equals(info.id));
+			//boolean distCond = myTargetDist - distUsingCar < distToCar / 4;
+			boolean distCond = myTargetDist - distUsingCar > -1;// || (leader.value != null && leader.value.id.equals(info.id));
 //			if(distCond)
 //				System.out.println(String.format("%s -> %s = %s", myTargetDist, distUsingCar, myTargetDist - distUsingCar));
 			
