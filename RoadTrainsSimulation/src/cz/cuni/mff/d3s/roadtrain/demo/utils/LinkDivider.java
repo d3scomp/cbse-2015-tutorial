@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -26,10 +25,10 @@ class Node {
 	public double x;
 	public double y;
 
-	public Node(String id, String x, String y) {
+	public Node(String id, double x, double y) {
 		this.id = id;
-		this.x = Double.valueOf(x);
-		this.y = Double.valueOf(y);
+		this.x = x;
+		this.y = y;
 	}
 	
 	public Node(Attributes atts) {
@@ -104,12 +103,23 @@ class Link {
 
 public class LinkDivider {
 	public static void main(String[] args) throws Exception {
-		LinkDivider divider = new LinkDivider("input\\prague.xml", "input\\prague-divided.xml", 10);
+		LinkDivider divider = new LinkDivider("input\\prague.xml", "input\\prague-divided.xml", 50);
 		divider.process();
 	}
 
-	protected Set<Node> nodes = new HashSet<Node>();
-	protected Set<Link> links = new HashSet<Link>();
+	protected Map<String, Node> nodes = new HashMap<String, Node>();
+	protected Collection<Link> links = new HashSet<Link>();
+	protected Collection<Link> outLinks = new HashSet<Link>();
+	
+	private final String in;
+	private final String out;
+	private final double maxLength;
+	
+	public LinkDivider(String in, String out, double maxLength) {
+		this.in = in;
+		this.out = out;
+		this.maxLength = maxLength;
+	}
 
 	class MapProcessor implements ContentHandler {
 		@Override
@@ -135,17 +145,12 @@ public class LinkDivider {
 			case "nodes":
 				break;
 			case "node":
-				nodes.add(new Node(atts));
-				/*
-				 * writer.writeStartElement("", qName, ""); for (int i = 0; i < atts.getLength(); ++i) {
-				 * writer.writeAttribute(atts.getQName(i), atts.getValue(i)); } writer.writeCharacters("\n");
-				 */
+				Node node = new Node(atts);
+				nodes.put(node.id, node);
 				break;
-				
 			case "link":
 				links.add(new Link(atts));
 				break;
-
 			}
 		}
 
@@ -165,16 +170,7 @@ public class LinkDivider {
 		public void skippedEntity(String name) throws SAXException {}
 	}
 
-	private final String in;
-	private final String out;
-	
-	public LinkDivider(String in, String out, double maxLength) {
-		this.in = in;
-		this.out = out;
-	}
-
 	void process() throws Exception {
-		
 		// Setup processor
 		MapProcessor processor = new MapProcessor();
 
@@ -188,31 +184,84 @@ public class LinkDivider {
 		reader.parse(in);
 		
 		
-//		divide();
+		divide();
 		
 		write();
-		
-
 	}
 	
-	void write() throws Exception {
+	private void divide() {
+		for(Link link: links) {
+			if(link.length < maxLength) {
+				outLinks.add(link);
+			} else {
+				outLinks.addAll(divideLink(link));
+			}
+		}
+	}
+	
+	private Collection<Link> divideLink(Link link) {
+		Set<Link> ret = new HashSet<Link>();
+		
+		final int parts = (int) (1 + link.length / maxLength);
+		final double step = link.length / parts;
+		final Node from = nodes.get(link.from);
+		final Node to = nodes.get(link.to);
+		final double stepX = (to.x - from.x) / parts;
+		final double stepY = (to.y - from.y) / parts;
+	
+		Node last = from;
+		
+		for(int i = 1; i <= parts; ++i) {
+			Node node = null;
+			if(i == parts) {
+				node = to;
+			} else {
+				node = new Node(
+						String.format("%s_%d", from.id, i),
+						from.x + stepX * i,
+						from.y + stepY * i);
+			}
+			
+			Link newLink = new Link(
+					String.format("%s_%d", link.id, i),
+					last.id,
+					node.id,
+					step,
+					link.freespeed,
+					link.capacity,
+					link.permlanes,
+					link.oneway,
+					link.modes);
+			
+			nodes.put(node.id, node);
+			outLinks.add(newLink);
+			
+			last = node;
+		}
+		
+		return ret;
+	}
+	
+	private void write() throws Exception {
 		// Set output
 		OutputStream outputStream = new FileOutputStream(new File(out));
 		XMLOutputFactory xmlFactory = XMLOutputFactory.newInstance();
 		XMLStreamWriter writer = new IndentingXMLStreamWriter(xmlFactory.createXMLStreamWriter(new OutputStreamWriter(outputStream, "utf-8")));
-						
+	
 		writer.writeStartDocument();
+		writer.writeDTD("<!DOCTYPE network SYSTEM \"http://www.matsim.org/files/dtd/network_v1.dtd\">");
 		
 		writer.writeStartElement("network");
+		writer.writeAttribute("name", "divided");
 		
 		writer.writeStartElement("nodes");
-		for(Node node: nodes) {
+		for(Node node: nodes.values()) {
 			node.write(writer);
 		}
 		writer.writeEndElement();
 		
 		writer.writeStartElement("links");
-		for(Link link: links) {
+		for(Link link: outLinks) {
 			link.write(writer);
 		}
 		writer.writeEndElement();
