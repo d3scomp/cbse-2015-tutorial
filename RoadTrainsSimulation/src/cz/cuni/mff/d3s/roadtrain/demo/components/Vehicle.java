@@ -321,7 +321,7 @@ public class Vehicle {
 			@In("curTime") Long curTime,
 			@InOut("leader") ParamHolder<VehicleLink> leader) {
 		// Do nothing when not on train
-		if(state == VehicleState.SINGLE || state == VehicleState.DONE) {
+		if(!state.onTrain()) {
 			return;
 		}
 		
