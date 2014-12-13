@@ -325,12 +325,7 @@ public class Vehicle {
 		}
 		
 		// Get train leader
-		VehicleInfo trainLeader = null;
-		for(VehicleInfo info: train.values()) {
-			if(info.id.equals(trainId)) {
-				trainLeader = info;
-			}
-		}
+		VehicleInfo trainLeader = train.get(trainId);
 		
 		if(trainLeader == null) {
 			return;
@@ -348,6 +343,7 @@ public class Vehicle {
 			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leader.value.id));
 			
 			if(sameLinkCheck && (nearestDist == null || nearestDist > distUsingCar)) {
+				nearestDist = distUsingCar;
 				leader.value = new VehicleLink(info.id, info.link, distUsingCar, curTime);
 			}
 		}
