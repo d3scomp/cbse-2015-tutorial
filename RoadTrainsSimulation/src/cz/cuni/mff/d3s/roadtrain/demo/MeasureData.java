@@ -14,12 +14,9 @@ public class MeasureData {
 	
 	static final Random gRandom = new Random(seed);
 	static final Random rRandom = new Random(seed);
-	
-	//static final int[] CRASH_SITES = {1, 2, 3, 5, 10, 15, 20};
-	
-	
+		
 	static class Config {
-		static final int[] CRASH_SITES = {20};
+		static final int[] CRASH_SITES = {/*1, 2, 3, 5,*/ 10/*, 15, 20*/};
 		static final int POLICE_PER_CRASH = 1;
 		static final int AMBULANCE_PER_CRASH = 2;
 		static final int FIRE_PER_CRASH = 2;
@@ -36,9 +33,9 @@ public class MeasureData {
 			gMessages.getParentFile().mkdirs();
 			BufferedWriter gWriter = new BufferedWriter(new FileWriter(gMessages));
 			
-	/*		final File rMessages = new File(String.format("output%s%s%srandom-%d", File.separator, Config.ident, File.separator, sites));
+			final File rMessages = new File(String.format("output%s%s%srandom-%d", File.separator, Config.ident, File.separator, sites));
 			rMessages.getParentFile().mkdirs();
-			BufferedWriter rWriter = new BufferedWriter(new FileWriter(rMessages));*/
+			BufferedWriter rWriter = new BufferedWriter(new FileWriter(rMessages));
 			
 			
 			for(int i = 0; i < Config.RUNS; ++i) {
@@ -48,15 +45,15 @@ public class MeasureData {
 				runSimulationWithGroupers(sites, currentI, gProbe);
 				gWriter.write(String.format("%d %d\n", gProbe.getMsgSentMANET(), gProbe.getMsgSentIP()));
 				gWriter.flush();
-				/*
+				
 				MessageProbe rProbe = new MessageProbe();
 				runSimulationWithRandom(sites, currentI, rProbe);
 				rWriter.write(String.format("%d %d\n", rProbe.getMsgSentMANET(), rProbe.getMsgSentIP()));
-				rWriter.flush();*/
+				rWriter.flush();
 			}
 			
 			gWriter.close();
-	//		rWriter.close();
+			rWriter.close();
 		}
 		
 	}
