@@ -196,7 +196,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		controller.getRegister(connector.connector_group).add("G1"); //.add("C2", "C3");
 		
 		IPGossipStrategy strategy = new IPGossipConnectorStrategy(partitions, controller);
-		KnowledgeDataManager kdm = new DefaultKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
+		KnowledgeDataManager kdm = new IPOnlyKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
 		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory());
 		runtime.start();
 	}
