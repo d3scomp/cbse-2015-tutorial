@@ -131,7 +131,7 @@ class MilitaryConfig extends Config {
 
 	@Override
 	public String getResult() {
-		return String.format("%s-num%d", EVAL_ENSEMBLE?"eval":"def", VEHICLES);
+		return String.format("%s-%d", EVAL_ENSEMBLE?"eval":"def", VEHICLES);
 	}
 }
 
@@ -154,6 +154,6 @@ class EmergencyConfig extends Config {
 
 	@Override
 	public String getResult() {
-		return String.format("%s-Crash%d", USE_GROUPERS?"groupers":"random", CRASH_SITES);
+		return String.format("%s-%d", USE_GROUPERS?"groupers":"random", CRASH_SITES);
 	}
 }
