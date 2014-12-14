@@ -1,12 +1,6 @@
 package cz.cuni.mff.d3s.roadtrain.demo.utils;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
@@ -20,9 +14,11 @@ public class Navigator {
 	private static Map<String, Link> places;
 	private static MATSimRouter router;
 	private static Random random;
+	private static Map<LinkPair, Double> distCache;
 					
 	public static void init(MATSimRouter router, Random random) {
 		places = new HashMap<String, Link>();
+		distCache = new HashMap<LinkPair, Double>();
 		Navigator.router = router;
 		Navigator.random = random;
 	
@@ -135,10 +131,15 @@ public class Navigator {
 	}
 	
 	private static double getLinkDistance(Id link1, Id link2) {
+/*		if(distCache.containsValue(new LinkPair(link1, link2))) {
+			return distCache.get(new LinkPair(link1, link2));
+		}*/
+		
 		double dist = 0;
 		for(Id id: router.route(link1, link2)) {
 			dist += router.findLinkById(id).getLength();
 		}		
+//		distCache.put(new LinkPair(link1, link2), dist);
 		return dist;
 	}
 	
@@ -214,5 +215,30 @@ public class Navigator {
 	public static Link getRandomLinkFixedY(double y) {
 		double x = Settings.MIN_X + random.nextDouble() * Settings.WIDTH;
 		return router.findNearestLink(new CoordImpl(x, y));
+	}
+}
+
+class LinkPair {
+	public Id from;
+	public Id to;
+	
+	public LinkPair(final Id from, final Id to) {
+		this.from = from;
+		this.to = to;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof LinkPair) {
+			LinkPair other = (LinkPair) obj;
+			return other.from.equals(from) && other.to.equals(to);
+		} else {
+			return super.equals(obj);
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return String.format("%s;%s", from.toString(), to.toString()).hashCode();
 	}
 }
