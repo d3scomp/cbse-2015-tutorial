@@ -95,7 +95,7 @@ public class SimulationRunner {
 		((Launcher) launcher).run(demo);
 		
 		// Store results in shared results
-		final String fileName = OUTPUT + File.separator + conf.getDir() + File.separator + conf.getResult();
+		final String fileName = OUTPUT + File.separator + conf.getDir() + File.separator + conf.getResult() + ".txt";
 		PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
 		try {
 			writer.println(String.format("%d %d", probe.getMsgSentMANET(), probe.getMsgSentIP()));
