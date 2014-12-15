@@ -7,11 +7,11 @@ public class MeasureEmergencyData {
 	static final int NUM_PROCESSES = 2;
 	
 	static class Config {
-		static final int[] CRASH_SITES = {1/*, 2, 3, 5, 10, 15, 20*/};
-		static final int POLICE_PER_CRASH = 0;
-		static final int AMBULANCE_PER_CRASH = 0;
+		static final int[] CRASH_SITES = {1, 2, 3, 5, 10, 15, 20};
+		static final int POLICE_PER_CRASH = 1;
+		static final int AMBULANCE_PER_CRASH = 1;
 		static final int FIRE_PER_CRASH = 1;
-		static final int[] RUNS = {0};
+		static final int[] RUNS = {1};
 	}
 	
 	static Collection<Process> liveProcesses = new HashSet<Process>();
@@ -26,7 +26,11 @@ public class MeasureEmergencyData {
 				// Run random
 				run(crashes, Config.POLICE_PER_CRASH, Config.AMBULANCE_PER_CRASH, Config.FIRE_PER_CRASH, i, false);
 			}
-		}	
+		}
+		
+		for(Process process: liveProcesses) {
+			process.waitFor();
+		}
 	}
 	
 	private static void waitForProcess() throws InterruptedException {
