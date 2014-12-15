@@ -94,7 +94,7 @@ public class SimulationRunner {
 		// Deploy and run simulation
 		((Launcher) launcher).run(demo);
 		
-		// Store results
+		// Store results in shared results
 		final String fileName = OUTPUT + File.separator + conf.getDir() + File.separator + conf.getResult();
 		PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
 		try {
@@ -104,6 +104,12 @@ public class SimulationRunner {
 		} finally{
 			writer.close();
 		}
+		
+		// Store results in independent file
+		final String fileNameInd = OUTPUT + File.separator + conf.getDir() + File.separator + conf.getIdent() + File.separator + "results.txt";
+		PrintWriter writerInd = new PrintWriter(new BufferedWriter(new FileWriter(fileNameInd)));
+		writerInd.println(String.format("%d %d", probe.getMsgSentMANET(), probe.getMsgSentIP()));
+		writerInd.close();
 	}
 }
 
