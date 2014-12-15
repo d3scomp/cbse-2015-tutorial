@@ -10,8 +10,8 @@ def=list()
 eval=list() 
 
 for(v in vehicles) {
-	def[[v]] <- read.table(paste("def", v, sep="-"))
-	eval[[v]] <- read.table(paste("eval", v, sep="-"))
+	def[[v]] <- read.table(paste(paste("def", v, sep="-"), "txt", sep="."))
+	eval[[v]] <- read.table(paste(paste("eval", v, sep="-"), "txt", sep="."))
 }
 
 for(v in vehicles) {
@@ -20,11 +20,14 @@ for(v in vehicles) {
 }
 
 for(v in vehicles) {
-	variance <- c(variance, var(unlist(def[[v]])))
-	variance <- c(variance, var(unlist(eval[[v]])))
+	defM <- mean(unlist(def[[v]]))
+	evalM <- mean(unlist(eval[[v]]))
 
-	def[[v]] <- mean(unlist(def[[v]]))
-	eval[[v]] <- mean(unlist(eval[[v]]))
+	variance <- c(variance, var(unlist(def[[v]])) / defM)
+	variance <- c(variance, var(unlist(eval[[v]])) / evalM)
+
+	def[[v]] <- defM
+	eval[[v]] <- evalM
 }
 
 def <- c(as.vector(unlist(def)))
@@ -47,3 +50,6 @@ legend("topleft", c("Groupers without ensemble evaluation","Groupers with ensemb
  inset = .05, lty=c(1,1))
 
 dev.off()
+
+print("Data variance relative to mean")
+print(unlist(variance))

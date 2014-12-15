@@ -11,8 +11,8 @@ for(prefix in c("111", "122")) {
 	g <- list()
 	r <- list()
 	for(c in crashes) {
-		g[[c]] <- read.table(paste("groupers", c, sep="-"))
-		r[[c]] <- read.table(paste("random", c, sep="-"))
+		g[[c]] <- read.table(paste(paste("groupers", c, sep="-"), "txt", sep="."))
+		r[[c]] <- read.table(paste(paste("random", c, sep="-"), "txt", sep="."))
 	}
 
 	sg <- list()
@@ -28,8 +28,8 @@ for(prefix in c("111", "122")) {
 		mg[[c]] <- mean(unlist(sg[[c]]))
 		mr[[c]] <- mean(unlist(sr[[c]]))
 
-		variance <- c(variance, var(unlist(sg[[c]])))
-		variance <- c(variance, var(unlist(sr[[c]])))
+		variance <- c(variance, var(unlist(sg[[c]])) / mg[[c]])
+		variance <- c(variance, var(unlist(sr[[c]])) / mr[[c]])
 	}
 
 	mg = c(as.vector(unlist(mg)))
@@ -52,5 +52,5 @@ for(prefix in c("111", "122")) {
 	dev.off()
 }
 
-print("Data variance")
+print("Data variance relative to mean")
 print(unlist(variance))
