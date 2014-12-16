@@ -8,13 +8,15 @@ class ConfigBase {
 	final int AMBULANCE_PER_CRASH;
 	final int FIRE_PER_CRASH;
 	final int[] RUNS;
+	final String[] STRATEGY;
 	
-	public ConfigBase(int[] crashSites, int policePerCrash, int AmbulancePerCrash, int FirePerCrash, int[] runs) {
+	public ConfigBase(int[] crashSites, int policePerCrash, int AmbulancePerCrash, int FirePerCrash, int[] runs, String[] strategy) {
 		CRASH_SITES = crashSites;
 		POLICE_PER_CRASH = policePerCrash;
 		AMBULANCE_PER_CRASH = AmbulancePerCrash;
 		FIRE_PER_CRASH = FirePerCrash;
 		RUNS = runs;
+		STRATEGY = strategy;
 	}
 }
 
@@ -22,8 +24,8 @@ public class MeasureEmergencyData {
 	static final int NUM_PROCESSES = 3;
 		
 	static final ConfigBase[] configs = {
-		new ConfigBase(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}),
-		new ConfigBase(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 2, 2, new int[]{0}),
+		new ConfigBase(new int[]{/*1, 2, 3, 5, 10,*/ 15 /*, 20*/}, 1, 1, 1, new int[]{0}, new String[]{"random"}),
+		new ConfigBase(new int[]{/*1, 2, 3, 5, 10, 15,*/ 20}, 1, 2, 2, new int[]{0}, new String[]{"groupers"}),
 	};
 	
 	static Collection<Process> liveProcesses = new HashSet<Process>();
@@ -33,11 +35,9 @@ public class MeasureEmergencyData {
 		for(ConfigBase config: configs) {
 			for(int crashes: config.CRASH_SITES) {
 				for(int i: config.RUNS) {
-					// Run groupers
-					run(crashes, config.POLICE_PER_CRASH, config.AMBULANCE_PER_CRASH, config.FIRE_PER_CRASH, i, true);
-					
-					// Run random
-					run(crashes, config.POLICE_PER_CRASH, config.AMBULANCE_PER_CRASH, config.FIRE_PER_CRASH, i, false);
+					for(String strategy: config.STRATEGY) {
+						run(crashes, config.POLICE_PER_CRASH, config.AMBULANCE_PER_CRASH, config.FIRE_PER_CRASH, i, strategy);
+					}
 				}
 			}
 		}
@@ -59,11 +59,11 @@ public class MeasureEmergencyData {
 		}	
 	}
 	
-	private static void run(int crashSites, int police, int ambulance, int fire, int runId, boolean groupers) throws Exception {
+	private static void run(int crashSites, int police, int ambulance, int fire, int runId, String strategy) throws Exception {
 		waitForProcess();
 		
 		System.out.println(String.format("Running emergency simulation with %s: %d police %d ambulance %d fire and %d crash-sites with run Id %d",
-				groupers?"groupers":"gossip", police, ambulance, fire, crashSites, runId));
+				strategy, police, ambulance, fire, crashSites, runId));
 		final String java = System.getProperty("java.home") + "/bin/java";
 		final String classPath = System.getProperty("java.class.path");
 		final String className = SimulationRunner.class.getCanonicalName();
@@ -72,7 +72,7 @@ public class MeasureEmergencyData {
 				java,
 				"-classpath", classPath,
 				className,
-				"emergency", groupers?"groupers":"gossip",
+				"emergency", strategy,
 				String.valueOf(police),
 				String.valueOf(ambulance),
 				String.valueOf(fire),
