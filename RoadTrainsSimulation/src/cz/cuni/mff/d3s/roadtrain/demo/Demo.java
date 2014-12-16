@@ -44,15 +44,15 @@ public class Demo {
 		}
 		VehicleMonitor vehicleMonitor = new VehicleMonitor(outDir);
 		
-	/*	DemoDeployer demoDeployer = new EmergencyDemoDeployer(
+		DemoDeployer demoDeployer = new EmergencyDemoDeployer(
 				crashes,
 				Settings.AMBULANCE_PER_CRASH,
 				Settings.FIRE_PER_CRASH,
 				Settings.POLICE_PER_CRASH,
 				(VehicleDeployer) launcher,
-				vehicleMonitor);*/
+				vehicleMonitor);
 		
-		DemoDeployer demoDeployer = new MilitaryTrainDemoDeployer(1, 10, (VehicleDeployer)launcher, vehicleMonitor);
+	//	DemoDeployer demoDeployer = new MilitaryTrainDemoDeployer(1, 10, (VehicleDeployer)launcher, vehicleMonitor);
 		
 		((Launcher) launcher).run(demoDeployer);
 	}

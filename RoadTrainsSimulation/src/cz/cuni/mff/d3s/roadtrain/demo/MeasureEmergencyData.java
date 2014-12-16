@@ -2,29 +2,43 @@ package cz.cuni.mff.d3s.roadtrain.demo;
 
 import java.util.*;
 
+class ConfigBase {
+	final int[] CRASH_SITES;
+	final int POLICE_PER_CRASH;
+	final int AMBULANCE_PER_CRASH;
+	final int FIRE_PER_CRASH;
+	final int[] RUNS;
+	
+	public ConfigBase(int[] crashSites, int policePerCrash, int AmbulancePerCrash, int FirePerCrash, int[] runs) {
+		CRASH_SITES = crashSites;
+		POLICE_PER_CRASH = policePerCrash;
+		AMBULANCE_PER_CRASH = AmbulancePerCrash;
+		FIRE_PER_CRASH = FirePerCrash;
+		RUNS = runs;
+	}
+}
 
 public class MeasureEmergencyData {
-	static final int NUM_PROCESSES = 2;
-	
-	static class Config {
-		static final int[] CRASH_SITES = {1, 2, 3, 5, 10, 15, 20};
-		static final int POLICE_PER_CRASH = 1;
-		static final int AMBULANCE_PER_CRASH = 1;
-		static final int FIRE_PER_CRASH = 1;
-		static final int[] RUNS = {1};
-	}
+	static final int NUM_PROCESSES = 3;
+		
+	static final ConfigBase[] configs = {
+		new ConfigBase(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}),
+		new ConfigBase(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 2, 2, new int[]{0}),
+	};
 	
 	static Collection<Process> liveProcesses = new HashSet<Process>();
 	
 	
 	public static void main(String[] args) throws Exception {
-		for(int crashes: Config.CRASH_SITES) {
-			for(int i: Config.RUNS) {
-				// Run groupers
-				run(crashes, Config.POLICE_PER_CRASH, Config.AMBULANCE_PER_CRASH, Config.FIRE_PER_CRASH, i, true);
-				
-				// Run random
-				run(crashes, Config.POLICE_PER_CRASH, Config.AMBULANCE_PER_CRASH, Config.FIRE_PER_CRASH, i, false);
+		for(ConfigBase config: configs) {
+			for(int crashes: config.CRASH_SITES) {
+				for(int i: config.RUNS) {
+					// Run groupers
+					run(crashes, config.POLICE_PER_CRASH, config.AMBULANCE_PER_CRASH, config.FIRE_PER_CRASH, i, true);
+					
+					// Run random
+					run(crashes, config.POLICE_PER_CRASH, config.AMBULANCE_PER_CRASH, config.FIRE_PER_CRASH, i, false);
+				}
 			}
 		}
 		
