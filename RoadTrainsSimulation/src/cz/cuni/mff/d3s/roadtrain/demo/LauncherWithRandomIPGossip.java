@@ -1,7 +1,12 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Random;
+import java.util.Set;
 
 import org.matsim.core.basic.v01.IdImpl;
 
@@ -10,7 +15,6 @@ import cz.cuni.mff.d3s.deeco.annotations.processor.AnnotationProcessorException;
 import cz.cuni.mff.d3s.deeco.knowledge.CloningKnowledgeManagerFactory;
 import cz.cuni.mff.d3s.deeco.model.runtime.api.RuntimeMetadata;
 import cz.cuni.mff.d3s.deeco.model.runtime.custom.RuntimeMetadataFactoryExt;
-import cz.cuni.mff.d3s.deeco.network.DefaultKnowledgeDataManager;
 import cz.cuni.mff.d3s.deeco.network.DirectGossipStrategy;
 import cz.cuni.mff.d3s.deeco.network.DirectRecipientSelector;
 import cz.cuni.mff.d3s.deeco.network.IPGossipStrategy;
@@ -113,7 +117,7 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 
 		DirectSimulationHost host = sim.getHost(component.id);
 		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
-		KnowledgeDataManager kdm = new DefaultKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
+		KnowledgeDataManager kdm = new NoManetRebroadcastIPDataKnowledgeDatamanager(model.getEnsembleDefinitions(), strategy);
 		
 		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory());
 		runtime.start();

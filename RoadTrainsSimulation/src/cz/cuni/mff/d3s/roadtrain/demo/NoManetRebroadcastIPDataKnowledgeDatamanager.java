@@ -11,27 +11,11 @@ import cz.cuni.mff.d3s.deeco.network.KnowledgeMetaData;
 import cz.cuni.mff.d3s.deeco.network.NICType;
 import cz.cuni.mff.d3s.deeco.network.RebroadcastTask;
 
-public class IPOnlyKnowledgeDataManager extends DefaultKnowledgeDataManager {
+public class NoManetRebroadcastIPDataKnowledgeDatamanager extends DefaultKnowledgeDataManager {
 
-	public IPOnlyKnowledgeDataManager(List<EnsembleDefinition> ensembleDefinitions, IPGossipStrategy ipGossipStrategy) {
+	public NoManetRebroadcastIPDataKnowledgeDatamanager(List<EnsembleDefinition> ensembleDefinitions,
+			IPGossipStrategy ipGossipStrategy) {
 		super(ensembleDefinitions, ipGossipStrategy);
-	}
-	
-	@Override
-	public void publish() {
-		// we re-publish periodically only local data
-		List<KnowledgeData> data = prepareLocalKnowledgeData();
-		
-		if (!data.isEmpty()) {
-			
-			logPublish(data);
-			
-			
-			if (ipGossipStrategy != null) {
-				sendDirect(data);
-			}
-			localVersion++;
-		}
 	}
 	
 	@Override
@@ -76,4 +60,5 @@ public class IPOnlyKnowledgeDataManager extends DefaultKnowledgeDataManager {
 			scheduler.addTask(task);
 		}
 	}
+	
 }
