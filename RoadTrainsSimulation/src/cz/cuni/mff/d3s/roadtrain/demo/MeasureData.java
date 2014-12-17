@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 abstract class BaseConfig {
 	
 }
@@ -50,17 +48,13 @@ public class MeasureData {
 	static final int NUM_PROCESSES = 4;
 		
 	static final BaseConfig[] configs = {
-		/*new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}, new String[]{"groupers", "random"}),
+		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}, new String[]{"groupers", "random"}),
 		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 2, 2, new int[]{0}, new String[]{"groupers", "random"}),
-		new ConfigMilitary(new int[]{3, 5, 10, 15, 20}, new String[]{"eval", "def"}, new int[]{0})*/
-		
-	//	new ConfigEmergency(new int[]{15}, 1, 1, 1, new int[]{0}, new String[]{"random"}),
-	//	new ConfigEmergency(new int[]{20}, 1, 2, 2, new int[]{0}, new String[]{"random"}),
 		new ConfigMilitary(new int[]{3, 5, 10, 15, 20}, new String[]{"eval", "def"}, new int[]{0})
 	};
 		
-	static Queue<List<String>> runConfigs = new LinkedList<List<String>>();	
-	static Map<Process, List<String>> running = new HashMap<Process, List<String>>();
+	static final Queue<List<String>> runConfigs = new LinkedList<List<String>>();	
+	static final Map<Process, List<String>> running = new HashMap<Process, List<String>>();
 		
 	public static void main(String[] args) throws Exception {
 		for(BaseConfig config: configs) {
@@ -93,9 +87,24 @@ public class MeasureData {
 					}
 				}
 			} else {
-				throw new NotImplementedException();
+				throw new Exception("Unknown config type");
 			}
 		}
+		
+		// Register process kill on shutdown
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+		    public void run() {
+		    	for(Process process: running.keySet()) {
+		    		process.destroy();
+		    		try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {}
+		    		if(process.isAlive()) {
+		    			process.destroyForcibly();
+		    		}
+		    	}
+		    }
+		}));
 		
 		runProcesses();
 	}
