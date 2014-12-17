@@ -98,8 +98,9 @@ public class SimulationRunner {
 				OUTPUT, File.separator, conf.getDir(), File.separator, conf.getIdent(), File.separator));
 		
 		if(independentResultsFile.exists()) {
-			System.out.println("Configuration seems to be already executed. erase results file if you want to run it again: "
+			System.out.println("Configuration seems to be already executed. Erase results file if you want to run it again: "
 					+ independentResultsFile.getCanonicalPath());
+			System.exit(0);
 		}
 		
 		// Deploy and run simulation
