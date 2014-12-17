@@ -91,12 +91,22 @@ public class SimulationRunner {
 					monitor);
 		}
 		
+		File resultsFile = new File(String.format("%s%s%s%s%s.txt",
+				OUTPUT, File.separator, conf.getDir(), File.separator, conf.getResult()));
+		
+		File independentResultsFile = new File(String.format("%s%s%s%s%s%sresults.txt",
+				OUTPUT, File.separator, conf.getDir(), File.separator, conf.getIdent(), File.separator));
+		
+		if(independentResultsFile.exists()) {
+			System.out.println("Configuration seems to be already executed. erase results file if you want to run it again: "
+					+ independentResultsFile.getCanonicalPath());
+		}
+		
 		// Deploy and run simulation
 		((Launcher) launcher).run(demo);
 		
 		// Store results in shared results
-		final String fileName = OUTPUT + File.separator + conf.getDir() + File.separator + conf.getResult() + ".txt";
-		PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
+		PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(resultsFile, true)));
 		try {
 			writer.println(String.format("%d %d", probe.getMsgSentMANET(), probe.getMsgSentIP()));
 		} catch (Exception e) {
@@ -106,8 +116,7 @@ public class SimulationRunner {
 		}
 		
 		// Store results in independent file
-		final String fileNameInd = OUTPUT + File.separator + conf.getDir() + File.separator + conf.getIdent() + File.separator + "results.txt";
-		PrintWriter writerInd = new PrintWriter(new BufferedWriter(new FileWriter(fileNameInd)));
+		PrintWriter writerInd = new PrintWriter(new BufferedWriter(new FileWriter(independentResultsFile)));
 		writerInd.println(String.format("%d %d", probe.getMsgSentMANET(), probe.getMsgSentIP()));
 		writerInd.close();
 	}
