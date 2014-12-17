@@ -1,11 +1,14 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -44,17 +47,21 @@ class ConfigMilitary extends BaseConfig {
 }
 
 public class MeasureData {
-	static final int NUM_PROCESSES = 3;
+	static final int NUM_PROCESSES = 4;
 		
 	static final BaseConfig[] configs = {
-		//new ConfigEmergency(new int[]{/*1, 2, 3, 5, 10,*/ 15 /*, 20*/}, 1, 1, 1, new int[]{0}, new String[]{"random"}),
-		new ConfigEmergency(new int[]{/*1, 2, 3, 5, 10, 15,*/ 20}, 1, 2, 2, new int[]{0}, new String[]{"random"}),
+		/*new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}, new String[]{"groupers", "random"}),
+		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 2, 2, new int[]{0}, new String[]{"groupers", "random"}),
+		new ConfigMilitary(new int[]{3, 5, 10, 15, 20}, new String[]{"eval", "def"}, new int[]{0})*/
+		
+	//	new ConfigEmergency(new int[]{15}, 1, 1, 1, new int[]{0}, new String[]{"random"}),
+	//	new ConfigEmergency(new int[]{20}, 1, 2, 2, new int[]{0}, new String[]{"random"}),
 		new ConfigMilitary(new int[]{3, 5, 10, 15, 20}, new String[]{"eval", "def"}, new int[]{0})
 	};
-	
-	static Collection<Process> liveProcesses = new HashSet<Process>();
-	
-	
+		
+	static Queue<List<String>> runConfigs = new LinkedList<List<String>>();	
+	static Map<Process, List<String>> running = new HashMap<Process, List<String>>();
+		
 	public static void main(String[] args) throws Exception {
 		for(BaseConfig config: configs) {
 			if(config instanceof ConfigEmergency) {
@@ -90,17 +97,22 @@ public class MeasureData {
 			}
 		}
 		
-		for(Process process: liveProcesses) {
-			process.waitFor();
-		}
+		runProcesses();
 	}
 	
-	private static void waitForProcess() throws InterruptedException {
-		while(liveProcesses.size() >= NUM_PROCESSES) {
-			for(Iterator<Process> it = liveProcesses.iterator(); it.hasNext(); ) {
-				Process process = it.next();
-				if(!process.isAlive())
+	private static void waitForProcess() throws InterruptedException, IOException {
+		while(running.size() >= NUM_PROCESSES) {
+			for(Iterator<Entry<Process, List<String>>> it = running.entrySet().iterator(); it.hasNext(); ) {
+				Entry<Process, List<String>> entry = it.next();
+				Process process = entry.getKey();
+				if(!process.isAlive()) {
 					it.remove();
+					
+					// Re-add process if crashed
+					if(process.exitValue() != 0) {
+						runConfigs.add(entry.getValue());
+					}
+				}
 			}
 			
 			Thread.sleep(5000);
@@ -111,7 +123,7 @@ public class MeasureData {
 		System.out.println(String.format("Running emergency simulation with %s: %d police %d ambulance %d fire and %d crashes with run Id %d",
 				strategy, police, ambulance, fire, crashSites, runId));
 
-		run(new String[]{
+		addRun(new String[]{
 				"emergency",
 				strategy,
 				String.valueOf(police),
@@ -126,7 +138,7 @@ public class MeasureData {
 		System.out.println(String.format("Running military simulation with %s: %d vehicles with run Id %d",
 				eval, vehicles, runId));
 		
-		run(new String[]{
+		addRun(new String[]{
 			"military",
 			eval,
 			String.valueOf(vehicles),
@@ -134,24 +146,35 @@ public class MeasureData {
 		});
 	}
 	
-	private static void run(String[] args) throws Exception {
-		waitForProcess();
-		
+	private static void addRun(String[] args) throws Exception {
 		final String java = System.getProperty("java.home") + "/bin/java";
 		final String classPath = System.getProperty("java.class.path");
+		final String jVMParams = "-Xmx4096m";
 		final String className = SimulationRunner.class.getCanonicalName();
 		
 		List<String> command = new LinkedList<String>();
 		command.add(java);
 		command.add("-classpath");
 		command.add(classPath);
+		command.add(jVMParams);
 		command.add(className);
 		command.addAll(Arrays.asList(args));
 		
-		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.inheritIO();
-		
-		Process process = builder.start();
-		liveProcesses.add(process);
+		runConfigs.add(command);
+	}
+	
+	private static void runProcesses() throws Exception {
+		while(!runConfigs.isEmpty()) {
+			waitForProcess();
+			
+			List<String> command = runConfigs.poll();
+			
+			ProcessBuilder builder = new ProcessBuilder(command);
+			
+			builder.inheritIO();
+						
+			Process process = builder.start();
+			running.put(process, command);
+		}
 	}
 }
