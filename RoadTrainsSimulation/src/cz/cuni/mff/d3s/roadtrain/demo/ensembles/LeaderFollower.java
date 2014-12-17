@@ -38,6 +38,7 @@ public class LeaderFollower {
 			@In("coord.trainId") String coordTrainId,
 			@In("coord.curTime") Long time,
 			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
+			@In("coord.nearestFollowerTime") Long nearestFollowerTime,
 			@In("member.id") String memberId,
 			@In("member.currentLink") Id memberLink,
 			@InOut("member.trainId") ParamHolder<String> memeberTrainId,
@@ -49,6 +50,7 @@ public class LeaderFollower {
 		// Leader - follower distance		
 		if (nearestFollower.value == null || nearestFollower.value > distance) {
 			nearestFollower.value = distance;
+			nearestFollowerTime = time;
 		}
 		
 		leader.value = new VehicleLink(coordId, coordLink, distance, time);

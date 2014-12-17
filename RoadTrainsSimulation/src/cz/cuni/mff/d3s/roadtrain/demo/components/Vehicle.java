@@ -65,6 +65,7 @@ public class Vehicle {
 	public VehicleLink leader;
 	
 	public Double nearestFollower = null;
+	public Long nearestFollowerTime;
 	
 	public VehicleLink trainFollower;
 	
@@ -351,9 +352,10 @@ public class Vehicle {
 	}
 	
 	@Process
-	@PeriodicScheduling(period = 10000)
+	@PeriodicScheduling(period = 1500)
 	public static void resetOldData(
-			@Out("nearestFollower") ParamHolder<Double> nearestFollower,
+			@InOut("nearestFollower") ParamHolder<Double> nearestFollower,
+			@In("nearestFollowerTime") Long nearestFollowerTime,			
 			@InOut("trainFollower") ParamHolder<VehicleLink> trainFollower,
 			@InOut("destGroup") ParamHolder<Map<String, VehicleInfo> > destGroup,
 			@InOut("trainGroup") ParamHolder<Map<String, VehicleInfo> > trainGroup,
@@ -362,16 +364,17 @@ public class Vehicle {
 			@InOut("trainId") ParamHolder<String> trainId,
 			@In("id") String id,
 			@In("curTime") Long curTime) {
-		// Reset followers TODO: use timestamps to do that
-		// TODO: This is not nice
-		nearestFollower.value = null;
+		// Reset followers
+		if(nearestFollowerTime == null || curTime - nearestFollowerTime > 10000) {
+			nearestFollower.value = null;
+		}
 		
-		if(trainIdTime == null || curTime - trainIdTime > 10000) {
+		if(trainIdTime == null || curTime - trainIdTime > 3000) {
 			trainId.value = id;
 		}
 		
 		// Reset train follower value when too old
-		if(trainFollower.value != null && curTime - trainFollower.value.time > 10000) {
+		if(trainFollower.value != null && curTime - trainFollower.value.time > 3000) {
 			trainFollower.value = null;
 		}
 		
@@ -435,10 +438,10 @@ public class Vehicle {
 		}
 		
 		// Wait for train follower
-		if(trainFollower != null && trainFollower.dist > Settings.LINK_MAX_CAR_DIST) {
+/*		if(trainFollower != null && trainFollower.dist > Settings.LINK_MAX_CAR_DIST) {
 			System.out.println(id + " waiting for train followers: " + trainFollower.dist);
 			wait = true;
-		}
+		}*/
 		
 		// Wait for train leaders
 		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leader != null && leader.dist < Settings.LINK_MIN_CAR_DIST) {
@@ -448,6 +451,8 @@ public class Vehicle {
 		
 		if(!wait) {
 			speed.value = Settings.VEHICLE_FULL_SPEED;
+			if(state == VehicleState.TRAIN_LEADER)
+				speed.value -= 5;
 		} else {
 			speed.value = Settings.VEHICLE_WAIT_SPEED;
 		}
