@@ -47,6 +47,19 @@ public class SimulationRunner {
 			throw new NotImplementedException();
 		}
 		
+		File resultsFile = new File(String.format("%s%s%s%s%s.txt",
+				OUTPUT, File.separator, conf.getDir(), File.separator, conf.getResult()));
+		
+		File independentResultsFile = new File(String.format("%s%s%s%s%s%sresults.txt",
+				OUTPUT, File.separator, conf.getDir(), File.separator, conf.getIdent(), File.separator));
+		
+		// Check configuration already done
+		if(independentResultsFile.exists()) {
+			System.out.println("Configuration seems to be already executed. Erase results file if you want to run it again: "
+					+ independentResultsFile.getCanonicalPath());
+			System.exit(0);
+		}
+		
 		// Setup random
 		Random random = new Random(baseSeed + conf.RUN);
 		
@@ -89,18 +102,6 @@ public class SimulationRunner {
 					emergency.POLICE_PER_CRASH,
 					(VehicleDeployer) launcher,
 					monitor);
-		}
-		
-		File resultsFile = new File(String.format("%s%s%s%s%s.txt",
-				OUTPUT, File.separator, conf.getDir(), File.separator, conf.getResult()));
-		
-		File independentResultsFile = new File(String.format("%s%s%s%s%s%sresults.txt",
-				OUTPUT, File.separator, conf.getDir(), File.separator, conf.getIdent(), File.separator));
-		
-		if(independentResultsFile.exists()) {
-			System.out.println("Configuration seems to be already executed. Erase results file if you want to run it again: "
-					+ independentResultsFile.getCanonicalPath());
-			System.exit(0);
 		}
 		
 		// Deploy and run simulation

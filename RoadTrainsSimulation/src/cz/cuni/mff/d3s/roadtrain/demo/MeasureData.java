@@ -127,12 +127,13 @@ public class MeasureData {
 					int exit = process.exitValue();
 					it.remove();
 					if(exit != 0) {
+						System.out.println("Re-adding failed config: " + connectParams(entry.getValue()));
 						runConfigs.add(entry.getValue());
 					}
 				} catch (Exception e) {}
 			}
 			
-			Thread.sleep(5000);
+			Thread.sleep(1000);
 		}	
 	}
 	
@@ -227,7 +228,7 @@ public class MeasureData {
 				Process process = builder.start();
 				running.put(process, command);
 			} else {
-				Thread.sleep(5000);
+				Thread.sleep(1000);
 			}
 		}
 	}
