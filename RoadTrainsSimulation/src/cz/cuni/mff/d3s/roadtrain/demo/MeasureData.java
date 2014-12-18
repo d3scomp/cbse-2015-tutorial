@@ -45,7 +45,7 @@ class ConfigMilitary extends BaseConfig {
 }
 
 public class MeasureData {
-	static final int NUM_PROCESSES = 4;
+	static final int NUM_PROCESSES = 8;
 		
 	static final BaseConfig[] configs = {
 		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}, new String[]{"groupers", "random"}),
@@ -109,8 +109,8 @@ public class MeasureData {
 		runProcesses();
 	}
 	
-	private static void waitForProcess() throws InterruptedException, IOException {
-		while(running.size() >= NUM_PROCESSES) {
+	private static void waitForProcess(int num) throws InterruptedException, IOException {
+		while(running.size() >= num) {
 			for(Iterator<Entry<Process, List<String>>> it = running.entrySet().iterator(); it.hasNext(); ) {
 				Entry<Process, List<String>> entry = it.next();
 				Process process = entry.getKey();
@@ -173,17 +173,21 @@ public class MeasureData {
 	}
 	
 	private static void runProcesses() throws Exception {
-		while(!runConfigs.isEmpty()) {
-			waitForProcess();
+		while(!runConfigs.isEmpty() || !running.isEmpty()) {
+			waitForProcess(NUM_PROCESSES);
 			
 			List<String> command = runConfigs.poll();
 			
-			ProcessBuilder builder = new ProcessBuilder(command);
-			
-			builder.inheritIO();
-						
-			Process process = builder.start();
-			running.put(process, command);
+			if(command != null) {				
+				ProcessBuilder builder = new ProcessBuilder(command);
+				
+				builder.inheritIO();
+							
+				Process process = builder.start();
+				running.put(process, command);
+			} else {
+				Thread.sleep(5000);
+			}
 		}
 	}
 }
