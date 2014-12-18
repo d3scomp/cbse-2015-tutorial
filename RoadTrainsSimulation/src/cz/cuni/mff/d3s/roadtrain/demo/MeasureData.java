@@ -96,12 +96,12 @@ public class MeasureData {
 		    public void run() {
 		    	for(Process process: running.keySet()) {
 		    		process.destroy();
-		    		try {
+		    	/*	try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {}
 		    		if(process.isAlive()) {
 		    			process.destroyForcibly();
-		    		}
+		    		}*/
 		    	}
 		    }
 		}));
@@ -114,14 +114,21 @@ public class MeasureData {
 			for(Iterator<Entry<Process, List<String>>> it = running.entrySet().iterator(); it.hasNext(); ) {
 				Entry<Process, List<String>> entry = it.next();
 				Process process = entry.getKey();
-				if(!process.isAlive()) {
+				/*if(!process.isAlive()) {
 					it.remove();
 					
 					// Re-add process if crashed
 					if(process.exitValue() != 0) {
 						runConfigs.add(entry.getValue());
 					}
-				}
+				}*/
+				try {
+					int exit = process.exitValue();
+					it.remove();
+					if(exit != 0) {
+						runConfigs.add(entry.getValue());
+					}
+				} catch (Exception e) {}
 			}
 			
 			Thread.sleep(5000);
