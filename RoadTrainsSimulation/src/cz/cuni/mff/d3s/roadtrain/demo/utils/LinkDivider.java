@@ -246,7 +246,8 @@ public class LinkDivider {
 		// Set output
 		OutputStream outputStream = new FileOutputStream(new File(out));
 		XMLOutputFactory xmlFactory = XMLOutputFactory.newInstance();
-		XMLStreamWriter writer = new IndentingXMLStreamWriter(xmlFactory.createXMLStreamWriter(new OutputStreamWriter(outputStream, "utf-8")));
+		//XMLStreamWriter writer = new IndentingXMLStreamWriter(xmlFactory.createXMLStreamWriter(new OutputStreamWriter(outputStream, "utf-8")));
+		XMLStreamWriter writer = xmlFactory.createXMLStreamWriter(new OutputStreamWriter(outputStream, "utf-8"));
 	
 		writer.writeStartDocument();
 		writer.writeDTD("<!DOCTYPE network SYSTEM \"http://www.matsim.org/files/dtd/network_v1.dtd\">");
