@@ -1,5 +1,6 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ class ConfigMilitary extends BaseConfig {
 }
 
 public class MeasureData {
-	static final int NUM_PROCESSES = 8;
+	static final int NUM_PROCESSES = 2;
 		
 	static final BaseConfig[] configs = {
 		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}, new String[]{"groupers", "random"}),
@@ -136,7 +137,7 @@ public class MeasureData {
 	}
 	
 	private static void runEmergency(int crashSites, int police, int ambulance, int fire, int runId, String strategy) throws Exception {
-		System.out.println(String.format("Running emergency simulation with %s: %d police %d ambulance %d fire and %d crashes with run Id %d",
+		System.out.println(String.format("Adding emergency simulation with %s: %d police %d ambulance %d fire and %d crashes with run Id %d",
 				strategy, police, ambulance, fire, crashSites, runId));
 
 		addRun(new String[]{
@@ -151,7 +152,7 @@ public class MeasureData {
 	}
 	
 	private static void runMilitary(int vehicles, String eval, int runId) throws Exception {
-		System.out.println(String.format("Running military simulation with %s: %d vehicles with run Id %d",
+		System.out.println(String.format("Adding military simulation with %s: %d vehicles with run Id %d",
 				eval, vehicles, runId));
 		
 		addRun(new String[]{
@@ -179,6 +180,25 @@ public class MeasureData {
 		runConfigs.add(command);
 	}
 	
+	private static String connectParams(List<String> params) {
+		StringBuilder builder = new StringBuilder();
+		
+		int counter = 0;
+		for(String param: params) {
+			if(counter >= 5) {
+				if(counter == 5) {
+					builder.append(param);
+				} else {
+					builder.append("-");
+					builder.append(param);
+				}
+			}
+			counter++;
+		}
+				
+		return builder.toString();
+	}
+	
 	private static void runProcesses() throws Exception {
 		while(!runConfigs.isEmpty() || !running.isEmpty()) {
 			waitForProcess(NUM_PROCESSES);
@@ -186,9 +206,23 @@ public class MeasureData {
 			List<String> command = runConfigs.poll();
 			
 			if(command != null) {				
-				ProcessBuilder builder = new ProcessBuilder(command);
+				final String ident = connectParams(command);
 				
-				builder.inheritIO();
+				System.out.println("Running config: " + ident);
+				
+				ProcessBuilder builder = new ProcessBuilder(command);
+				File log = new File(String.format(
+								"output%slogs%s%d-%s",
+								File.separator,
+								File.separator,
+								System.currentTimeMillis(),
+								ident + ".txt"));
+				log.getParentFile().mkdirs();
+				log.createNewFile();
+				
+				//	builder.inheritIO();
+				builder.redirectOutput(log);
+				builder.redirectError(log);
 							
 				Process process = builder.start();
 				running.put(process, command);
