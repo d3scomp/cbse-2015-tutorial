@@ -203,9 +203,10 @@ public class MeasureData {
 	private static void runProcesses() throws Exception {
 		while(!runConfigs.isEmpty() || !running.isEmpty()) {
 			if(runConfigs.isEmpty())
-				waitForProcess(NUM_PROCESSES);
-			else
 				waitForProcess(0);
+			else
+				waitForProcess(NUM_PROCESSES);
+				
 			
 			List<String> command = runConfigs.poll();
 			
