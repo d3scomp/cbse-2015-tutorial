@@ -110,31 +110,29 @@ public class MeasureData {
 		runProcesses();
 	}
 	
-	private static void waitForProcess(int num) throws InterruptedException, IOException {
-		while(running.size() >= num) {
-			for(Iterator<Entry<Process, List<String>>> it = running.entrySet().iterator(); it.hasNext(); ) {
-				Entry<Process, List<String>> entry = it.next();
-				Process process = entry.getKey();
-				/*if(!process.isAlive()) {
-					it.remove();
-					
-					// Re-add process if crashed
-					if(process.exitValue() != 0) {
-						runConfigs.add(entry.getValue());
-					}
-				}*/
-				try {
-					int exit = process.exitValue();
-					it.remove();
-					if(exit != 0) {
-						System.out.println("Re-adding failed config: " + connectParams(entry.getValue()));
-						runConfigs.add(entry.getValue());
-					}
-				} catch (Exception e) {}
-			}
-			
-			Thread.sleep(1000);
-		}	
+	private static void updateRunningProcess() throws InterruptedException, IOException {
+		for(Iterator<Entry<Process, List<String>>> it = running.entrySet().iterator(); it.hasNext(); ) {
+			Entry<Process, List<String>> entry = it.next();
+			Process process = entry.getKey();
+			/*if(!process.isAlive()) {
+				it.remove();
+				
+				// Re-add process if crashed
+				if(process.exitValue() != 0) {
+					runConfigs.add(entry.getValue());
+				}
+			}*/
+			try {
+				int exit = process.exitValue();
+				it.remove();
+				if(exit != 0) {
+					System.out.println("Re-adding failed config: " + connectParams(entry.getValue()));
+					runConfigs.add(entry.getValue());
+				} else {
+					System.out.println("Completed config: " + connectParams(entry.getValue()));
+				}
+			} catch (Exception e) {}
+		}
 	}
 	
 	private static void runEmergency(int crashSites, int police, int ambulance, int fire, int runId, String strategy) throws Exception {
@@ -202,38 +200,35 @@ public class MeasureData {
 	
 	private static void runProcesses() throws Exception {
 		while(!runConfigs.isEmpty() || !running.isEmpty()) {
-			if(runConfigs.isEmpty())
-				waitForProcess(0);
-			else
-				waitForProcess(NUM_PROCESSES);
-				
+			updateRunningProcess();
 			
-			List<String> command = runConfigs.poll();
-			
-			if(command != null) {				
-				final String ident = connectParams(command);
+			if(running.size() <= NUM_PROCESSES) {
+				List<String> command = runConfigs.poll();
 				
-				System.out.println("Running config: " + ident);
-				
-				ProcessBuilder builder = new ProcessBuilder(command);
-				File log = new File(String.format(
-								"output%slogs%s%d-%s",
-								File.separator,
-								File.separator,
-								System.currentTimeMillis(),
-								ident + ".txt"));
-				log.getParentFile().mkdirs();
-				log.createNewFile();
-				
-				//	builder.inheritIO();
-				builder.redirectOutput(log);
-				builder.redirectError(log);
-							
-				Process process = builder.start();
-				running.put(process, command);
-			} else {
-				Thread.sleep(1000);
+				if(command != null) {				
+					final String ident = connectParams(command);
+					
+					System.out.println("Running config: " + ident);
+					
+					ProcessBuilder builder = new ProcessBuilder(command);
+					File log = new File(String.format(
+									"output%slogs%s%d-%s",
+									File.separator,
+									File.separator,
+									System.currentTimeMillis(),
+									ident + ".txt"));
+					log.getParentFile().mkdirs();
+					log.createNewFile();
+					
+					builder.redirectOutput(log);
+					builder.redirectError(log);
+								
+					Process process = builder.start();
+					running.put(process, command);
+				}
 			}
+			
+			Thread.sleep(1000);
 		}
 	}
 }
