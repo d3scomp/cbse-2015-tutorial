@@ -1,4 +1,4 @@
-path <- "C:\\Users\\vlada\\git\\jdeeco-roadtrains-simulation\\RoadTrainsSimulation\\output\\"
+path <- "C:\\Users\\vlada\\git\\jdeeco-roadtrains-simulation\\RoadTrainsSimulation\\output.emery\\"
 
 crashes <- c(1, 2, 3, 5, 10, 15, 20)
 
@@ -18,8 +18,10 @@ for(prefix in c("111", "122")) {
 	sg <- list()
 	sr <- list()
 	for(c in crashes) {
-		sg[[c]] <- g[[c]][1] + g[[c]][2]
-		sr[[c]] <- r[[c]][1] + r[[c]][2]
+		#sg[[c]] <- g[[c]][1] + g[[c]][2]
+		#sr[[c]] <- r[[c]][1] + r[[c]][2]
+		sg[[c]] <- g[[c]][2]
+		sr[[c]] <- r[[c]][2]
 	}
 
 	mg <- list()
@@ -37,11 +39,12 @@ for(prefix in c("111", "122")) {
 	
 
 	win.metafile(paste(prefix, ".wmf", sep=""), width = 8, height = 6)
-	par(cex=1)
-	par(lwd=1)
-	par(mar=c(4, 4, 0, 0))
+	par(cex=1.5)
+	par(lwd=2)
+	par(mgp=c(1.60, 0.50, 0))
+	par(mar=c(3, 2.5, 1.5, 0))
 
-	plot(crashes, mr, type="b", col="red", xlab="Accident sites", ylab="Total messages", xaxt="n", yaxt="n")
+	plot(crashes, mr, type="b", col="red", xlab="Accident sites", ylab="Total IP messages", xaxt="n", yaxt="n")
 	points(crashes, mg, type="b", col="green")
 
 	axis(side=1, crashes)
@@ -53,4 +56,4 @@ for(prefix in c("111", "122")) {
 }
 
 print("Data variance relative to mean")
-print(unlist(variance))
+print(unlist(variance))#

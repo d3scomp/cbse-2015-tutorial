@@ -1,4 +1,4 @@
-path <- "C:\\Users\\vlada\\git\\jdeeco-roadtrains-simulation\\RoadTrainsSimulation\\output\\"
+path <- "C:\\Users\\vlada\\git\\jdeeco-roadtrains-simulation\\RoadTrainsSimulation\\output.emery\\"
 
 setwd(paste(path, "Military", sep=""))
 
@@ -15,33 +15,37 @@ for(v in vehicles) {
 }
 
 for(v in vehicles) {
-	def[[v]] <- def[[v]][1] + def[[v]][2]
-	eval[[v]] <- eval[[v]][1] + eval[[v]][2]
+	#def[[v]] <- def[[v]][1] + def[[v]][2]
+	#eval[[v]] <- eval[[v]][1] + eval[[v]][2]
+	def[[v]] <- def[[v]][2]
+	eval[[v]] <- eval[[v]][2]
+
 }
 
+defM=list()
+evalM=list() 
+
 for(v in vehicles) {
-	defM <- mean(unlist(def[[v]]))
-	evalM <- mean(unlist(eval[[v]]))
+	defM[[v]] <- mean(unlist(def[[v]]))
+	evalM[[v]] <- mean(unlist(eval[[v]]))
 
 	variance <- c(variance, var(unlist(def[[v]])) / defM)
 	variance <- c(variance, var(unlist(eval[[v]])) / evalM)
-
-	def[[v]] <- defM
-	eval[[v]] <- evalM
 }
 
-def <- c(as.vector(unlist(def)))
-eval <- c(as.vector(unlist(eval)))
+defM <- c(as.vector(unlist(defM)))
+evalM <- c(as.vector(unlist(evalM)))
 
 
 
 win.metafile("Military.wmf", width = 8, height = 6)
-par(cex=1)
-par(lwd=1)
-par(mar=c(4, 4, 0, 0))
+par(cex=1.5)
+par(lwd=2)
+par(mgp=c(1.60, 0.50, 0))
+par(mar=c(3, 2.5, 1.5, 0))
 
-plot(vehicles, def, type="b", col="red", xlab="Vehicles sharing destiantion", ylab="Total messages", xaxt="n", yaxt="n")
-points(vehicles, eval, type="b", col="green")
+plot(vehicles, defM, type="b", col="red", xlab="Vehicles sharing destiantion", ylab="Total IP messages", xaxt="n", yaxt="n")
+points(vehicles, evalM, type="b", col="green")
 
 axis(side=1, vehicles)
 axis(side=2)
@@ -52,4 +56,5 @@ legend("topleft", c("Groupers without ensemble evaluation","Groupers with ensemb
 dev.off()
 
 print("Data variance relative to mean")
-print(unlist(variance))
+print(format(unlist(variance), digits=2, nsmall=2))
+print(sprintf("%.2f%%", 100*unlist(variance)))
