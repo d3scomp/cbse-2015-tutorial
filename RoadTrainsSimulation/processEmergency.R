@@ -30,8 +30,8 @@ for(prefix in c("111", "122")) {
 		mg[[c]] <- mean(unlist(sg[[c]]))
 		mr[[c]] <- mean(unlist(sr[[c]]))
 
-		variance <- c(variance, var(unlist(sg[[c]])) / mg[[c]])
-		variance <- c(variance, var(unlist(sr[[c]])) / mr[[c]])
+		variance <- c(variance, sd(unlist(sg[[c]])) / mg[[c]])
+		variance <- c(variance, sd(unlist(sr[[c]])) / mr[[c]])
 	}
 
 	mg = c(as.vector(unlist(mg)))
@@ -55,5 +55,5 @@ for(prefix in c("111", "122")) {
 	dev.off()
 }
 
-print("Data variance relative to mean")
-print(unlist(variance))#
+print("Data deviance relative to mean")
+print(sprintf("%.2f%%", 100*unlist(variance)))
