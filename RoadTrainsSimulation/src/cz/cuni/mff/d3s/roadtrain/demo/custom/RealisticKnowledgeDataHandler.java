@@ -39,6 +39,10 @@ public class RealisticKnowledgeDataHandler extends
 							VehicleState state = (VehicleState) kData.getKnowledge().getValue(p);
 							if(!state.destinationExchange()) {
 								//System.out.println("Not sending knowledge as component state does not allow destiantion exchange");
+								// Do nothing, but count message sent as it would be sent
+								for (int i = 0; i < recipientReceivers.size(); ++i) {
+									messageProbe.messageSentIP();
+								}
 								return;
 							}
 						}
