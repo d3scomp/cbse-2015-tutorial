@@ -131,15 +131,16 @@ public class Navigator {
 	}
 	
 	private static double getLinkDistance(Id link1, Id link2) {
-/*		if(distCache.containsValue(new LinkPair(link1, link2))) {
-			return distCache.get(new LinkPair(link1, link2));
-		}*/
+		Double dist = distCache.get(new LinkPair(link1, link2));
 		
-		double dist = 0;
-		for(Id id: router.route(link1, link2)) {
-			dist += router.findLinkById(id).getLength();
-		}		
-//		distCache.put(new LinkPair(link1, link2), dist);
+		if(dist == null) {
+			dist = 0.0;
+			for(Id id: router.route(link1, link2)) {
+				dist += router.findLinkById(id).getLength();
+			}		
+			distCache.put(new LinkPair(link1, link2), dist);
+		}
+		
 		return dist;
 	}
 	
