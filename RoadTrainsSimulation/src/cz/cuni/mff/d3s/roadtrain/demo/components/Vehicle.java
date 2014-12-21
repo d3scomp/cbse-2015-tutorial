@@ -316,7 +316,6 @@ public class Vehicle {
 			@In("state") VehicleState state,
 			@In("trainGroup") Map<String, VehicleInfo> train,
 			@In("trainId") String trainId,
-			@InOut("trainIdTime") ParamHolder<Long> trainIdTime,
 			@In("currentLink") Id currentLink,
 			@In("curTime") Long curTime,
 			@InOut("leader") ParamHolder<VehicleLink> leader) {
@@ -331,8 +330,6 @@ public class Vehicle {
 		if(trainLeader == null) {
 			return;
 		}
-		
-		trainIdTime.value = curTime;
 		
 		double myTargetDist = Navigator.getLinkLinkDist(currentLink, trainLeader.link);
 		

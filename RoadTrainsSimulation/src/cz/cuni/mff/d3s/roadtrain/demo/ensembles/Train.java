@@ -37,8 +37,14 @@ public class Train {
 			@In("member.currentLink") Id memberLink,
 			@In("member.state") VehicleState memberState,
 			@InOut("coord.trainGroup") ParamHolder<Map<String, VehicleInfo> > coordGroup,
+			@In("coord.trainId") String coordTrainId,
+			@InOut("coord.trainIdTime") ParamHolder<Long> coordTrainIdTime,
 			@In("coord.curTime") long curTime) {
 		// Exchange information about the road train
 		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, curTime, memberState));
+		
+		if(memberId.equals(coordTrainId)) {
+			coordTrainIdTime.value = curTime;
+		}
 	}
 }
