@@ -30,9 +30,9 @@ public class Settings {
 	public static final double LINK_FORM_DISTANCE = 5000; // m
 	
 	// Train parameters
-	public static final double TRAIN_FORM_DISTANCE = 500; // m
-	public static final double TRAIN_MAX_CAR_DIST = 550; // m
-	public static final double TRAIN_MIN_CAR_DIST = 150; // m
+	public static final double TRAIN_FORM_DISTANCE = 200; // m
+	public static final double TRAIN_MAX_CAR_DIST = 200; // m
+	public static final double TRAIN_MIN_CAR_DIST = 50; // m
 	
 	public static final double VEHICLE_FULL_SPEED = 50; // m/s
 	public static final double VEHICLE_LEADER_SPEED = 45; // m/s
