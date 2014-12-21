@@ -209,8 +209,7 @@ public class MeasureData {
 					final String ident = connectParams(command);
 					
 					System.out.println("Running config: " + ident);
-					System.out.println("Running: " + running.size() + "/" + runConfigs.size() + " remaining");
-					
+										
 					ProcessBuilder builder = new ProcessBuilder(command);
 					File log = new File(String.format(
 									"output%slogs%s%d-%s",
@@ -226,6 +225,8 @@ public class MeasureData {
 								
 					Process process = builder.start();
 					running.put(process, command);
+					
+					System.out.println("Running: " + running.size() + "/" + runConfigs.size() + " remaining");
 				}
 			}
 			
