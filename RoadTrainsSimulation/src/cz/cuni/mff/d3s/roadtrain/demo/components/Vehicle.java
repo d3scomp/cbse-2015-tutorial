@@ -334,6 +334,8 @@ public class Vehicle {
 		
 		trainIdTime.value = curTime;
 		
+		double myTargetDist = Navigator.getLinkLinkDist(currentLink, trainLeader.link);
+		
 		// Get car to follow
 		Double nearestDist = null;
 		for(VehicleInfo info: train.values()) {
@@ -343,8 +345,10 @@ public class Vehicle {
 			
 			boolean sameLinkCheck = !info.link.equals(currentLink) || (info.id.equals(leader.value.id));
 			
-			if(sameLinkCheck && (nearestDist == null || nearestDist > distUsingCar)) {
-				nearestDist = distUsingCar;
+			boolean distCond = myTargetDist - distUsingCar > -1;
+			
+			if(distCond && sameLinkCheck && (nearestDist == null || nearestDist > distToCar)) {
+				nearestDist = distToCar;
 				leader.value = new VehicleLink(info.id, info.link, distUsingCar, curTime);
 			}
 		}
@@ -431,7 +435,7 @@ public class Vehicle {
 		
 		// Wait for follower
 		if(nearestFollower != null) {
-			System.out.println(id + " waiting for non train followers");
+//			System.out.println(id + " waiting for non train followers");
 			wait = true;
 		}
 		
@@ -443,7 +447,7 @@ public class Vehicle {
 		
 		// Wait for train leaders
 		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leader != null && leader.dist < Settings.TRAIN_MIN_CAR_DIST) {
-			System.out.println(id + " waiting to let train leader lead: " + leader.dist);
+//			System.out.println(id + " waiting to let train leader lead: " + leader.dist);
 			wait = true;
 		}
 		
