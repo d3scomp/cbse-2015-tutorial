@@ -249,8 +249,7 @@ public class Vehicle {
 			@In("dstPlace") String dstPlace,
 			@In("currentLink") Id currentLink,
 			@In("clock") CurrentTimeProvider clock,
-			@InOut("leader") ParamHolder<VehicleLink> leader,
-			@InOut("trainId") ParamHolder<String> trainId) {
+			@InOut("leader") ParamHolder<VehicleLink> leader) {
 		double myTargetDist = Navigator.getDesDist(dstPlace, currentLink);
 		
 	//	Double leaderDist = null;
@@ -419,7 +418,6 @@ public class Vehicle {
 			@In("state") VehicleState state,
 			@In("currentLink") Id currentLink,
 			@In("leader") VehicleLink leader,
-			@In("destGroup") Map<String, VehicleInfo> destGroup,
 			@In("dstPlace") String dstPlace,
 			@InOut("route") ParamHolder<List<Id> > route,
 			@In("routeActuator") Actuator<List<Id> > routeActuator,
