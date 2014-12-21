@@ -4,6 +4,7 @@ public class Settings {
 	public static final String MATSIM_CONFIG_TEMPLATE = "input/config.xml";
 	public static final String ANALYSES_DIRECTORY = "measurements";
 	
+	// Map parameters
 	public static final double MIN_X = 1090633.9990942501;
 	public static final double MAX_X = 1108409.9502133469;
 	public static final double MIN_Y = 564064.6541308606;
@@ -25,14 +26,16 @@ public class Settings {
 		return MIN_Y + ((physY - PHYS_MIN_Y) / (PHYS_HEIGHT)) * HEIGHT;
 	}
 	
+	// Leader follower link parameters
+	public static final double LINK_FORM_DISTANCE = 5000; // m
+	
 	// Train parameters
 	public static final double TRAIN_FORM_DISTANCE = 500; // m
-	
-	public static final double LINK_FORM_DISTANCE = 5000; // m
-	public static final double LINK_MAX_CAR_DIST = 550; // m
-	public static final double LINK_MIN_CAR_DIST = 150; // m
+	public static final double TRAIN_MAX_CAR_DIST = 550; // m
+	public static final double TRAIN_MIN_CAR_DIST = 150; // m
 	
 	public static final double VEHICLE_FULL_SPEED = 50; // m/s
+	public static final double VEHICLE_LEADER_SPEED = 45; // m/s
 	public static final double VEHICLE_WAIT_SPEED = 5; // m/s
 	
 	// Vehicle deployment parameters - Emergency demo

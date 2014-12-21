@@ -442,15 +442,16 @@ public class Vehicle {
 		}*/
 		
 		// Wait for train leaders
-		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leader != null && leader.dist < Settings.LINK_MIN_CAR_DIST) {
+		if(state.onTrain() && state != VehicleState.TRAIN_LEADER && leader != null && leader.dist < Settings.TRAIN_MIN_CAR_DIST) {
 			System.out.println(id + " waiting to let train leader lead: " + leader.dist);
 			wait = true;
 		}
 		
 		if(!wait) {
-			speed.value = Settings.VEHICLE_FULL_SPEED;
 			if(state == VehicleState.TRAIN_LEADER)
-				speed.value -= 5;
+				speed.value = Settings.VEHICLE_LEADER_SPEED;
+			else
+				speed.value = Settings.VEHICLE_FULL_SPEED;
 		} else {
 			speed.value = Settings.VEHICLE_WAIT_SPEED;
 		}
