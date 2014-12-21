@@ -36,7 +36,8 @@ public class LeaderFollower {
 			@In("coord.id") String coordId,
 			@In("coord.currentLink") Id coordLink,
 			@In("coord.trainId") String coordTrainId,
-			@In("coord.curTime") Long time,
+			@In("coord.curTime") Long coordTime,
+			@In("member.curTime") Long memberTime,
 			@InOut("coord.nearestFollower") ParamHolder<Double> nearestFollower,
 			@In("coord.nearestFollowerTime") Long nearestFollowerTime,
 			@In("member.id") String memberId,
@@ -50,15 +51,15 @@ public class LeaderFollower {
 		// Leader - follower distance		
 		if (nearestFollower.value == null || nearestFollower.value > distance) {
 			nearestFollower.value = distance;
-			nearestFollowerTime = time;
+			nearestFollowerTime = memberTime;
 		}
 		
-		leader.value = new VehicleLink(coordId, coordLink, distance, time);
+		leader.value = new VehicleLink(coordId, coordLink, distance, coordTime);
 		
 		// Assign vehicle to train
 		if(distance < Settings.TRAIN_FORM_DISTANCE && memberState == VehicleState.SINGLE || memberState == VehicleState.TRAIN_LEADER) {
 			memeberTrainId.value = coordTrainId;
-			memeberTrainIdTime.value = time;
+			memeberTrainIdTime.value = coordTime;
 		}
 	}
 }

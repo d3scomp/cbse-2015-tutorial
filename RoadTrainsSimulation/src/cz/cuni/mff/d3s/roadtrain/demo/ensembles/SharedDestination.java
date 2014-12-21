@@ -39,7 +39,7 @@ public class SharedDestination {
 			@In("member.currentLink") Id memberLink,
 			@In("member.state") VehicleState memeberState,
 			@InOut("coord.destGroup") ParamHolder<Map<String, VehicleInfo>> coordGroup,
-			@In("coord.curTime") long time) {
+			@In("member.curTime") long time) {
 		// Exchange information about the group sharing the same destination
 		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, time, memeberState));
 	}

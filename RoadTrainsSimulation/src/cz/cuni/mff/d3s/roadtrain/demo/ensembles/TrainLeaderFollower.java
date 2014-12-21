@@ -32,7 +32,7 @@ public class TrainLeaderFollower {
 			@In("member.id") String memberId,
 			@In("coord.currentLink") Id coordLink,
 			@In("member.currentLink") Id memberLink,
-			@In("coord.curTime") long curTime,
+			@In("member.curTime") long curTime,
 			@InOut("coord.trainFollower") ParamHolder<VehicleLink> follower) {
 		Double dist = Navigator.getLinkLinkDist(coordLink, memberLink);
 		

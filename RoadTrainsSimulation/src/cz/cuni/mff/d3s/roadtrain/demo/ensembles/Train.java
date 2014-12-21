@@ -39,7 +39,7 @@ public class Train {
 			@InOut("coord.trainGroup") ParamHolder<Map<String, VehicleInfo> > coordGroup,
 			@In("coord.trainId") String coordTrainId,
 			@InOut("coord.trainIdTime") ParamHolder<Long> coordTrainIdTime,
-			@In("coord.curTime") long curTime) {
+			@In("member.curTime") long curTime) {
 		// Exchange information about the road train
 		coordGroup.value.put(memberId, new VehicleInfo(memberId, memberPosition, memberLink, curTime, memberState));
 		
