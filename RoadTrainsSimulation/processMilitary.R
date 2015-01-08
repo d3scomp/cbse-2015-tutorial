@@ -19,7 +19,6 @@ for(v in vehicles) {
 	#eval[[v]] <- eval[[v]][1] + eval[[v]][2]
 	def[[v]] <- def[[v]][2]
 	eval[[v]] <- eval[[v]][2]
-
 }
 
 defM=list()
@@ -33,18 +32,17 @@ for(v in vehicles) {
 	variance <- c(variance, sd(unlist(eval[[v]])) / evalM[[v]])
 }
 
-defM <- c(as.vector(unlist(defM)))
-evalM <- c(as.vector(unlist(evalM)))
+defM <- c(as.vector(unlist(defM))) / 1000000
+evalM <- c(as.vector(unlist(evalM))) / 1000000
 
 
 
 evalP = list();
 defP = list();
 for(v in vehicles) {
-	defP = c(defP, def[[v]])
-	evalP = c(evalP, eval[[v]])
+	defP = c(defP, def[[v]] / 1000000)
+	evalP = c(evalP, eval[[v]] / 1000000)
 }
-
 
 
 win.metafile("Military.wmf", width = 8, height = 6)
@@ -52,18 +50,19 @@ par(cex=1.5)
 par(lwd=2)
 par(mgp=c(1.60, 0.50, 0))
 par(mar=c(3, 2.5, 1.5, 0))
+par(bty="l")
 
-plot(vehicles, defM, type="c", col="red", xlab="Vehicles sharing destiantion", ylab="Total IP messages", xaxt="n", yaxt="n")
-points(vehicles, evalM, type="c", col="green")
+plot(vehicles, defM, type="c", col="green", xlab="# of vehicles sharing destination", ylab="# of IP messages in millions", xaxt="n", yaxt="n")
+points(vehicles, evalM, type="c", col="blue")
 
 axis(side=1, vehicles)
 axis(side=2)
 
-legend("topleft", c("Groupers without ensemble evaluation","Groupers with ensemble evaluation"), col=c("Red", "Green"),
+legend("topleft", c("Groupers not evaluating ensemble\nmembership condition\n", "Groupers evaluating ensemble\nmembership condition\n"), col=c("Green", "Blue"),
  inset = .05, lty=c(1,1))
 
-boxplot(add=TRUE, col="red", defP, at=vehicles, xaxt="n", yaxt="n")
-boxplot(add=TRUE, col="green", evalP, at=vehicles, xaxt="n", yaxt="n")
+boxplot(add=TRUE, col="green", defP, at=vehicles, xaxt="n", yaxt="n")
+boxplot(add=TRUE, col="blue", evalP, at=vehicles, xaxt="n", yaxt="n")
 
 
 dev.off()

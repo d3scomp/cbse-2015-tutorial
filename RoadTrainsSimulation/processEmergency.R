@@ -34,8 +34,8 @@ for(prefix in c("111", "122")) {
 		variance <- c(variance, sd(unlist(sr[[c]])) / mr[[c]])
 	}
 
-	mg = c(as.vector(unlist(mg)))
-	mr = c(as.vector(unlist(mr)))
+	mg = c(as.vector(unlist(mg))) / 1000000
+	mr = c(as.vector(unlist(mr))) / 1000000
 	
 
 	win.metafile(paste(prefix, ".wmf", sep=""), width = 8, height = 6)
@@ -43,8 +43,9 @@ for(prefix in c("111", "122")) {
 	par(lwd=2)
 	par(mgp=c(1.60, 0.50, 0))
 	par(mar=c(3, 2.5, 1.5, 0))
+	par(bty="l")
 
-	plot(crashes, mr, type="b", col="red", xlab="Accident sites", ylab="Total IP messages", xaxt="n", yaxt="n")
+	plot(crashes, mr, type="b", col="red", xlab="# of accident sites", ylab="# of IP messages in millions", xaxt="n", yaxt="n")
 	points(crashes, mg, type="b", col="green")
 
 	axis(side=1, crashes)
