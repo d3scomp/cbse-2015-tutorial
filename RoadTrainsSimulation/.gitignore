@@ -7,3 +7,4 @@ matsim/*
 output/*
 !output/processEmergency.R
 !output/processMilitary.R
+!output/processPNG.py
