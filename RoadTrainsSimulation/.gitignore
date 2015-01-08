@@ -11,3 +11,6 @@ matsim/*
 /visual*/*
 results
 omnetpp*
+/output*/
+!/output/processEmergency.R
+!/output/processMilitary.R
