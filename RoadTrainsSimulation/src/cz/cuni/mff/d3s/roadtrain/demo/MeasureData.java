@@ -47,11 +47,11 @@ class ConfigMilitary extends BaseConfig {
 
 public class MeasureData {
 	static final int NUM_PROCESSES = 8;
-		
+	
 	static final BaseConfig[] configs = {
-//		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0}, new String[]{"groupers", "random"}),
-//		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 2, 2, new int[]{0}, new String[]{"groupers", "random"}),
-		new ConfigMilitary(new int[]{3, 5, 10, 15, 20}, new String[]{"eval", "def"}, new int[]{1,2,3,4,5,6,7,8,9})
+		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0,1,2,3,4,5,6,7,8,9}, new String[]{"groupers", "random"}),
+		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 2, 2, new int[]{0,1,2,3,4,5,6,7,8,9}, new String[]{"groupers", "random"}),
+		new ConfigMilitary(new int[]{3, 5, 10, 15, 20}, new String[]{"eval", "def"}, new int[]{0,1,2,3,4,5,6,7,8,9})
 	};
 		
 	static final Queue<List<String>> runConfigs = new LinkedList<List<String>>();	
