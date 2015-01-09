@@ -1,6 +1,7 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 import java.io.IOException;
+import java.security.KeyStoreException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import cz.cuni.mff.d3s.deeco.network.ip.IPControllerImpl;
 import cz.cuni.mff.d3s.deeco.network.ip.IPDataSender;
 import cz.cuni.mff.d3s.deeco.network.ip.IPGossipClientStrategy;
 import cz.cuni.mff.d3s.deeco.runtime.RuntimeFramework;
+import cz.cuni.mff.d3s.deeco.security.SecurityKeyManagerImpl;
 import cz.cuni.mff.d3s.deeco.simulation.DirectSimulationHost;
 import cz.cuni.mff.d3s.deeco.simulation.NetworkDataHandler;
 import cz.cuni.mff.d3s.deeco.simulation.SimulationRuntimeBuilder;
@@ -83,7 +85,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		Navigator.init(router, random);
 	}
 	
-	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
+	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException, KeyStoreException {
 		// Deploy components
 		System.out.println("Deploying components");
 		demoDeployer.deploy();
@@ -130,7 +132,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	}
 	
 	
-	public void deployVehicle(Vehicle component) throws AnnotationProcessorException {
+	public void deployVehicle(Vehicle component) throws AnnotationProcessorException, KeyStoreException {
 		agentSource.addAgent(new JDEECoAgent(new IdImpl(component.id), component.currentLink));
 				
 		RuntimeMetadata model = RuntimeMetadataFactoryExt.eINSTANCE.createRuntimeMetadata();
@@ -147,13 +149,13 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
 		KnowledgeDataManager kdm = new NoManetRebroadcastIPDataKnowledgeDatamanager(model.getEnsembleDefinitions(), strategy);
 		
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), new SecurityKeyManagerImpl());
 		runtime.start();
 	}
 	
 	
 	
-	public void deployConnector(String id, Collection<Object> range) throws AnnotationProcessorException {
+	public void deployConnector(String id, Collection<Object> range) throws AnnotationProcessorException, KeyStoreException {
 		Link link = Navigator.getRandomLink();
 		agentSource.addAgent(new JDEECoAgent(new IdImpl(id), link.getId()));
 		
@@ -196,7 +198,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		
 		IPGossipStrategy strategy = new IPGossipConnectorStrategy(partitions, controller);
 		KnowledgeDataManager kdm = new IPOnlyKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), new SecurityKeyManagerImpl());
 		runtime.start();
 	}
 	
