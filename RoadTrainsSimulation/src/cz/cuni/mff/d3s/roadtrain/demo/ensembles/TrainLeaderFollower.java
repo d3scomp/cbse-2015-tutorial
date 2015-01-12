@@ -1,3 +1,8 @@
+/**
+ * Exchange information about the leader follower pair
+ * in the road-train.  
+ */
+
 package cz.cuni.mff.d3s.roadtrain.demo.ensembles;
 
 import org.matsim.api.core.v01.Id;
@@ -15,6 +20,11 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleLink;
 @Ensemble
 @PeriodicScheduling(period = 1000)
 public class TrainLeaderFollower {
+	/**
+	 * Membership condition
+	 * Coordinator is the leader and the member is the follower. Leader and the follower
+	 * are not the same vehicle.
+	 */
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
@@ -26,6 +36,10 @@ public class TrainLeaderFollower {
 		return memberLeader != null && memberLeader.id.equals(coordId) && memberTrainId.equals(coordTrainId);
 	}
 
+	/**
+	 * Knowledge exchange
+	 * Only the follower id is mapped together with the timestamp.
+	 */
 	@KnowledgeExchange
 	public static void exchange(
 			@In("coord.id") String coordId,
@@ -36,7 +50,6 @@ public class TrainLeaderFollower {
 			@InOut("coord.trainFollower") ParamHolder<VehicleLink> follower) {
 		Double dist = Navigator.getLinkLinkDist(coordLink, memberLink);
 		
-		// TODO: maybe timed rest is needed when some follower gets out of range
 		if(follower.value == null || follower.value.dist > dist || follower.value.id.equals(memberId)) {
 			follower.value = new VehicleLink(memberId, memberLink, dist, curTime);
 		}

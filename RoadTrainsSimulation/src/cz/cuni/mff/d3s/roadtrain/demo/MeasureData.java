@@ -1,3 +1,18 @@
+/**
+ * 
+ * Data measuring
+ * 
+ * This class is responsible for running multiple experiments in parallel. The experiments
+ * are executed in separate processes as those sometimes randomly fail or
+ * crash JVM. Crashes are detected and the failed experiments are added back
+ * to the execution queue.
+ * 
+ * The important setting is the defined by constants in the code. These are:
+ * MeasureData.NUM_PROCESSES - number of parallel processes to run
+ * MeasureData.configs - experiment groups to execute and their parameters
+ * 
+ */
+
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 import java.io.File;
@@ -11,10 +26,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
+// Experiment group config base
 abstract class BaseConfig {
-	
 }
 
+// Emergency experiment group config
 class ConfigEmergency extends BaseConfig {
 	final int[] CRASH_SITES;
 	final int POLICE_PER_CRASH;
@@ -33,6 +49,7 @@ class ConfigEmergency extends BaseConfig {
 	}
 }
 
+// Military convoy group config
 class ConfigMilitary extends BaseConfig {
 	final int[] VEHICLES;
 	final String[] EVALS;
@@ -45,16 +62,23 @@ class ConfigMilitary extends BaseConfig {
 	}
 }
 
+// Run the simulation
 public class MeasureData {
+	// Number of parallel experiments
 	static final int NUM_PROCESSES = 8;
 	
+	// Experiments in the simulation
+	// This is the full setup
 	static final BaseConfig[] configs = {
 		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 1, 1, new int[]{0,1,2,3,4,5,6,7,8,9}, new String[]{"groupers", "random"}),
 		new ConfigEmergency(new int[]{1, 2, 3, 5, 10, 15, 20}, 1, 2, 2, new int[]{0,1,2,3,4,5,6,7,8,9}, new String[]{"groupers", "random"}),
 		new ConfigMilitary(new int[]{3, 5, 10, 15, 20}, new String[]{"eval", "def"}, new int[]{0,1,2,3,4,5,6,7,8,9})
 	};
 		
-	static final Queue<List<String>> runConfigs = new LinkedList<List<String>>();	
+	// Configs to run
+	static final Queue<List<String>> runConfigs = new LinkedList<List<String>>();
+	
+	// Configs currently running
 	static final Map<Process, List<String>> running = new HashMap<Process, List<String>>();
 		
 	public static void main(String[] args) throws Exception {
@@ -135,6 +159,7 @@ public class MeasureData {
 		}
 	}
 	
+	// Run emergency experiment
 	private static void runEmergency(int crashSites, int police, int ambulance, int fire, int runId, String strategy) throws Exception {
 		System.out.println(String.format("Adding emergency simulation with %s: %d police %d ambulance %d fire and %d crashes with run Id %d",
 				strategy, police, ambulance, fire, crashSites, runId));
@@ -150,6 +175,7 @@ public class MeasureData {
 		);
 	}
 	
+	// Run military experiment
 	private static void runMilitary(int vehicles, String eval, int runId) throws Exception {
 		System.out.println(String.format("Adding military simulation with %s: %d vehicles with run Id %d",
 				eval, vehicles, runId));
