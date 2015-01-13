@@ -10,7 +10,7 @@ The simulation consists of separate experiments belonging to three experiment gr
 - Eclipse
 - Git
 - Maven
-- 64bit Java 1.7 or 1.8
+- 64bit Java 1.8
 
 ### Project setup (for Eclipse)
 1. Clone application repository https://github.com/d3scomp/cbse-2015-tutorial.git
