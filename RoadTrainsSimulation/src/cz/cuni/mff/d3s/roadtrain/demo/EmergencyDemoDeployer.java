@@ -1,5 +1,6 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
+import java.security.KeyStoreException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 	}
 	
 	@Override
-	public void deploy() throws AnnotationProcessorException {
+	public void deploy() throws AnnotationProcessorException, KeyStoreException {
 		for(int i = 0; i < numCrashSites; ++i) {
 			deployAccidentSite(i);
 		}
@@ -43,7 +44,7 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 	}
 	
 	private void deployAccidentSite(int siteNum)
-			throws AnnotationProcessorException {
+			throws AnnotationProcessorException, KeyStoreException {
 		Link crashSite = Navigator.getRandomLink();
 		String crashSiteName = String.format("C%d", siteNum);
 		
@@ -60,7 +61,7 @@ public class EmergencyDemoDeployer implements DemoDeployer {
 		deploySquad("F", crashSiteName, numFirePerCrashSite);
 	}
 	
-	private void deploySquad(String prefix, String crashSite, int count) throws AnnotationProcessorException {
+	private void deploySquad(String prefix, String crashSite, int count) throws AnnotationProcessorException, KeyStoreException {
 		// Deploy squad vehicles
 		Set<String> places = new HashSet<String>();
 		for(int i = 0; i < count; ++i) {

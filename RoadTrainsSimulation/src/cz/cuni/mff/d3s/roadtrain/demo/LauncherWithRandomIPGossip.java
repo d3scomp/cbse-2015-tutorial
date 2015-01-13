@@ -1,6 +1,7 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
 import java.io.IOException;
+import java.security.KeyStoreException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import cz.cuni.mff.d3s.deeco.network.IPGossipStrategy;
 import cz.cuni.mff.d3s.deeco.network.KnowledgeDataManager;
 import cz.cuni.mff.d3s.deeco.network.RandomIPGossip;
 import cz.cuni.mff.d3s.deeco.runtime.RuntimeFramework;
+import cz.cuni.mff.d3s.deeco.security.SecurityKeyManagerImpl;
 import cz.cuni.mff.d3s.deeco.simulation.DirectSimulationHost;
 import cz.cuni.mff.d3s.deeco.simulation.NetworkDataHandler;
 import cz.cuni.mff.d3s.deeco.simulation.SimulationRuntimeBuilder;
@@ -79,7 +81,7 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		}
 	};
 		
-	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException {
+	public void run(DemoDeployer demoDeployer) throws AnnotationProcessorException, IOException, KeyStoreException {
 		// Deploy components
 		System.out.println("Deploying components");
 		demoDeployer.deploy();
@@ -102,7 +104,7 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	}
 	
 	
-	public void deployVehicle(Vehicle component) throws AnnotationProcessorException {
+	public void deployVehicle(Vehicle component) throws AnnotationProcessorException, KeyStoreException {
 		agentSource.addAgent(new JDEECoAgent(new IdImpl(component.id), component.currentLink));
 				
 		RuntimeMetadata model = RuntimeMetadataFactoryExt.eINSTANCE.createRuntimeMetadata();
@@ -119,7 +121,7 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
 		KnowledgeDataManager kdm = new NoManetRebroadcastIPDataKnowledgeDatamanager(model.getEnsembleDefinitions(), strategy);
 		
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), new SecurityKeyManagerImpl());
 		runtime.start();
 	}
 		

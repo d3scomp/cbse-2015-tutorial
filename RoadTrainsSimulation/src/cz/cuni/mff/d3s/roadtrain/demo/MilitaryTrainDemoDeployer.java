@@ -1,5 +1,7 @@
 package cz.cuni.mff.d3s.roadtrain.demo;
 
+import java.security.KeyStoreException;
+
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.core.basic.v01.IdImpl;
@@ -25,7 +27,7 @@ public class MilitaryTrainDemoDeployer implements DemoDeployer {
 	}
 	
 	@Override
-	public void deploy() throws AnnotationProcessorException {
+	public void deploy() throws AnnotationProcessorException, KeyStoreException {
 		for(int i = 0; i < numTrains; ++i) {
 			deployTrain(i);
 		}
@@ -35,7 +37,7 @@ public class MilitaryTrainDemoDeployer implements DemoDeployer {
 		return vehicleCounter++;
 	}
 	
-	private void deployTrain(int i) throws AnnotationProcessorException {
+	private void deployTrain(int i) throws AnnotationProcessorException, KeyStoreException {
 		Navigator.getRandomLink();
 		
 		final String start = String.format("T%dStart", i); 
