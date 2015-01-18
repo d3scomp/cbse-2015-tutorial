@@ -17,7 +17,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/jdeeco-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jdeeco-simulation"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cz.cuni.mff.d3s.jdeeco.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cz.cuni.mff.d3s.jdeeco.simulation"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
