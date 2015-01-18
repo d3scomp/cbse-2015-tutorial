@@ -1,3 +1,10 @@
+/**
+ * Ensemble for exchanging information in the train
+ * 
+ * Currently only locations are exchanged, but it can be exchanged
+ * for some real world usage.
+ */
+
 package cz.cuni.mff.d3s.roadtrain.demo.ensembles;
 
 import java.util.Map;
@@ -18,6 +25,10 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 @Ensemble
 @PeriodicScheduling(period = 1000)
 public class Train {
+	/**
+	 * Membership condition is simple. The only requirements are the
+	 * same train, not the same vehicle and member not at the destination.
+	 */
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
@@ -30,6 +41,10 @@ public class Train {
 		return !memberId.equals(coordId) && memberTrainId.equals(coordTrainId) && memberState != VehicleState.DONE;
 	}
 
+	/**
+	 * Exchange location and IDs of the members. Time-stamps are also handled as those are
+	 * needed to decide the accuracy of the mapped information.
+	 */
 	@KnowledgeExchange
 	public static void exchange(
 			@In("member.id") String memberId,

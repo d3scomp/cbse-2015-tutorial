@@ -1,3 +1,10 @@
+/**
+ * Ensemble for maintaining leader-follower links
+ * 
+ * These are used to wait for followers and, when the
+ * followers are close enough to road-train formation.
+ */
+
 package cz.cuni.mff.d3s.roadtrain.demo.ensembles;
 
 import org.matsim.api.core.v01.Id;
@@ -20,6 +27,15 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
 @PeriodicScheduling(period = 1000)
 @PartitionedBy("dstPlace")
 public class LeaderFollower {
+	/**
+	 * Membership condition
+	 * 
+	 * Ensemble is created according to the leader link set by a process in
+	 * the member. The coordinator of the ensemble is the leader while
+	 * the member is the follower. Member and the coordinator have to be
+	 * different vehicles and the follower needs to be in the state when
+	 * it can follow (not on the train or train leader)
+	 */
 	@Membership
 	public static boolean membership(
 			@In("coord.id") String coordId,
@@ -31,6 +47,16 @@ public class LeaderFollower {
 		return memberLeader != null && memberLeader.id.equals(coordId) && coordState.canLead() && memberState.canFollow();
 	}
 
+	/**
+	 * Knowledge exchange
+	 * 
+	 * Nearest follower knowledge is updated.
+	 * Leader value is set
+	 * Member can be assigned a train id.
+	 * 
+	 * The whole idea is obfuscated by time-stamps which will be hopefully
+	 * handled by the jDEECo runtime. 
+	 */
 	@KnowledgeExchange
 	public static void exchange(
 			@In("coord.id") String coordId,

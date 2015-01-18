@@ -41,17 +41,19 @@ public class Vehicle {
 	 */
 	public String id;
 	
+	/**
+	 * Vehicle state
+	 */
 	public VehicleState state = VehicleState.SINGLE;
 
 	/**
-	 * Contains a list of link ids that lead to the destination. It is given to
-	 * the MATSim to guide the vehicle which way it should go.
+	 * Information about vehicles sharing the destination
 	 */
-	@Local
-	public List<Id> route;
-	
 	public Map<String, VehicleInfo> destGroup = new HashMap<String, VehicleInfo>();
 	
+	/**
+	 * Information about vehicles on the same train
+	 */
 	public Map<String, VehicleInfo> trainGroup = new HashMap<String, VehicleInfo>();
 
 	/**
@@ -59,16 +61,37 @@ public class Vehicle {
 	 */
 	public Id currentLink;
 	
+	/**
+	 * Current train it timestamp
+	 */
 	public Long trainIdTime;
+	/**
+	 * Current train id
+	 */
 	public String trainId;
 	
+	/**
+	 * Leader to be followed (either vehicle in train, or just the vehicles on the path to destination)
+	 */
 	public VehicleLink leader;
 	
+	/**
+	 * Nearest follower id
+	 */
 	public Double nearestFollower = null;
+	/**
+	 * Nearest follower timestamp
+	 */
 	public Long nearestFollowerTime;
 	
+	/**
+	 * Train follower (vehicles behind this vehicle in the train)
+	 */
 	public VehicleLink trainFollower;
 	
+	/**
+	 * Vehicle speed
+	 */
 	public Double speed;
 	
 	/**
@@ -81,7 +104,17 @@ public class Vehicle {
 	 */
 	public Coord position;
 	
+	/**
+	 * Position of the destination
+	 */
 	public Coord destination;
+	
+	/**
+	 * Contains a list of link ids that lead to the destination. It is given to
+	 * the MATSim to guide the vehicle which way it should go.
+	 */
+	@Local
+	public List<Id> route;
 	
 	@Local
 	public VehicleMonitor vehicleMonitor;
@@ -121,6 +154,9 @@ public class Vehicle {
 	/**
 	 * Periodically prints out the values of sensors and important values of the
 	 * knowledge.
+	 * 
+	 * This is also responsible for execution of vehicle monitoring calls. The monitoring
+	 * calls reproduce dot description of vehicles positions and their relations.
 	 */
 	@Process
 	@PeriodicScheduling(period = 5000, order = 10)
@@ -177,7 +213,7 @@ public class Vehicle {
 
 	/**
 	 * Periodically updates knowledge based on sensor readings. These knowledge
-	 * fields are updated: currentLink.
+	 * fields are updated: currentLink, position, curTime.
 	 */
 	@Process
 	@PeriodicScheduling(period = 200, order = 1)
@@ -195,6 +231,10 @@ public class Vehicle {
 		curTime.value = clock.getCurrentMilliseconds();
 	}
 	
+	/**
+	 * Periodically update state of the vehicle based on the rest of
+	 * the knowledge. "state" is the only output of this process
+	 */
 	@Process
 	@PeriodicScheduling(period = 200)
 	public static void updateState(
@@ -240,6 +280,12 @@ public class Vehicle {
 		throw new RuntimeException(String.format("Vehicle %s is in invalid state", id));
 	}
 	
+	/**
+	 * Assign a leader to the vehicle which is not part of the road train. The leader
+	 * in this context is another vehicle which is on the path to destination. The
+	 * leader follower relation is used to wait for followers and thus boosting
+	 * chances to create a road train.
+	 */
 	@Process
 	@PeriodicScheduling(period = 5000)
 	public static void organizeLeaderFollowerLinks(
@@ -310,6 +356,11 @@ public class Vehicle {
 		}
 	}
 	
+	/**
+	 * Assign a leader to the vehicle which is part of the road train. The leader is either road-train leader
+	 * or another member oft he same road train which is on the path to leader. Basically the vehicle is
+	 * following the vehicle in front of it in the road train.
+	 */
 	@Process
 	@PeriodicScheduling(period = 1000)
 	public static void organizeTrain(
@@ -351,6 +402,15 @@ public class Vehicle {
 		}
 	}
 	
+	/**
+	 * Reset out-dated knowledge.
+	 * 
+	 * Currently jDEECo do not have time-stamps on knowledge, thus it is not possible to
+	 * get age of the knowledge from the system. In order to work around the issue the 
+	 * time-stamps are maintained explicitly by the application. These are set in the
+	 * ensemble knowledge mapping function and here these are checked and when tool old the
+	 * knowledge is stripped of these old data. 
+	 */
 	@Process
 	@PeriodicScheduling(period = 1500)
 	public static void resetOldData(
@@ -411,6 +471,10 @@ public class Vehicle {
 	
 	/**
 	 * Plans the route to the destination.
+	 * 
+	 * This can operate with the leader which is followed or without. When the leader is set by road train or
+	 * just by leader-follower relation the route to leader is used. When the leader is not available then the
+	 * route to destination is used.
 	 */
 	@Process
 	@PeriodicScheduling(period = 2000, order = 4)
