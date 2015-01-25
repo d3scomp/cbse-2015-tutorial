@@ -61,4 +61,7 @@ public class Settings {
 	public static final String MATSIM_INPUT = "input";
 	public static final String MATSIM_OUTPUT = "matsim";
 	public static String MATSIM_CONFIG = Settings.MATSIM_INPUT + "/" + "config" + ".xml";
+	
+	// Police
+	public static final int POLICE_RADAR_RANGE = 1000;
 }

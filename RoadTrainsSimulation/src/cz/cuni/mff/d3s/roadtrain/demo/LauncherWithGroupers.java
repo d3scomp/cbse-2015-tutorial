@@ -42,11 +42,12 @@ import cz.cuni.mff.d3s.deeco.simulation.matsim.JDEECoAgent;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.JDEECoAgentSource;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimSimulation;
+import cz.cuni.mff.d3s.roadtrain.demo.components.AbstractVehicle;
 import cz.cuni.mff.d3s.roadtrain.demo.components.AgentSourceBasedPosition;
-import cz.cuni.mff.d3s.roadtrain.demo.components.Vehicle;
 import cz.cuni.mff.d3s.roadtrain.demo.custom.KnowledgeProvider;
 import cz.cuni.mff.d3s.roadtrain.demo.custom.RealisticKnowledgeDataHandler;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.LeaderFollower;
+import cz.cuni.mff.d3s.roadtrain.demo.ensembles.PoliceRadar;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.Train;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.TrainLeaderFollower;
@@ -118,7 +119,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	}
 	
 	
-	public IPGossipStrategy getStrategy(Vehicle component, Object commGroup, RuntimeMetadata model, DirectSimulationHost host) {
+	public IPGossipStrategy getStrategy(AbstractVehicle component, Object commGroup, RuntimeMetadata model, DirectSimulationHost host) {
 		IPControllerImpl controller = new IPControllerImpl();
 		
 		// TODO: default IP should be added automatically based on current ensemble definition
@@ -133,8 +134,8 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 	}
 	
 	
-	public void deployVehicle(Vehicle component) throws AnnotationProcessorException, KeyStoreException {
-		agentSource.addAgent(new JDEECoAgent(new IdImpl(component.id), component.currentLink));
+	public void deployVehicle(AbstractVehicle component) throws AnnotationProcessorException, KeyStoreException {
+		agentSource.addAgent(new JDEECoAgent(new IdImpl(component.getId()), component.getCurrentLink()));
 				
 		RuntimeMetadata model = RuntimeMetadataFactoryExt.eINSTANCE.createRuntimeMetadata();
 		AnnotationProcessor processor = new AnnotationProcessor(RuntimeMetadataFactoryExt.eINSTANCE, model,
@@ -144,13 +145,14 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 				SharedDestination.class,
 				LeaderFollower.class,
 				Train.class,
-				TrainLeaderFollower.class);
+				TrainLeaderFollower.class,
+				PoliceRadar.class);
 
-		DirectSimulationHost host = sim.getHost(component.id);
-		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
+		DirectSimulationHost host = sim.getHost(component.getId());
+		IPGossipStrategy strategy = getStrategy(component, component.getDstPlace(), model, host);
 		KnowledgeDataManager kdm = new NoManetRebroadcastIPDataKnowledgeDatamanager(model.getEnsembleDefinitions(), strategy);
 		
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), new SecurityKeyManagerImpl(), new RatingsManagerImpl());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), RatingsManagerImpl.getInstance());
 		runtime.start();
 	}
 	
@@ -199,7 +201,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		
 		IPGossipStrategy strategy = new IPGossipConnectorStrategy(partitions, controller);
 		KnowledgeDataManager kdm = new IPOnlyKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), new SecurityKeyManagerImpl(), new RatingsManagerImpl());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), RatingsManagerImpl.getInstance());
 		runtime.start();
 	}
 	

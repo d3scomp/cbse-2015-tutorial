@@ -49,13 +49,13 @@ public class NoManetRebroadcastIPDataKnowledgeDatamanager extends DefaultKnowled
 		// schedule a task for rebroadcast
 		// Do not rebroadcast IP received data on manet
 		if(kmd.rssi != -1) {
-			dataToRebroadcastOverMANET.put(kmd.getSignature(), kd);
+			dataToRebroadcastOverMANET.put(kmd.getSignatureWithRole(), kd);
 			RebroadcastTask task = new RebroadcastTask(scheduler, this, delay, kmd, NICType.MANET);
 			scheduler.addTask(task);
 		}
 		
 		if (ipGossipStrategy != null && ipDelay > 0) {
-			dataToRebroadcastOverIP.put(kmd.getSignature(), kd);
+			dataToRebroadcastOverIP.put(kmd.getSignatureWithRole(), kd);
 			RebroadcastTask task = new RebroadcastTask(scheduler, this, ipDelay, kmd, NICType.IP);
 			scheduler.addTask(task);
 		}

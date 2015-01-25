@@ -1,29 +1,32 @@
 package cz.cuni.mff.d3s.roadtrain.demo.components;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 
-import cz.cuni.mff.d3s.deeco.annotations.Allow;
 import cz.cuni.mff.d3s.deeco.annotations.Component;
+import cz.cuni.mff.d3s.deeco.annotations.HasRole;
+import cz.cuni.mff.d3s.deeco.annotations.IgnoreKnowledgeCompromise;
 import cz.cuni.mff.d3s.deeco.annotations.In;
 import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.Local;
 import cz.cuni.mff.d3s.deeco.annotations.Out;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.annotations.Process;
+import cz.cuni.mff.d3s.deeco.annotations.RoleDefinition;
 import cz.cuni.mff.d3s.deeco.logging.Log;
 import cz.cuni.mff.d3s.deeco.scheduler.CurrentTimeProvider;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
 import cz.cuni.mff.d3s.roadtrain.demo.Settings;
-import cz.cuni.mff.d3s.roadtrain.demo.components.PoliceVehicle.PoliceRole;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.Actuator;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.ActuatorProvider;
 import cz.cuni.mff.d3s.roadtrain.demo.environment.ActuatorType;
@@ -35,9 +38,17 @@ import cz.cuni.mff.d3s.roadtrain.demo.utils.Navigator;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleInfo;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleLink;
 import cz.cuni.mff.d3s.roadtrain.demo.utils.VehicleState;
+import cz.cuni.mff.d3s.roadtrain.demo.components.PoliceVehicle.PoliceRole;;
 
 @Component
-public class Vehicle extends AbstractVehicle {
+@HasRole(PoliceRole.class)
+public class PoliceVehicle extends AbstractVehicle {
+
+	@RoleDefinition
+	public static interface PoliceRole {
+		
+	}
+		
 	/**
 	 * Id of the vehicle component.
 	 */
@@ -110,7 +121,7 @@ public class Vehicle extends AbstractVehicle {
 	 * Position of the destination
 	 */
 	public Coord destination;
-	
+		
 	/**
 	 * Contains a list of link ids that lead to the destination. It is given to
 	 * the MATSim to guide the vehicle which way it should go.
@@ -136,16 +147,22 @@ public class Vehicle extends AbstractVehicle {
 	@Local
 	public CurrentTimeProvider clock;
 	
+	@Local
+	public String[] wantedOwnerIds;
+	
+	@Local
+	public String currentlyPursuedOwnerId;	
+	
 	public Long curTime;
 
-	public VehicleKind vehicleKind = VehicleKind.ORDINARY;
+	public VehicleKind vehicleKind = VehicleKind.POLICE;
 	
-	@Allow(PoliceRole.class)
-	public String ownerId;
+	@Local
+	public Map<String, String> vehiclesOwnersNearby;
 	
-	public Vehicle(String id, String dstPlace, Id currentLink,
+	public PoliceVehicle(String id, String dstPlace, Id currentLink,
 			ActuatorProvider actuatorProvider, SensorProvider sensorProvider,
-			MATSimRouter router, CurrentTimeProvider clock, VehicleMonitor vehicleMonitor) {
+			MATSimRouter router, CurrentTimeProvider clock, VehicleMonitor vehicleMonitor, String... wantedOwnerIds) {
 		this.id = id;
 		this.trainId = id;
 		this.dstPlace = dstPlace;
@@ -156,6 +173,9 @@ public class Vehicle extends AbstractVehicle {
 		this.router = router;
 		this.clock = clock;
 		this.vehicleMonitor = vehicleMonitor;
+		
+		this.vehiclesOwnersNearby = new HashMap<>();
+		this.wantedOwnerIds = wantedOwnerIds;
 	}
 
 	@Override
@@ -198,11 +218,12 @@ public class Vehicle extends AbstractVehicle {
 			@In("trainId") String trainId,
 			@In("trainFollower") VehicleLink trainFollower,
 			@In("speed") Double speed,
-			@In("vehicleMonitor") VehicleMonitor vehicleMonitor) {
+			@In("vehicleMonitor") VehicleMonitor vehicleMonitor,
+			@In("currentlyPursuedOwnerId") String currentlyPursuedOwnerId) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
-		System.out.format("%s [%s] state: %s, pos: %s(%.0f, %.0f), GDest: %s, GTrain: %s, dist: %.0f, leader: %s, dst: %s(%s), train: %s, tFollower: %s, speed: %.0f\n",
+		System.out.format("%s [%s] state: %s, pos: %s(%.0f, %.0f), GDest: %s, GTrain: %s, dist: %.0f, leader: %s, pursuing: %s, dst: %s(%s), train: %s, tFollower: %s, speed: %.0f\n",
 				formatTime(clock.getCurrentMilliseconds()),
 				id,
 				state,
@@ -213,6 +234,7 @@ public class Vehicle extends AbstractVehicle {
 				groupToString(trainGroup),
 				Navigator.getDesDist(dstPlace, currentLinkSensor.read()),
 				leader,
+				currentlyPursuedOwnerId,
 				Navigator.getPosition(dstPlace).getId(),
 				dstPlace,
 				trainId,
@@ -231,7 +253,7 @@ public class Vehicle extends AbstractVehicle {
 				router,
 				nearestFollower,
 				trainId,
-				null);
+				currentlyPursuedOwnerId);
 	}
 
 	/**
@@ -492,6 +514,43 @@ public class Vehicle extends AbstractVehicle {
 		}
 	}
 	
+	@Process
+	@PeriodicScheduling(period = 1000, order = 4)
+	@IgnoreKnowledgeCompromise
+	public static void planPursue(
+			@In("currentLink") Id currentLink,
+			@In("vehiclesOwnersNearby") Map<String, String> vehiclesOwnersNearby,
+			@InOut("currentlyPursuedOwnerId") ParamHolder<String> currentlyPursuedOwnerId,
+			@In("wantedOwnerIds") String[] wantedOwnerIds,
+			@InOut("dstPlace") ParamHolder<String> dstPlace,
+			@In("router") MATSimRouter router,
+			@InOut("route") ParamHolder<List<Id> > route,
+			@InOut("speed") ParamHolder<Double> speed,
+			@In("routeActuator") Actuator<List<Id> > routeActuator,
+			@In("speedActuator") Actuator<Double> speedActuator) {
+		
+		// if the police vehicle pursues no one
+		if (currentlyPursuedOwnerId.value == null) {
+			
+			// check if wanted criminal is nearby
+			List<String> wantedOwnersNearby = Arrays.stream(wantedOwnerIds).filter(wantedOwner -> vehiclesOwnersNearby.containsKey(wantedOwner)).collect(Collectors.toList());
+			if (!wantedOwnersNearby.isEmpty()) {
+				
+				// select the first one and pursue them
+				currentlyPursuedOwnerId.value = wantedOwnersNearby.get(0);
+				dstPlace.value = vehiclesOwnersNearby.get(currentlyPursuedOwnerId.value);
+				
+				route.value.clear();
+				route.value = router.route(currentLink, Navigator.getPosition(dstPlace.value).getId(), route.value);
+				speed.value = Settings.VEHICLE_FULL_SPEED * 2;
+				
+				speedActuator.set(speed.value);				
+				routeActuator.set(route.value);
+			}
+		}
+	}
+	
+	
 	/**
 	 * Plans the route to the destination.
 	 * 
@@ -500,7 +559,7 @@ public class Vehicle extends AbstractVehicle {
 	 * route to destination is used.
 	 */
 	@Process
-	@PeriodicScheduling(period = 2000, order = 4)
+	@PeriodicScheduling(period = 2000, order = 5)
 	public static void planRouteAndDrive(
 			@In("id") String id,
 			@In("state") VehicleState state,
