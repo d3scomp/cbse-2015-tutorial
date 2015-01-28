@@ -150,7 +150,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
 		KnowledgeDataManager kdm = new NoManetRebroadcastIPDataKnowledgeDatamanager(model.getEnsembleDefinitions(), strategy);
 		
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), new SecurityKeyManagerImpl(), new RatingsManagerImpl());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), RatingsManagerImpl.getInstance());
 		runtime.start();
 	}
 	
@@ -199,7 +199,7 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 		
 		IPGossipStrategy strategy = new IPGossipConnectorStrategy(partitions, controller);
 		KnowledgeDataManager kdm = new IPOnlyKnowledgeDataManager(model.getEnsembleDefinitions(), strategy);
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), new SecurityKeyManagerImpl(), new RatingsManagerImpl());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), RatingsManagerImpl.getInstance());
 		runtime.start();
 	}
 	
