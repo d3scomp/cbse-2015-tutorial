@@ -151,14 +151,14 @@ public class PoliceVehicle extends AbstractVehicle {
 	public String[] wantedOwnerIds;
 	
 	@Local
-	public String currentlyPursuedOwnerId;	
+	public String currentlyPursuedOwnerId, currentlyPursuedVehicleId;	
 	
 	public Long curTime;
 
 	public VehicleKind vehicleKind = VehicleKind.POLICE;
 	
 	@Local
-	public Map<String, String> vehiclesOwnersNearby;
+	public Map<String, String> vehiclesOwnersNearby, vehicleIdsNearby;
 	
 	public PoliceVehicle(String id, String dstPlace, Id currentLink,
 			ActuatorProvider actuatorProvider, SensorProvider sensorProvider,
@@ -175,6 +175,7 @@ public class PoliceVehicle extends AbstractVehicle {
 		this.vehicleMonitor = vehicleMonitor;
 		
 		this.vehiclesOwnersNearby = new HashMap<>();
+		this.vehicleIdsNearby = new HashMap<>();
 		this.wantedOwnerIds = wantedOwnerIds;
 	}
 
@@ -219,7 +220,7 @@ public class PoliceVehicle extends AbstractVehicle {
 			@In("trainFollower") VehicleLink trainFollower,
 			@In("speed") Double speed,
 			@In("vehicleMonitor") VehicleMonitor vehicleMonitor,
-			@In("currentlyPursuedOwnerId") String currentlyPursuedOwnerId) {
+			@In("currentlyPursuedVehicleId") String currentlyPursuedVehicleId) {
 
 		Log.d("Entry [" + id + "]:reportStatus");
 
@@ -234,7 +235,7 @@ public class PoliceVehicle extends AbstractVehicle {
 				groupToString(trainGroup),
 				Navigator.getDesDist(dstPlace, currentLinkSensor.read()),
 				leader,
-				currentlyPursuedOwnerId,
+				currentlyPursuedVehicleId,
 				Navigator.getPosition(dstPlace).getId(),
 				dstPlace,
 				trainId,
@@ -253,7 +254,7 @@ public class PoliceVehicle extends AbstractVehicle {
 				router,
 				nearestFollower,
 				trainId,
-				currentlyPursuedOwnerId);
+				currentlyPursuedVehicleId);
 	}
 
 	/**
@@ -520,6 +521,8 @@ public class PoliceVehicle extends AbstractVehicle {
 	public static void planPursue(
 			@In("currentLink") Id currentLink,
 			@In("vehiclesOwnersNearby") Map<String, String> vehiclesOwnersNearby,
+			@In("vehicleIdsNearby") Map<String, String> vehicleIdsNearby,
+			@InOut("currentlyPursuedVehicleId") ParamHolder<String> currentlyPursuedVehicleId,
 			@InOut("currentlyPursuedOwnerId") ParamHolder<String> currentlyPursuedOwnerId,
 			@In("wantedOwnerIds") String[] wantedOwnerIds,
 			@InOut("dstPlace") ParamHolder<String> dstPlace,
@@ -530,7 +533,7 @@ public class PoliceVehicle extends AbstractVehicle {
 			@In("speedActuator") Actuator<Double> speedActuator) {
 		
 		// if the police vehicle pursues no one
-		if (currentlyPursuedOwnerId.value == null) {
+		if (currentlyPursuedVehicleId.value == null) {
 			
 			// check if wanted criminal is nearby
 			List<String> wantedOwnersNearby = Arrays.stream(wantedOwnerIds).filter(wantedOwner -> vehiclesOwnersNearby.containsKey(wantedOwner)).collect(Collectors.toList());
@@ -538,6 +541,7 @@ public class PoliceVehicle extends AbstractVehicle {
 				
 				// select the first one and pursue them
 				currentlyPursuedOwnerId.value = wantedOwnersNearby.get(0);
+				currentlyPursuedVehicleId.value = vehicleIdsNearby.get(currentlyPursuedOwnerId.value);
 				dstPlace.value = vehiclesOwnersNearby.get(currentlyPursuedOwnerId.value);
 				
 				route.value.clear();

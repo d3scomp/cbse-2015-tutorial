@@ -79,7 +79,7 @@ public class VehicleMonitor {
 	}
 
 	public synchronized void report(long timeMs, String id, VehicleState state, Coord pos, VehicleLink leader, String dstCity,
-			List<Id> route, MATSimRouter router, Double nearestFollower, String train, String pursuingId) {
+			List<Id> route, MATSimRouter router, Double nearestFollower, String train, String pursuedVehicleId) {
 		// Start new frame if needed
 		if (time != timeMs) {
 			try {
@@ -142,8 +142,13 @@ public class VehicleMonitor {
 		
 		record.append(String
 				.format("\n%s [label = \"%s\", pos = \"%s,%s!\", color=%s, shape=ellipse, fontsize=8, fontcolor=\"%s\", width=\"0.01\", height=\"0.01\"]",
-						id, id + state.toShortString() + (pursuingId == null ? ""  : " -> " + pursuingId), pos.getX() * SCALE, pos.getY() * SCALE, nodeColor, nodeColor));
-		record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leaderId, nodeColor, leaderDist.intValue()));
+						id, id + state.toShortString(), pos.getX() * SCALE, pos.getY() * SCALE, nodeColor, nodeColor));
+		
+		if (pursuedVehicleId != null) {
+			record.append(String.format("\n%s -> %s [color=%s]", id, pursuedVehicleId, nodeColor));
+		} else {
+			record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leaderId, nodeColor, leaderDist.intValue()));
+		}
 	}
 
 	public void dump() throws IOException {

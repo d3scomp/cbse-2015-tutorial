@@ -6,7 +6,6 @@ import java.util.Map;
 import org.matsim.api.core.v01.Coord;
 
 import cz.cuni.mff.d3s.deeco.annotations.Ensemble;
-import cz.cuni.mff.d3s.deeco.annotations.IgnoreKnowledgeCompromise;
 import cz.cuni.mff.d3s.deeco.annotations.In;
 import cz.cuni.mff.d3s.deeco.annotations.InOut;
 import cz.cuni.mff.d3s.deeco.annotations.KnowledgeExchange;
@@ -34,9 +33,12 @@ public class PoliceRadar {
 	
 	@KnowledgeExchange
 	public static void exchange(			
-			@In("member.ownerId") String ownerId,
+			@In("member.id") String id,
+			@In("member.ownerName") String ownerId,
 			@In("member.dstPlace") String dstPlace,
-			@InOut("coord.vehiclesOwnersNearby") ParamHolder<Map<String, String>> vehiclesNearby) {
-		vehiclesNearby.value.put(ownerId, dstPlace);
+			@InOut("coord.vehiclesOwnersNearby") ParamHolder<Map<String, String>> vehiclesOwnersNearby,
+			@InOut("coord.vehicleIdsNearby") ParamHolder<Map<String, String>> vehicleIdsNearby) {
+		vehiclesOwnersNearby.value.put(ownerId, dstPlace);
+		vehicleIdsNearby.value.put(ownerId, id);
 	}
 }

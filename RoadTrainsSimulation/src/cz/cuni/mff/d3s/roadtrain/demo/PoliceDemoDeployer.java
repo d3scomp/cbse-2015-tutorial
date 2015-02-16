@@ -63,7 +63,7 @@ public class PoliceDemoDeployer implements DemoDeployer {
 				deployer.getRouter(),
 				deployer.getSimulation(),
 				vehicleMonitor);
-		vehicle.ownerId = "Owner" + i;
+		vehicle.ownerName = "Owner" + i;
 		
 		deployer.deployVehicle(vehicle);		
 	}

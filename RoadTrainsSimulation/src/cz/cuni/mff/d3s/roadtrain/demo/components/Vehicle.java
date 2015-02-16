@@ -19,6 +19,7 @@ import cz.cuni.mff.d3s.deeco.annotations.Out;
 import cz.cuni.mff.d3s.deeco.annotations.PeriodicScheduling;
 import cz.cuni.mff.d3s.deeco.annotations.Process;
 import cz.cuni.mff.d3s.deeco.logging.Log;
+import cz.cuni.mff.d3s.deeco.model.runtime.api.AccessRights;
 import cz.cuni.mff.d3s.deeco.scheduler.CurrentTimeProvider;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.deeco.task.ParamHolder;
@@ -140,8 +141,8 @@ public class Vehicle extends AbstractVehicle {
 
 	public VehicleKind vehicleKind = VehicleKind.ORDINARY;
 	
-	@Allow(PoliceRole.class)
-	public String ownerId;
+	@Allow(value = PoliceRole.class, accessRights = AccessRights.READ)
+	public String ownerName;
 	
 	public Vehicle(String id, String dstPlace, Id currentLink,
 			ActuatorProvider actuatorProvider, SensorProvider sensorProvider,
