@@ -122,7 +122,7 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
 		KnowledgeDataManager kdm = new NoManetRebroadcastIPDataKnowledgeDatamanager(model.getEnsembleDefinitions(), strategy);
 		
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), RatingsManagerImpl.getInstance());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), new RatingsManagerImpl());
 		runtime.start();
 	}
 		
