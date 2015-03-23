@@ -19,6 +19,7 @@ public class PoliceDemoDeployer implements DemoDeployer {
 	private int vehicleCounter = 0;
 	private VehicleDeployer deployer;
 	private VehicleMonitor vehicleMonitor;
+	private final int POLICE_STATIONS_COUNT = 45;
 	
 	public PoliceDemoDeployer(int numberOfPolice,
 			int numberOfOrdinary, VehicleDeployer launcher,
@@ -32,25 +33,25 @@ public class PoliceDemoDeployer implements DemoDeployer {
 	@Override
 	public void deploy() throws AnnotationProcessorException, KeyStoreException {
 		for (int i = 0; i < numberOfPolice; i++) {
-			deployPolice(i + 5);
+			deployPolice(i);
 		}
 		for (int i = 0; i < numberOfOrdinary; i++) {
-			deployOrdinaryVehicle(i + 5);
+			deployOrdinaryVehicle(i);
 		}
 	}
 	
 	private void deployOrdinaryVehicle(int i) throws KeyStoreException, AnnotationProcessorException {
 		int carId = getCarId();
  
-		String policeStationName = Navigator.getMatchingPlaces("P").get(i);
+		String policeStationName = Navigator.getMatchingPlaces("P").get((i % POLICE_STATIONS_COUNT));
 		Link policeStationLink = Navigator.getPosition(policeStationName);
 		
-		Link randomDestinationLink = Navigator.getRandomLinkAroud(policeStationLink,  Settings.WIDTH * 0.1);
+		Link randomDestinationLink = Navigator.getRandomLinkAroud(policeStationLink,  Settings.WIDTH * 0.2);
 		String randomDestinationName = String.format("Dest%d", carId);		
 		Navigator.putLink(randomDestinationName, randomDestinationLink);
 		deployer.addDestination(randomDestinationName);
 		
-		Link randomPositionLink = Navigator.getRandomLinkAroud(policeStationLink,  Settings.WIDTH * 0.1);
+		Link randomPositionLink = Navigator.getRandomLinkAroud(policeStationLink,  Settings.WIDTH * 0.3);
 		String randomPositionName = String.format("Start%d", carId);
 		Navigator.putLink(randomPositionName, randomPositionLink);
 		
@@ -63,7 +64,7 @@ public class PoliceDemoDeployer implements DemoDeployer {
 				deployer.getRouter(),
 				deployer.getSimulation(),
 				vehicleMonitor);
-		vehicle.ownerName = "Owner" + i;
+		vehicle.ownerName = "Owner" + (i%POLICE_STATIONS_COUNT);
 		
 		deployer.deployVehicle(vehicle);		
 	}
@@ -71,10 +72,10 @@ public class PoliceDemoDeployer implements DemoDeployer {
 	private void deployPolice(int i) throws KeyStoreException, AnnotationProcessorException {
 		int carId = getCarId();
 		
-		String destinationName = Navigator.getMatchingPlaces("P").get(i);
+		String destinationName = Navigator.getMatchingPlaces("P").get((i % POLICE_STATIONS_COUNT));
 		Link destinationLink = Navigator.getPosition(destinationName);
 		
-		Link randomPositionLink = Navigator.getRandomLinkAroud(destinationLink,  Settings.WIDTH * 0.1);
+		Link randomPositionLink = Navigator.getRandomLinkAroud(destinationLink,  Settings.WIDTH * 0.2);
 		String randomPositionName = String.format("Start%d", carId);
 		Navigator.putLink(randomPositionName, randomPositionLink);
 		
@@ -87,7 +88,7 @@ public class PoliceDemoDeployer implements DemoDeployer {
 				deployer.getRouter(),
 				deployer.getSimulation(),
 				vehicleMonitor, 
-				"Owner" + i);
+				"Owner" + (i%POLICE_STATIONS_COUNT));
 		
 		deployer.deployVehicle(vehicle);			
 	}

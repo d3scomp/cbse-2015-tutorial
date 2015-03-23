@@ -88,6 +88,9 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		System.out.println("Deploying components");
 		demoDeployer.deploy();
 		
+		// run GC to minimize non-determinism
+		System.gc();
+		
 		// Run the simulation
 		System.out.println("Running simulation");
 		long startTime = System.currentTimeMillis();

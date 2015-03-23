@@ -107,8 +107,11 @@ public class LauncherWithGroupers implements Launcher, VehicleDeployer {
 			deployConnector("G" + cnt++, domain);
 		}
 		
+		// run GC to minimize non-determinism
+		System.gc();
+		
 		// Run the simulation
-		System.out.println("Running simulation");
+		System.out.println("Running simulation");		
 		long startTime = System.currentTimeMillis();
 		sim.run();
 		long diffTime = System.currentTimeMillis() - startTime;
