@@ -81,7 +81,7 @@ public class VehicleMonitor {
 	public synchronized void report(long timeMs, String id, VehicleState state, Coord pos, VehicleLink leader, String dstCity,
 			List<Id> route, MATSimRouter router, Double nearestFollower, String train, String pursuedVehicleId) {
 		// Start new frame if needed
-		/*if (time != timeMs) {
+		if (time != timeMs) {
 			try {
 				dump();
 			} catch (IOException e) {
@@ -148,7 +148,7 @@ public class VehicleMonitor {
 			record.append(String.format("\n%s -> %s [color=%s]", id, pursuedVehicleId, nodeColor));
 		} else {
 			record.append(String.format("\n%s -> %s [color=%s, label=\"%s\"]", id, leaderId, nodeColor, leaderDist.intValue()));
-		}*/
+		}
 	}
 
 	public void dump() throws IOException {
