@@ -43,6 +43,12 @@ public class SimulationRunner {
 			military.VEHICLES = Integer.valueOf(args[2]);
 			military.RUN = Integer.valueOf(args[3]);
 			conf = military;
+		} else if(args[0].equals("police")) {
+			PoliceConfig police = new PoliceConfig();
+			police.NUMBER_OF_POLICE_VEHICLES = Integer.valueOf(args[1]);
+			police.NUMBER_OF_ORDINARY_VEHICLES = Integer.valueOf(args[2]);
+			police.RUN = Integer.valueOf(args[3]);
+			conf = police;
 		} else {
 			throw new NotImplementedException();
 		}
@@ -100,6 +106,14 @@ public class SimulationRunner {
 					emergency.AMBULANCE_PER_CRASH,
 					emergency.FIRE_PER_CRASH,
 					emergency.POLICE_PER_CRASH,
+					(VehicleDeployer) launcher,
+					monitor);
+		}
+		if(conf instanceof PoliceConfig) {
+			PoliceConfig police = (PoliceConfig) conf;
+			demo = new PoliceDemoDeployer(
+					police.NUMBER_OF_POLICE_VEHICLES,
+					police.NUMBER_OF_ORDINARY_VEHICLES,					
 					(VehicleDeployer) launcher,
 					monitor);
 		}
@@ -172,5 +186,25 @@ class EmergencyConfig extends Config {
 	@Override
 	public String getResult() {
 		return String.format("%s-%d", USE_GROUPERS?"groupers":"random", CRASH_SITES);
+	}
+}
+
+class PoliceConfig extends Config {
+	public int NUMBER_OF_POLICE_VEHICLES;
+	public int NUMBER_OF_ORDINARY_VEHICLES;	
+	
+	@Override
+	public String getIdent() {
+		return String.format("Police_%d-%d-%d", NUMBER_OF_POLICE_VEHICLES, NUMBER_OF_ORDINARY_VEHICLES, RUN);
+	}
+
+	@Override
+	public String getDir() {
+		return String.format("Police_%d%d", NUMBER_OF_POLICE_VEHICLES, NUMBER_OF_ORDINARY_VEHICLES);
+	}
+
+	@Override
+	public String getResult() {
+		return String.format("Police_%d%d", NUMBER_OF_POLICE_VEHICLES, NUMBER_OF_ORDINARY_VEHICLES);
 	}
 }

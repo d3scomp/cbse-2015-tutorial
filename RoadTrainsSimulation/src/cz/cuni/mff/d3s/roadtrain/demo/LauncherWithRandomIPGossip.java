@@ -33,10 +33,11 @@ import cz.cuni.mff.d3s.deeco.simulation.matsim.JDEECoAgent;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.JDEECoAgentSource;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimRouter;
 import cz.cuni.mff.d3s.deeco.simulation.matsim.MATSimSimulation;
+import cz.cuni.mff.d3s.roadtrain.demo.components.AbstractVehicle;
 import cz.cuni.mff.d3s.roadtrain.demo.components.AgentSourceBasedPosition;
-import cz.cuni.mff.d3s.roadtrain.demo.components.Vehicle;
 import cz.cuni.mff.d3s.roadtrain.demo.custom.RealisticKnowledgeDataHandler;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.LeaderFollower;
+import cz.cuni.mff.d3s.roadtrain.demo.ensembles.PoliceRadar;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.SharedDestination;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.Train;
 import cz.cuni.mff.d3s.roadtrain.demo.ensembles.TrainLeaderFollower;
@@ -87,6 +88,9 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 		System.out.println("Deploying components");
 		demoDeployer.deploy();
 		
+		// run GC to minimize non-determinism
+		System.gc();
+		
 		// Run the simulation
 		System.out.println("Running simulation");
 		long startTime = System.currentTimeMillis();
@@ -99,14 +103,14 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 	}
 	
 	
-	public IPGossipStrategy getStrategy(Vehicle component, Object commGroup, RuntimeMetadata model, DirectSimulationHost host) {
-		dummyRecipientSelector.add(component.id);
+	public IPGossipStrategy getStrategy(AbstractVehicle component, Object commGroup, RuntimeMetadata model, DirectSimulationHost host) {
+		dummyRecipientSelector.add(component.getId());
 		return new RandomIPGossip(Arrays.asList((DirectRecipientSelector)dummyRecipientSelector), directGossipStrategy);
 	}
 	
 	
-	public void deployVehicle(Vehicle component) throws AnnotationProcessorException, KeyStoreException {
-		agentSource.addAgent(new JDEECoAgent(new IdImpl(component.id), component.currentLink));
+	public void deployVehicle(AbstractVehicle component) throws AnnotationProcessorException, KeyStoreException {
+		agentSource.addAgent(new JDEECoAgent(new IdImpl(component.getId()), component.getCurrentLink()));
 				
 		RuntimeMetadata model = RuntimeMetadataFactoryExt.eINSTANCE.createRuntimeMetadata();
 		AnnotationProcessor processor = new AnnotationProcessor(RuntimeMetadataFactoryExt.eINSTANCE, model,
@@ -116,13 +120,14 @@ public class LauncherWithRandomIPGossip implements Launcher, VehicleDeployer {
 				SharedDestination.class,
 				LeaderFollower.class,
 				Train.class,
-				TrainLeaderFollower.class);
+				TrainLeaderFollower.class,
+				PoliceRadar.class);
 
-		DirectSimulationHost host = sim.getHost(component.id);
-		IPGossipStrategy strategy = getStrategy(component, component.dstPlace, model, host);
+		DirectSimulationHost host = sim.getHost(component.getId());
+		IPGossipStrategy strategy = getStrategy(component, component.getDstPlace(), model, host);
 		KnowledgeDataManager kdm = new NoManetRebroadcastIPDataKnowledgeDatamanager(model.getEnsembleDefinitions(), strategy);
 		
-		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), RatingsManagerImpl.getInstance());
+		RuntimeFramework runtime = builder.build(host, sim, null, model, kdm, new CloningKnowledgeManagerFactory(), SecurityKeyManagerImpl.getInstance(), new RatingsManagerImpl());
 		runtime.start();
 	}
 		
