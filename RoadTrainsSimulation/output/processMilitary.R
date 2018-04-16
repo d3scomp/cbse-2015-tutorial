@@ -1,4 +1,4 @@
-path <- "C:\\Users\\vlada\\git\\jdeeco-roadtrains-simulation\\RoadTrainsSimulation\\output.emery\\"
+path <- "~/cbse-2015-tutorial/RoadTrainsSimulation/output/"
 
 setwd(paste(path, "Military", sep=""))
 
@@ -45,7 +45,7 @@ for(v in vehicles) {
 }
 
 
-win.metafile("Military.wmf", width = 8, height = 6)
+pdf("Military.pdf", width = 8, height = 6)
 par(cex=1.5)
 par(lwd=2)
 par(mgp=c(1.60, 0.50, 0))

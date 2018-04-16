@@ -1,4 +1,4 @@
-path <- "C:\\Users\\vlada\\git\\jdeeco-roadtrains-simulation\\RoadTrainsSimulation\\output.emery\\"
+path <- "~/cbse-2015-tutorial/RoadTrainsSimulation/output/"
 
 crashes <- c(1, 2, 3, 5, 10, 15, 20)
 
@@ -38,7 +38,7 @@ for(prefix in c("111", "122")) {
 	mr = c(as.vector(unlist(mr))) / 1000000
 	
 
-	win.metafile(paste(prefix, ".wmf", sep=""), width = 8, height = 6)
+	pdf(paste(prefix, ".pdf", sep=""), width = 8, height = 6)
 	par(cex=1.5)
 	par(lwd=2)
 	par(mgp=c(1.60, 0.50, 0))
