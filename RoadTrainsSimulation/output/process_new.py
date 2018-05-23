@@ -21,8 +21,8 @@ def parse(directory, prefix, crashes):
 	return x, y, data
 
 
-def expfunc(t, a, b):
-	return a * np.exp(b * t)
+def power(t, a, b):
+	return a * np.power(t, b)
 
 
 def processMilitary(directory):
@@ -37,11 +37,11 @@ def processMilitary(directory):
 
 	lx = np.linspace(min(crashes)- 1, max(crashes) + 1, 1000)
 
-	popt, cov = scipy.optimize.curve_fit(expfunc, dx, dy)
-	ax.plot(lx, expfunc(lx, *popt), color="red", linestyle="dotted", alpha=0.5, label="Exponential trend")
+	popt, cov = scipy.optimize.curve_fit(power, dx, dy)
+	ax.plot(lx, power(lx, *popt), color="red", linestyle="dotted", alpha=0.5, label="Power trend", zorder=10)
 
-	popt, cov = scipy.optimize.curve_fit(expfunc, ex, ey)
-	ax.plot(lx, expfunc(lx, *popt), color="green", linestyle="dotted", alpha=0.5, label="Exponential trend")
+	popt, cov = scipy.optimize.curve_fit(power, ex, ey)
+	ax.plot(lx, power(lx, *popt), color="green", linestyle="dotted", alpha=0.5, label="Power trend", zorder=10)
 
 	# lim = ax.get_xlim()
 	# for k, v in edata.items():
@@ -52,8 +52,8 @@ def processMilitary(directory):
 	# 	plt.setp(bp['fliers'], color="green", marker="+")
 	# ax.set_xlim(lim)
 
-	ax.scatter(dx, dy, color="red", marker="v", alpha=1, label="Groupers not evaluating membership condition")
-	ax.scatter(ex, ey, color="green", marker="^", alpha=1, label="Groupers evaluating membership condition")
+	ax.scatter(dx, dy, color="red", marker="v", alpha=1, label="Groupers not evaluating membership condition", zorder=15)
+	ax.scatter(ex, ey, color="green", marker="^", alpha=1, label="Groupers evaluating membership condition", zorder=15)
 
 	ax.set_xlabel("Number of vehicles sharing destination")
 	ax.set_ylabel("Number of IP messages")
@@ -73,13 +73,13 @@ def processEmergency(directory):
 	lx = np.linspace(min(crashes)- 1, max(crashes) + 1, 1000)
 
 	gp = np.poly1d(np.polyfit(gx, gy, deg=1))
-	ax.plot(lx, gp(lx), color="green", linestyle="dotted", alpha=0.5, label="Linear trend")
-	ax.scatter(gx, gy, color="green", marker="^", alpha=1, label="Groupers")
+	ax.plot(lx, gp(lx), color="green", linestyle="dotted", alpha=0.5, label="Linear trend", zorder=10)
+	ax.scatter(gx, gy, color="green", marker="^", alpha=1, label="Groupers", zorder=15)
 
 
-	popt, cov = scipy.optimize.curve_fit(expfunc, rx, ry)
-	ax.plot(lx, expfunc(lx, *popt), color="red", linestyle="dotted", alpha=0.5, label="Exponential trend")
-	ax.scatter(rx, ry, color="red", marker="v", alpha=1, label="Gossip")
+	popt, cov = scipy.optimize.curve_fit(power, rx, ry)
+	ax.plot(lx, power(lx, *popt), color="red", linestyle="dotted", alpha=0.5, label="Power trend", zorder=10)
+	ax.scatter(rx, ry, color="red", marker="v", alpha=1, label="Gossip", zorder=15)
 
 
 	ax.set_xlabel("Number of accident sites")
